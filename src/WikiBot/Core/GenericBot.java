@@ -1114,7 +1114,6 @@ public class GenericBot extends javax.swing.JPanel {
         }
 
         //LOG IN
-
         String token = null;
         String xmlString = "";
         for (int j = 0; j < 2; j++) {
@@ -1130,17 +1129,19 @@ public class GenericBot extends javax.swing.JPanel {
 	        try {
 				xmlString = EntityUtils.toString(entity);
 				System.out.println(xmlString);
-				log("login: " + xmlString);
 				if (j == 0) {
 					token = parseXMLforInfo("token", xmlString, "\"");
 					log(token);
 				}
 			} catch (org.apache.http.ParseException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }
-        return xmlString.contains("Success");
+        
+        boolean success = xmlString.contains("Success");
+		log("Login status at " + language + ": " + success);
+        
+        return success;
 	}
 	
 	static public String APIcommand(APIcommand command) {
@@ -1290,7 +1291,6 @@ public class GenericBot extends javax.swing.JPanel {
 			
 			return xmlString;
 		} catch (org.apache.http.ParseException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			
 			return null;
@@ -1344,10 +1344,8 @@ public class GenericBot extends javax.swing.JPanel {
 			xmlString = EntityUtils.toString(entity);
 			token = parseXMLforInfo("edittoken", xmlString, "\"");
 		} catch (org.apache.http.ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return token;
@@ -1479,7 +1477,6 @@ public class GenericBot extends javax.swing.JPanel {
 		try {
 			return URLEncoder.encode(url, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "";
 		}
