@@ -18,6 +18,9 @@ public class InterwikiBot extends BotPanel {
 	
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * This is where I initilize my custom bot.
+	 */
 	public InterwikiBot() {
 		super("Scratch");
 		name = "InterwikiBot";
@@ -37,7 +40,9 @@ public class InterwikiBot extends BotPanel {
 		APIlimit = 30;
 	}
 	
-
+	/*
+	 * This is where I put my bot code.
+	 */
 	@Override
 	public void code() {
 		
