@@ -28,7 +28,6 @@ public class InterwikiBot extends BotPanel {
 		panelName = "InterwikiBot";
 		
 		botUsername = "InterwikiBot";
-		botPassword = "****";//Use "****" for Github.
 		
 		myWikiLanguage = "en";
 

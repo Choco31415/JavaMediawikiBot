@@ -8,7 +8,10 @@ import java.awt.Label;
 import java.awt.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
@@ -62,7 +65,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
     
     protected String family = "";//The wiki family.
 	protected String botUsername = "";
-	protected String botPassword = "";
+	protected String botPassword = null;
 	protected boolean loggedIn = false;
 	protected int waitTimeBetweenEdits = 12;
 	protected double statusUpdateWaitTime = 0.05;
@@ -373,10 +376,27 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if ((e.getSource() == logInButton || e.getSource() == logInAllButton) & !loggedIn) {
+			//Build window.
+		    JPasswordField jpf = new JPasswordField(24);//24 is the width, in columns, of the password field.
+		    JLabel jl = new JLabel("Enter bot password:");
+		    Box box = Box.createHorizontalBox();
+		    box.add(jl);
+		    box.add(jpf);
+		    
+		    //Show window asking for password.
+			int button = JOptionPane.showConfirmDialog(null, box, "Password:", JOptionPane.OK_CANCEL_OPTION);
+			
+			//What button was pressed?
+			if (button == JOptionPane.OK_OPTION) {
+				botPassword = new String(jpf.getPassword());
+			} else {
+				return;
+			}
+		}
 		if (e.getSource() == logInButton) {
 			setConsoleText("Attempting login at " + myWikiLanguage);
 			logInAt(myWikiLanguage);
-			loggedIn = true;
 			printLog();
 		} else if (e.getSource() == logInAllButton) {
 		    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -393,7 +413,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    };
 
 		    worker.execute();
-			loggedIn = true;
 		}
 		
 		if (e.getSource() == exitButton){
