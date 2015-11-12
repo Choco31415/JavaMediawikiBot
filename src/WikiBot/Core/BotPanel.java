@@ -66,7 +66,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
     protected String family = "";//The wiki family.
 	protected String botUsername = "";
 	protected String botPassword = null;
-	protected boolean loggedIn = false;
 	protected int waitTimeBetweenEdits = 12;
 	protected double statusUpdateWaitTime = 0.05;
     
@@ -75,8 +74,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	protected boolean pausedPushing = false;
 	private int errorCounter = 0;
 	private int errorMessageLifeSpan = 5;
-	
-	ArrayList<String> loggedInAt = new ArrayList<String>();
 	
 	SwingWorker<Void, Void> pushWorker;
 	
@@ -376,7 +373,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((e.getSource() == logInButton || e.getSource() == logInAllButton) & !loggedIn) {
+		if ((e.getSource() == logInButton || e.getSource() == logInAllButton) & loggedInAtLanguages.size() == 0) {
 			//Build window.
 		    JPasswordField jpf = new JPasswordField(24);//24 is the width, in columns, of the password field.
 		    JLabel jl = new JLabel("Enter bot password:");
@@ -463,7 +460,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 			}
 		} else if (e.getSource() == pushButton){
 			if (!pushingChanges) {
-				if (loggedIn) {
+				if (loggedInAtLanguages.size() != 0) {
 					pushChanges();
 				} else {
 					setConsoleText("Please log in to push changes.");
@@ -489,15 +486,10 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	public void logInAt(String languageCode) {
 		//TODO: Log in at every wiki!!!
 
-		loggedIn = logIn(botUsername, botPassword, languageCode);
+		boolean success = logIn(botUsername, botPassword, languageCode);
 		
-		if (loggedIn) {
+		if (success) {
 			setConsoleText("Logged in at: " + languageCode);
-			
-			String lan = languageCode;
-			if (!loggedInAt.contains(lan)) {
-				loggedInAt.add(lan);
-			}
 		} else {
 			setConsoleText("Log in failed at: " + languageCode);
 			logError("Log in failed at: " + languageCode);

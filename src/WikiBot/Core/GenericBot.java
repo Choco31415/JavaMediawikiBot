@@ -55,8 +55,8 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	protected static String baseURL = "http://wiki.scratch.mit.edu/w";
 	
-	protected static boolean printPageDownloads;
 	protected static int numErrors = 0;
+	protected static ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
 	
     private static HttpClient httpclient;
 	private static HttpClientContext context;
@@ -65,6 +65,7 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static int APIlimit = 10;//The [hard] maximum items per query call. 
 	protected static int revisionDepth = 10;//The number of revisions to include per page.
 	protected static boolean getRevisionContent = false;//When getting a page, should previous page content be queried?
+	protected static boolean printPageDownloads;//Should the bot log page downloads?
 	
 	public GenericBot() {
 		//Read in some files.
@@ -1141,6 +1142,10 @@ public class GenericBot extends javax.swing.JPanel {
         boolean success = xmlString.contains("Success");
 		log("Login status at " + language + ": " + success);
         
+		if (success) {
+			loggedInAtLanguages.add(language);
+		}
+		
         return success;
 	}
 	
