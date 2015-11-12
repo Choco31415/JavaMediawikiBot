@@ -11,6 +11,8 @@ import WikiBot.APIcommands.Query.QueryCategoryMembers;
 import WikiBot.APIcommands.Query.QueryImageURL;
 import WikiBot.APIcommands.Query.QueryList;
 import WikiBot.APIcommands.Query.QueryRecentChanges;
+import WikiBot.Content.Page;
+import WikiBot.Content.PageLocation;
 import WikiBot.Core.BotPanel;
 
 @SuppressWarnings("unused")
@@ -26,7 +28,7 @@ public class InterwikiBot extends BotPanel {
 		panelName = "InterwikiBot";
 		
 		botUsername = "InterwikiBot";
-		botPassword = "****";//Use "****" for Github.
+		botPassword = "flutterPi2";//Use "****" for Github.
 		
 		myWikiLanguage = "en";
 
@@ -44,6 +46,7 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
+		proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
 		/*ArrayList<String> ignore = new ArrayList<String>();
 		ignore.add("Category:Users' Images");

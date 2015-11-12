@@ -319,7 +319,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	public ArrayList<Page> getWikiPagesBatch(ArrayList<PageLocation> pls) {
 		
 		if (pls.size() == 0) {
-			//System.out.println("um");
 			throw new Error();
 		}
 		
@@ -531,7 +530,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	 * @param edit The APIcommand that you are proposing.
 	 * @param displayedAction A very short command summary. It should preferably be one or two words at most. It is used in the graphical edit lists. 
 	 */
-	int test = 0;
 	public void proposeEdit(APIcommand edit, String displayedAction) {
 		if (!proposedEdits.contains(edit) && !acceptedEdits.contains(edit) && (proposedEdits.size() < maxProposedEdits || maxProposedEdits <= -1)) {
 			proposedEdits.add(0, edit);
