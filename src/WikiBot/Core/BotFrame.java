@@ -11,7 +11,7 @@ public class BotFrame {
     private static void createAndShowUI() {
 
        myPanel = new InterwikiBot();
-       JFrame frame = new JFrame(myPanel.getName());
+       JFrame frame = new JFrame(myPanel.getPanelName());
        frame.setSize(100, 100);
        frame.setResizable(false);
        frame.getContentPane().add(myPanel);

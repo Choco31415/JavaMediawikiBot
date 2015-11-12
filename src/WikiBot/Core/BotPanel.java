@@ -31,7 +31,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 
 	protected static final long serialVersionUID = 1L;
 	
-	protected String name = "Bot Panel";
+	protected String panelName = "Bot Panel";
 	
 	protected final int WIDTH = 600;
 	protected final int HEIGHT = 550;
@@ -57,8 +57,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	protected static Label infoBox;
 	protected List interwikiList;
     
-    protected String myWikiPrefix = "en:";
-    protected String myWikiURL = "http://wiki.scratch.mit.edu/w";
+    protected String myWikiLanguage = "en";
     protected int maxProposedEdits = -1;//The largest number of changes proposed per "run".
     
     protected String family = "";//The wiki family.
@@ -376,8 +375,8 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == logInButton) {
-			setConsoleText("Attempting login at " + myWikiPrefix);
-			logInAt(myWikiPrefix);
+			setConsoleText("Attempting login at " + myWikiLanguage);
+			logInAt(myWikiLanguage);
 			loggedIn = true;
 			printLog();
 		} else if (e.getSource() == logInAllButton) {
@@ -581,7 +580,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	
 	public int getWidth() { return WIDTH; }
 	public int getHeight() { return HEIGHT; }
-	public String getName() { return name; }
+	public String getPanelName() { return panelName; }
 	
 	public void sleep(double time) {
 		try {

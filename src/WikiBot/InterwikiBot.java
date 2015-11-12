@@ -19,17 +19,16 @@ public class InterwikiBot extends BotPanel {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * This is where I initilize my custom bot.
+	 * This is where I initialize my custom bot.
 	 */
 	public InterwikiBot() {
 		super("Scratch");
-		name = "InterwikiBot";
+		panelName = "InterwikiBot";
 		
 		botUsername = "InterwikiBot";
 		botPassword = "abcd";
 		
-		myWikiURL = getWikiURL("en");
-		baseURL = getWikiURL("en");
+		myWikiLanguage = "en";
 
 		/*lastCheckedPage = readFileAsList("/Last Page Read.txt", 0, false, true).get(0);
 
