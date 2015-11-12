@@ -1,0 +1,13 @@
+#This page contains opening and closing codes for text that should not be parsed as Mediawiki code.
+#For example: [[Scratch Cat]]<!--[[Scratch Cat]]-->
+#The first link will be parsed.
+#The second will not.
+
+<!--
+-->
+<pre>
+</pre>
+<scratchblocks>
+</scratchblocks>
+<nowiki>
+</nowiki>

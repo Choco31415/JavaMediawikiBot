@@ -1,0 +1,8 @@
+en: http://wiki.scratch.mit.edu/w
+de: http://scratch-dach.info/w
+id: http://scratch-indo.info/w
+ru: http://scratch-ru.info/w
+ja: http://jp.scratch-wiki.info/w
+hu: http://hu.scratch-wiki.info/w
+nl: http://nl.scratch-wiki.info/w
+test: http://test.scratch-wiki.info/w

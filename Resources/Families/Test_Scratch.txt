@@ -1,0 +1,2 @@
+en: http://192.168.1.108/mediawiki
+de: http://192.168.1.108/mediawiki_dach
