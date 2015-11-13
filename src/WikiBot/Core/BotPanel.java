@@ -375,18 +375,18 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	public void actionPerformed(ActionEvent e) {
 		if ((e.getSource() == logInButton || e.getSource() == logInAllButton) & loggedInAtLanguages.size() == 0) {
 			//Build window.
-		    JPasswordField jpf = new JPasswordField(24);//24 is the width, in columns, of the password field.
-		    JLabel jl = new JLabel("Enter bot password:");
+		    JPasswordField passwordField = new JPasswordField(24);//24 is the width, in columns, of the password field.
+		    JLabel label = new JLabel("Enter bot password:");
 		    Box box = Box.createHorizontalBox();
-		    box.add(jl);
-		    box.add(jpf);
+		    box.add(label);
+		    box.add(passwordField);
 		    
 		    //Show window asking for password.
 			int button = JOptionPane.showConfirmDialog(null, box, "Password:", JOptionPane.OK_CANCEL_OPTION);
 			
 			//What button was pressed?
 			if (button == JOptionPane.OK_OPTION) {
-				botPassword = new String(jpf.getPassword());
+				botPassword = new String(passwordField.getPassword());
 			} else {
 				return;
 			}

@@ -8,15 +8,9 @@ public class Revision extends PageLocationContainer {
 	private Date date;
 	private String page = null;
 	
+	//TODO: Add revision status. Ex: minor, bot
 	public Revision(PageLocation pl_, String user_, String comment_, Date date_) {
 		super(pl_);
-		user = user_;
-		comment = comment_;
-		date = date_;
-	}
-	
-	public Revision(String title_, String lan_, String user_, String comment_, Date date_) {
-		super(title_, lan_);
 		user = user_;
 		comment = comment_;
 		date = date_;
