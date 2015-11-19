@@ -39,6 +39,10 @@ public class Category extends PageObject {
 		return categoryName;
 	}
 	
+	public String getCategoryNameWithoutNameSpace() {
+		return categoryName.substring(9);
+	}
+	
 	public String getAlternateCategoryListing() { return alternateCategoryListing; }
 	
 	@Override

@@ -7,13 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import WikiBot.APIcommands.*;
-import WikiBot.APIcommands.Query.QueryBackLinks;
-import WikiBot.APIcommands.Query.QueryCategoryMembers;
-import WikiBot.APIcommands.Query.QueryImageURL;
-import WikiBot.APIcommands.Query.QueryList;
-import WikiBot.APIcommands.Query.QueryRecentChanges;
-import WikiBot.Content.Page;
-import WikiBot.Content.PageLocation;
+import WikiBot.Content.*;
 import WikiBot.Core.BotPanel;
 
 @SuppressWarnings("unused")
@@ -48,8 +42,11 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		Page page = getWikiPage(new PageLocation("Scratch Cat", "en"));
-		System.out.println(page);
+		Page page = getWikiPage(new PageLocation("User:ErnieParke/TestWikiBots", "en"));
+		ArrayList<Link> pos = page.getLinks();
+		for (Link object: pos) {
+			System.out.println(object);
+		}
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
 		/*ArrayList<String> ignore = new ArrayList<String>();

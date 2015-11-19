@@ -20,9 +20,6 @@ public class Page extends SimplePage {
 	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
 	private ArrayList<Revision> revisions = new ArrayList<Revision>();
 	
-	//Used for parsing purposes
-	MediawikiDataManager mdm = GenericBot.mdm;
-	
 	public Page(String title_, int pageID_, String lan_) {
 		super(title_, lan_, pageID_);
 	}
@@ -139,6 +136,26 @@ public class Page extends SimplePage {
 		return pageObjects.size();
 	}
 	
+	public int getNumPageObjectsOfType(String objectType) {
+		int count = 0;
+		for (PageObjectAdvanced object: pageObjects) {
+			if (object.getObjectType().equalsIgnoreCase(objectType)) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public int getNumPageObjectsByHeader(String header) {
+		int count = 0;
+		for (PageObjectAdvanced object: pageObjects) {
+			if (object.getHeader().equalsIgnoreCase(header)) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	public PageObjectAdvanced getPageObject(int index) {
 		return pageObjects.get(index);
 	}
@@ -165,6 +182,39 @@ public class Page extends SimplePage {
 		return pageObjects;
 	}
 	
+	public ArrayList<ExternalLink> getExternalLinks() {
+		return getPageObjects(ExternalLink.class);
+	}
+	
+	public ArrayList<Link> getLinks() {
+		return getPageObjects(Link.class);
+	}
+	
+	public ArrayList<Image> getImages() {
+		return getPageObjects(Image.class);
+	}
+	
+	public ArrayList<Template> getTemplates() {
+		return getPageObjects(Template.class);
+	}
+	
+	/**
+	 * @param objectType A class that extends PageObjectAdvanced.
+	 * @return A list of all page objects of the {@objectType} class.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends PageObjectAdvanced> ArrayList<T> getPageObjects(Class<T> objectType) {
+		ArrayList<T> toReturn = new ArrayList<T>();
+		
+		for (PageObjectAdvanced object : pageObjects) {
+			if (objectType.isAssignableFrom(object.getClass())) {
+				toReturn.add((T)object);
+			}
+		}
+		
+		return toReturn;
+	}
+	
 	//Category methods
 	public boolean containsCategory(String category) {
 		if (category.length() > 9 && category.substring(0,9).equals("Category:")) {
@@ -178,11 +228,22 @@ public class Page extends SimplePage {
 		return false;
 	}
 	
-	public Category getCategory(int index) {
-		return categories.get(index);
+	/**
+	 * @param name The name of the category. It accepts Category:CatName and CatName.
+	 * @return The category that has name {@name}.
+	 */
+	public Category getCategory(String name) {
+		PageTitle category = new PageTitle(name);
+		for (Category cat : categories) {
+			if (cat.getCategoryNameWithoutNameSpace().equalsIgnoreCase(category.getTitleWithoutNameSpace())) {
+				return cat;
+			}
+		}
+		return null;
 	}
 	
 	public int getNumCategories() { return categories.size(); }
+	public Category getCategory(int index) { return categories.get(index); }
 	
 	//Interwiki methods
 	public boolean containsInterwiki(String language) {
@@ -301,8 +362,8 @@ public class Page extends SimplePage {
 		parseTextForPageObjects(rawText, 0, 0);
 	}
 	
-	private ArrayList<PageObject> parseTextForPageObjects(String text, int pos, int depth) {
-		ArrayList<PageObject> output = new ArrayList<PageObject>();
+	private ArrayList<PageObjectAdvanced> parseTextForPageObjects(String text, int pos, int depth) {
+		ArrayList<PageObjectAdvanced> output = new ArrayList<PageObjectAdvanced>();
 		
 		int lastOpenIndex;
 		int openIndex = -1;
@@ -348,7 +409,7 @@ public class Page extends SimplePage {
 					if (objectID == 0) {
 						//{{
 						//Check that we have a valid template.
-						for (String ignore : mdm.TemplateIgnore) {
+						for (String ignore : MediawikiDataManager.TemplateIgnore) {
 							if (header.length() >= ignore.length() && header.substring(0, ignore.length()).equalsIgnoreCase(ignore)) {
 								openIndex += ignore.length();
 								break objectParse;
@@ -374,7 +435,7 @@ public class Page extends SimplePage {
 							break objectParse;
 						} else {
 							//Check for interwiki
-							for (String iw: mdm.Interwiki) {
+							for (String iw: MediawikiDataManager.Interwiki) {
 								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
 									interwikis.add(new Interwiki(header.substring(iw.length()+1).trim(), iw, openIndex+pos, outerCloseIndex+pos));
 									
@@ -404,7 +465,7 @@ public class Page extends SimplePage {
 						}
 					}
 					
-					ArrayList<PageObject> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);//Page objects within the current page object.
+					ArrayList<PageObjectAdvanced> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);//Page objects within the current page object.
 					
 					//Resolve link/template disambiguates
 					if (isLink && GenericBot.parseThurough) {
@@ -532,8 +593,8 @@ public class Page extends SimplePage {
 		int lowest;//Earliest occurrence of MW escaped text.
 		int end = -1;//Last found MW escaped text close.
 		
-		ArrayList<String> MWEscapeOpenText = mdm.MWEscapeOpenText;
-		ArrayList<String> MWEscapeCloseText = mdm.MWEscapeCloseText;
+		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
+		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
 		
 		do {
 			cursor = end;
