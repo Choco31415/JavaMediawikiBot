@@ -216,12 +216,10 @@ public class Page extends SimplePage {
 	}
 	
 	//Category methods
-	public boolean containsCategory(String category) {
-		if (category.length() > 9 && category.substring(0,9).equals("Category:")) {
-			category = category.substring(9);
-		}
+	public boolean containsCategory(String name) {
+		String categoryName = (new PageTitle(name)).getTitleWithoutNameSpace();
 		for (int i = 0; i < categories.size(); i++) {
-			if ((categories.get(i).getCategoryName()).equals(category)) {
+			if ((categories.get(i).getCategoryName()).equalsIgnoreCase(categoryName)) {
 				return true;
 			}
 		}
@@ -233,9 +231,9 @@ public class Page extends SimplePage {
 	 * @return The category that has name {@name}.
 	 */
 	public Category getCategory(String name) {
-		PageTitle category = new PageTitle(name);
+		String categoryName = (new PageTitle(name)).getTitleWithoutNameSpace();
 		for (Category cat : categories) {
-			if (cat.getCategoryNameWithoutNameSpace().equalsIgnoreCase(category.getTitleWithoutNameSpace())) {
+			if (cat.getCategoryNameWithoutNameSpace().equalsIgnoreCase(categoryName)) {
 				return cat;
 			}
 		}
