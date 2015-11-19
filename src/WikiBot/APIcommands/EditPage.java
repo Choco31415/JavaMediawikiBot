@@ -1,6 +1,6 @@
 package WikiBot.APIcommands;
 
-import WikiBot.PageRep.PageLocation;
+import WikiBot.ContentRep.PageLocation;
 
 public class EditPage extends APIcommand {
 	

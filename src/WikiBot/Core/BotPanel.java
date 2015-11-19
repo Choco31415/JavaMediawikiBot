@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import javax.swing.Box;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.PageRep.Interwiki;
-import WikiBot.PageRep.Page;
-import WikiBot.PageRep.PageLocation;
-import WikiBot.PageRep.Template;
+import WikiBot.ContentRep.Interwiki;
+import WikiBot.ContentRep.Page;
+import WikiBot.ContentRep.PageLocation;
+import WikiBot.ContentRep.Template;
 
 public abstract class BotPanel extends GenericBot implements ActionListener, Runnable {
 
@@ -61,7 +61,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	protected List interwikiList;
     
     protected String myWikiLanguage = "en";
-    protected int maxProposedEdits = -1;//The largest number of changes proposed per "run".
+    protected int maxProposedEdits = -1;//The largest number of changes proposed per "run". -1 for no max.
     
     protected String family = "";//The wiki family.
 	protected String botUsername = "";

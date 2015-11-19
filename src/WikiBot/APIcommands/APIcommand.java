@@ -2,8 +2,8 @@ package WikiBot.APIcommands;
 
 import java.util.ArrayList;
 
-import WikiBot.PageRep.PageLocation;
-import WikiBot.PageRep.PageLocationContainer;
+import WikiBot.ContentRep.PageLocation;
+import WikiBot.ContentRep.PageLocationContainer;
 
 public class APIcommand extends PageLocationContainer {
 	

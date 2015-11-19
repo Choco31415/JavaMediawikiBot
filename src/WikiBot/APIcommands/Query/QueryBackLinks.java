@@ -1,6 +1,6 @@
 package WikiBot.APIcommands.Query;
 
-import WikiBot.PageRep.PageLocation;
+import WikiBot.ContentRep.PageLocation;
 
 public class QueryBackLinks extends QueryList {
 

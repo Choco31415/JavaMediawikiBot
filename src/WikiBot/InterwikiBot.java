@@ -7,8 +7,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import WikiBot.APIcommands.*;
+import WikiBot.ContentRep.*;
 import WikiBot.Core.BotPanel;
-import WikiBot.PageRep.*;
 
 @SuppressWarnings("unused")
 public class InterwikiBot extends BotPanel {

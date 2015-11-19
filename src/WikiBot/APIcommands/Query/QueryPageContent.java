@@ -3,7 +3,7 @@ package WikiBot.APIcommands.Query;
 import java.util.ArrayList;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.PageRep.PageLocation;
+import WikiBot.ContentRep.PageLocation;
 
 public class QueryPageContent extends APIcommand {	
 	public QueryPageContent(PageLocation loc) {

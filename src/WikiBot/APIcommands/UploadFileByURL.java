@@ -1,6 +1,6 @@
 package WikiBot.APIcommands;
 
-import WikiBot.PageRep.PageLocation;
+import WikiBot.ContentRep.PageLocation;
 
 /**
  * This requires $wgAllowCopyUploads = true in

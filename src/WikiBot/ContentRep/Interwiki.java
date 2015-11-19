@@ -1,4 +1,4 @@
-package WikiBot.PageRep;
+package WikiBot.ContentRep;
 
 
 public class Interwiki extends PageLocationContainer {
