@@ -1,4 +1,4 @@
-package WikiBot.Content;
+package WikiBot.PageRep;
 
 /**
  * This class is used to represent various features of a page.

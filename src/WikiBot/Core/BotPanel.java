@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import javax.swing.Box;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.Content.Interwiki;
-import WikiBot.Content.Page;
-import WikiBot.Content.PageLocation;
-import WikiBot.Content.Template;
+import WikiBot.PageRep.Interwiki;
+import WikiBot.PageRep.Page;
+import WikiBot.PageRep.PageLocation;
+import WikiBot.PageRep.Template;
 
 public abstract class BotPanel extends GenericBot implements ActionListener, Runnable {
 
@@ -289,14 +289,14 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 				//Are we paused?
 				if (!pausedPushing) {
 					for (int time = 0; time < waitTimeBetweenEdits && !pausedPushing; time++) {
-						sleep(1);
+						sleepInSeconds(1);
 					}
 				}
 				
 				if (pausedPushing) {
 					setConsoleText(baseMessage + " | Paused.");
 					do { 
-						sleep(1);
+						sleepInSeconds(1);
 					} while (pausedPushing);
 				}
 			}

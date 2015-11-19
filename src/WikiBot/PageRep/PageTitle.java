@@ -1,4 +1,4 @@
-package WikiBot.Content;
+package WikiBot.PageRep;
 
 /**
  * This class takes in an article title and parses it into: namespace, Page Name (without namespace)

@@ -1,4 +1,4 @@
-package WikiBot.Content;
+package WikiBot.MediawikiData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,15 +8,15 @@ import java.util.ArrayList;
 
 /**
  * This class stores various Mediawiki data.
- * Its methods and contents are static so as to have all classes have access to the same data manager.
+ * Its methods and contents are static and public so as to have all classes have access to the same data manager.
  */
 public class MediawikiDataManager {
 
-	protected static ArrayList<String> Interwiki = new ArrayList<String>();
-	protected static ArrayList<String> InterwikiURL = new ArrayList<String>();
-	protected static ArrayList<String> TemplateIgnore = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
+	public static ArrayList<String> Interwiki = new ArrayList<String>();
+	public static ArrayList<String> InterwikiURL = new ArrayList<String>();
+	public static ArrayList<String> TemplateIgnore = new ArrayList<String>();
+	public static ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
+	public static ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
 	
 	public MediawikiDataManager() {
 		ArrayList<String> temp = readFileAsList("/MWEscapeTexts.txt", 0, "#", true, true);

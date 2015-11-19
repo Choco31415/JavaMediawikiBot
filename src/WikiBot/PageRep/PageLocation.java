@@ -1,4 +1,4 @@
-package WikiBot.Content;
+package WikiBot.PageRep;
 
 
 public class PageLocation extends PageTitleContainer {

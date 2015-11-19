@@ -1,7 +1,7 @@
 package WikiBot.APIcommands.Query;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.Content.PageLocation;
+import WikiBot.PageRep.PageLocation;
 
 public class QueryImageURL extends APIcommand {
 	public QueryImageURL(PageLocation loc) {

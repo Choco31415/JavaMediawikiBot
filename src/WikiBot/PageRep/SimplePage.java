@@ -1,4 +1,4 @@
-package WikiBot.Content;
+package WikiBot.PageRep;
 
 
 /**

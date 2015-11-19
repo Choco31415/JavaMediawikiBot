@@ -28,11 +28,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
-import WikiBot.Content.MediawikiDataManager;
-import WikiBot.Content.Page;
-import WikiBot.Content.PageLocation;
-import WikiBot.Content.Revision;
-import WikiBot.Content.SimplePage;
+import WikiBot.MediawikiData.MediawikiDataManager;
+import WikiBot.PageRep.Page;
+import WikiBot.PageRep.PageLocation;
+import WikiBot.PageRep.Revision;
+import WikiBot.PageRep.SimplePage;
 
 /**
  * Generic Bot is the parent of every other bot.

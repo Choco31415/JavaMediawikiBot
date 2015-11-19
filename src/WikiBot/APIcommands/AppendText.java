@@ -1,6 +1,6 @@
 package WikiBot.APIcommands;
 
-import WikiBot.Content.PageLocation;
+import WikiBot.PageRep.PageLocation;
 
 public class AppendText extends APIcommand {
 	public AppendText(PageLocation pl_, String appendText_, String editSummary_) {

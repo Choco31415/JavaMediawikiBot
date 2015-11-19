@@ -1,8 +1,15 @@
-package WikiBot.Content;
+package WikiBot.PageRep;
+
+import java.util.ArrayList;
 
 public class Template extends PageObjectAdvanced {
 	
 	String templateName;
+	
+	public Template(int openPos_, int closePos_, String pageTitle_, String rawTemplateText_, ArrayList<PageObjectAdvanced> pageObjects_, ArrayList<String> parameters_) {
+		super("Template", rawTemplateText_, openPos_, closePos_, parameters_, pageObjects_, "{{", "}}");
+		setTemplateName(pageTitle_, rawTemplateText_);
+	}
 	
 	public Template(int openPos_, int closePos_, String pageTitle_, String rawTemplateText_) {
 		super("Template", rawTemplateText_, openPos_, closePos_, "{{", "}}");
