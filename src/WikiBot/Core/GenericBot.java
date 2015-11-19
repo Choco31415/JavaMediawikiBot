@@ -40,14 +40,17 @@ import WikiBot.Content.SimplePage;
 public class GenericBot extends javax.swing.JPanel {
 	
 	protected static final long serialVersionUID = 1L;
+	
 	protected static MediawikiDataManager mdm;
-	protected static ArrayList<String> log = new ArrayList<String>();
 	protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
-	protected static String baseURL = "http://wiki.scratch.mit.edu/w";
+	protected static String baseURL = "http://wiki.scratch.mit.edu/w";//The url on which the bot is currently operating.
 	
-	protected static int numErrors = 0;
+	//These variables keep track of data concerning the status of the bot.
 	protected static ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
+	protected static ArrayList<String> log = new ArrayList<String>();
+	protected static int numErrors = 0;
 	
+	//These variables are used for networking purposes (GET and POST requests).
     private static HttpClient httpclient;
 	private static HttpClientContext context;
 
@@ -959,10 +962,6 @@ public class GenericBot extends javax.swing.JPanel {
 		log.add("ERROR: " + line);
 	}
 	
-	static public ArrayList<String> getLog() {
-		return log;
-	}
-	
 	static public void printLog() {
 		System.out.println("Log:");
 		for (int i = 0; i < log.size(); i++) {
@@ -978,15 +977,15 @@ public class GenericBot extends javax.swing.JPanel {
 		return temp;
 	}
 	
-	static public void setPPD(boolean boon) {
-		logPageDownloads = boon;
-	}
-	
 	static public void pageDownloaded(String name) {
 		log(baseURL + " // " + name + " is downloaded.");
 	}
 	
 	static public void pageDownloaded(String name, String name2) {
 		log(baseURL + " // " + name + " through " + name2 + " is downloaded.");
+	}
+	
+	static public ArrayList<String> getLog() {
+		return log;
 	}
 }

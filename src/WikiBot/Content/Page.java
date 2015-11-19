@@ -7,6 +7,8 @@ import WikiBot.Core.GenericBot;
 /**
  * Page is a custom class designed to store Wiki pages.
  * It includes several functions to edit, replace, and view specific article contents.
+ * 
+ * The class is organized into two parts. The first half is useful methods. The second half is parsing code used to generate class data.
  */
 public class Page extends SimplePage {
 	

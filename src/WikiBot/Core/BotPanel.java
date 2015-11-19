@@ -87,8 +87,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		
 		setSize(WIDTH, HEIGHT);
 		
-		setPPD(true);
-		
 	    // Read more data into mdm.
 		mdm.readFamily(family_, 0);
 		
