@@ -174,7 +174,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    SwingWorker<Void, Void> runWorker = new SwingWorker<Void, Void>() {
 		        @Override
 		        public Void doInBackground() {
-		        	//code();
+		        	code();
 		        	
 		            return null;
 		        }
@@ -187,7 +187,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		        }
 		    };
 		    
-		    code();
+		    //code();
 		    runWorker.execute();
 		} else {
 			setConsoleText("To continue, review some proposed edits.");
