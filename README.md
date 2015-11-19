@@ -4,4 +4,4 @@ Useful bot methods and bot settings may be found in src/WikiBot/core/GenericBot.
 
 Tips:
 * To propose an edit, use ProposeEdit(APIcommand command).
-* To automatically push a command, use ProposeEdit(APIcommand command).
+* To automatically push a command, use APIcommand(APIcommand command).
