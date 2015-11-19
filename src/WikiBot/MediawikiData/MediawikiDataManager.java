@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 /**
  * This class stores various Mediawiki data.
- * Its methods and contents are static and public so as to have all classes have access to the same data manager.
+ * To allow access from any class, its contents are static and public.
  */
 public class MediawikiDataManager {
 
