@@ -12,11 +12,11 @@ import java.util.ArrayList;
  */
 public class MediawikiDataManager {
 
-	protected static ArrayList<String> Interwiki = new ArrayList<String>();
-	protected static ArrayList<String> InterwikiURL = new ArrayList<String>();
-	protected static ArrayList<String> TemplateIgnore = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
+	protected ArrayList<String> Interwiki = new ArrayList<String>();
+	protected ArrayList<String> InterwikiURL = new ArrayList<String>();
+	protected ArrayList<String> TemplateIgnore = new ArrayList<String>();
+	protected ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
+	protected ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
 	
 	public MediawikiDataManager() {
 		ArrayList<String> temp = readFileAsList("/MWEscapeTexts.txt", 0, "#", true, true);
@@ -47,23 +47,23 @@ public class MediawikiDataManager {
 		}
 	}
 	
-	public final ArrayList<String> getInterwiki() {
+	public ArrayList<String> getInterwiki() {
 		return Interwiki;
 	}
 	
-	public final ArrayList<String> getInterwikiURL() {
+	public ArrayList<String> getInterwikiURL() {
 		return InterwikiURL;
 	}
 	
-	public final ArrayList<String> getTemplateIgnore() {
+	public ArrayList<String> getTemplateIgnore() {
 		return TemplateIgnore;
 	}
 	
-	public final ArrayList<String> getMWEscapeOpenText() {
+	public ArrayList<String> getMWEscapeOpenText() {
 		return MWEscapeOpenText;
 	}
 	
-	public final ArrayList<String> getMWEscapeCloseText() {
+	public ArrayList<String> getMWEscapeCloseText() {
 		return MWEscapeCloseText;
 	}
 	

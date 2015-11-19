@@ -41,7 +41,7 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	protected static final long serialVersionUID = 1L;
 	
-	protected static MediawikiDataManager mdm;
+	public static MediawikiDataManager mdm;
 	protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	protected static String baseURL = "http://wiki.scratch.mit.edu/w";//The url on which the bot is currently operating.
 	

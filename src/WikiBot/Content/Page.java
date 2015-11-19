@@ -12,12 +12,16 @@ import WikiBot.Core.GenericBot;
  */
 public class Page extends SimplePage {
 	
+	//Page data
 	private ArrayList<Integer> linePositions = new ArrayList<Integer>();
 	private ArrayList<Section> sections = new ArrayList<Section>();
 	private ArrayList<PageObjectAdvanced> pageObjects = new ArrayList<PageObjectAdvanced>();
 	private ArrayList<Category> categories = new ArrayList<Category>();
 	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
 	private ArrayList<Revision> revisions = new ArrayList<Revision>();
+	
+	//Used for parsing purposes
+	MediawikiDataManager mdm = GenericBot.mdm;
 	
 	public Page(String title_, int pageID_, String lan_) {
 		super(title_, lan_, pageID_);
@@ -344,7 +348,7 @@ public class Page extends SimplePage {
 					if (objectID == 0) {
 						//{{
 						//Check that we have a valid template.
-						for (String ignore : MediawikiDataManager.TemplateIgnore) {
+						for (String ignore : mdm.TemplateIgnore) {
 							if (header.length() >= ignore.length() && header.substring(0, ignore.length()).equalsIgnoreCase(ignore)) {
 								openIndex += ignore.length();
 								break objectParse;
@@ -370,7 +374,7 @@ public class Page extends SimplePage {
 							break objectParse;
 						} else {
 							//Check for interwiki
-							for (String iw: MediawikiDataManager.Interwiki) {
+							for (String iw: mdm.Interwiki) {
 								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
 									interwikis.add(new Interwiki(header.substring(iw.length()+1).trim(), iw, openIndex+pos, outerCloseIndex+pos));
 									
@@ -528,8 +532,8 @@ public class Page extends SimplePage {
 		int lowest;//Earliest occurrence of MW escaped text.
 		int end = -1;//Last found MW escaped text close.
 		
-		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
-		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
+		ArrayList<String> MWEscapeOpenText = mdm.MWEscapeOpenText;
+		ArrayList<String> MWEscapeCloseText = mdm.MWEscapeCloseText;
 		
 		do {
 			cursor = end;
