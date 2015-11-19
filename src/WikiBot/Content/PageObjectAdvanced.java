@@ -97,6 +97,14 @@ public abstract class PageObjectAdvanced extends PageObject {
 		return pageObjects;
 	}
 	
+	public ArrayList<PageObjectAdvanced> getAllPageObjectsRecursive() {
+		ArrayList<PageObjectAdvanced> toReturn = pageObjects;
+		for (PageObjectAdvanced poa : pageObjects) {
+			toReturn.addAll(poa.getAllPageObjectsRecursive());
+		}
+		return toReturn;
+	}
+	
 	public String getParameter(int index) {
 		return parameters.get(index);
 	}

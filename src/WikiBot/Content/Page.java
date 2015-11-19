@@ -9,13 +9,17 @@ import WikiBot.Core.GenericBot;
  * It includes several functions to edit, replace, and view specific article contents.
  * 
  * The class is organized into two parts. The first half is useful methods. The second half is parsing code used to generate class data.
+ * 
+ * Page data, specifically that stored in the arraylist pageObjects, is stored in a tree hierarchy.
+ * Example: A link is stored within a template, which is stored within a template.
+ * All methods in this class, unless recursive, only access first level objects.
  */
 public class Page extends SimplePage {
 	
 	//Page data
 	private ArrayList<Integer> linePositions = new ArrayList<Integer>();
 	private ArrayList<Section> sections = new ArrayList<Section>();
-	private ArrayList<PageObjectAdvanced> pageObjects = new ArrayList<PageObjectAdvanced>();
+	private ArrayList<PageObjectAdvanced> pageObjects = new ArrayList<PageObjectAdvanced>();//Templates, links, more
 	private ArrayList<Category> categories = new ArrayList<Category>();
 	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
 	private ArrayList<Revision> revisions = new ArrayList<Revision>();
@@ -182,20 +186,68 @@ public class Page extends SimplePage {
 		return pageObjects;
 	}
 	
+	public ArrayList<PageObjectAdvanced> getAllPageObjectsRecursive() {
+		ArrayList<PageObjectAdvanced> toReturn = pageObjects;
+		for (PageObjectAdvanced poa : pageObjects) {
+			toReturn.addAll(poa.getAllPageObjectsRecursive());
+		}
+		return toReturn;
+	}
+	
+	/**
+	 * Only get top level external links.
+	 */
 	public ArrayList<ExternalLink> getExternalLinks() {
 		return getPageObjects(ExternalLink.class);
 	}
 	
+	/**
+	 * Get all external links.
+	 */
+	public ArrayList<ExternalLink> getExternalLinksRecursive() {
+		return getPageObjectsRecursive(ExternalLink.class);
+	}
+	
+	/**
+	 * Only get top level links.
+	 */
 	public ArrayList<Link> getLinks() {
 		return getPageObjects(Link.class);
 	}
 	
+	/**
+	 * Get all links.
+	 */
+	public ArrayList<Link> getLinksRecursive() {
+		return getPageObjectsRecursive(Link.class);
+	}
+	
+	/**
+	 * Only get top level images.
+	 */
 	public ArrayList<Image> getImages() {
 		return getPageObjects(Image.class);
 	}
 	
+	/**
+	 * Get all images.
+	 */
+	public ArrayList<Image> getImagesRecursive() {
+		return getPageObjectsRecursive(Image.class);
+	}
+	
+	/**
+	 * Only get top level templates.
+	 */
 	public ArrayList<Template> getTemplates() {
 		return getPageObjects(Template.class);
+	}
+	
+	/**
+	 * Get all templates.
+	 */
+	public ArrayList<Template> getTemplatesRecursive() {
+		return getPageObjectsRecursive(Template.class);
 	}
 	
 	/**
@@ -207,6 +259,23 @@ public class Page extends SimplePage {
 		ArrayList<T> toReturn = new ArrayList<T>();
 		
 		for (PageObjectAdvanced object : pageObjects) {
+			if (objectType.isAssignableFrom(object.getClass())) {
+				toReturn.add((T)object);
+			}
+		}
+		
+		return toReturn;
+	}
+	
+	/**
+	 * @param objectType A class that extends PageObjectAdvanced.
+	 * @return A list of all page objects of the {@objectType} class.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends PageObjectAdvanced> ArrayList<T> getPageObjectsRecursive(Class<T> objectType) {
+		ArrayList<T> toReturn = new ArrayList<T>();
+		
+		for (PageObjectAdvanced object : getAllPageObjectsRecursive()) {
 			if (objectType.isAssignableFrom(object.getClass())) {
 				toReturn.add((T)object);
 			}

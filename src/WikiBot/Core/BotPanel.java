@@ -202,7 +202,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	 public void run() {
 	      Thread myThread = Thread.currentThread();
 	        while (clockThread == myThread) {
-	            sleep(statusUpdateWaitTime);
+	        	sleepInSeconds(statusUpdateWaitTime);
 	            updateGUI();
 	        }
 	    }
@@ -559,13 +559,4 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	public int getWidth() { return WIDTH; }
 	public int getHeight() { return HEIGHT; }
 	public String getPanelName() { return panelName; }
-	
-	public void sleep(double time) {
-		try {
-			Thread.sleep((int)(1000*time));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

@@ -49,6 +49,7 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
 	protected static ArrayList<String> log = new ArrayList<String>();
 	protected static int numErrors = 0;
+	protected static long lastCommandTimestamp = 0;//The timestamp of the last API command.
 	
 	//These variables are used for networking purposes (GET and POST requests).
     private static HttpClient httpclient;
@@ -61,6 +62,7 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static boolean logPageDownloads = true;//Should the bot log page downloads?
 	protected static boolean logAPIresults = true;//Should the bot log API results?
 	public static boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
+	protected static double APIthrottle = 0.5;//The minimum amount of time between API commands.
 	
 	public GenericBot() {
 		//Read in some files.
@@ -596,6 +598,10 @@ public class GenericBot extends javax.swing.JPanel {
         String token = null;
         String xmlString = "";
         for (int j = 0; j < 2; j++) {
+    		//Check throttle.
+    		throttleAction();
+    		
+    		//Send POST request.
         	if (token == null) {
         		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword"}, new String[]{username, password});
         	} else {
@@ -632,6 +638,10 @@ public class GenericBot extends javax.swing.JPanel {
 	}
 	
 	static public String APIcommand(APIcommand command) {
+		//Check throttle.
+		throttleAction();
+		
+		//Do the command!
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
 		String textReturned;
@@ -725,7 +735,7 @@ public class GenericBot extends javax.swing.JPanel {
 		
 		return textReturned;
 	}
-	
+
 	/**
 	 * Automatically unescapes HTML5.
 	 */
@@ -987,5 +997,34 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	static public ArrayList<String> getLog() {
 		return log;
+	}
+	
+	/**
+	 * This method makes sure that the bot does not do particular actions too quickly.
+	 */
+	private static void throttleAction() {
+		long currentTime = System.currentTimeMillis();
+		long timeDifference = currentTime - lastCommandTimestamp;
+		long timeToWait = (long) (1000*APIthrottle - timeDifference);
+		if (timeToWait > 0) {
+			sleep(timeToWait);
+		}
+		lastCommandTimestamp = System.currentTimeMillis();
+	}
+	
+	public static void sleepInSeconds(double time) {
+		try {
+			Thread.sleep((int)(1000*time));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void sleep(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
