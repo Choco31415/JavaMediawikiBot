@@ -1,5 +1,6 @@
 package WikiBot;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
@@ -38,6 +39,8 @@ public class InterwikiBot extends BotPanel {
 		}*/
 		
 		APIlimit = 30;
+		logAPIresults = false;
+		revisionDepth = 5;
 	}
 	
 	/*
@@ -45,7 +48,9 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
+		Page page = getWikiPage(new PageLocation("Scratch Cat", "en"));
+		System.out.println(page);
+		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
 		/*ArrayList<String> ignore = new ArrayList<String>();
 		ignore.add("Category:Users' Images");

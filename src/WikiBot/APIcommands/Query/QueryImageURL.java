@@ -17,5 +17,7 @@ public class QueryImageURL extends APIcommand {
 		values.add("imageinfo");
 		keys.add("iiprop");
 		values.add("url");
+		unescapeText = true;
+		unescapeHTML = false;
 	}
 }

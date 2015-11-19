@@ -2,43 +2,34 @@ package WikiBot.Content;
 
 import java.util.ArrayList;
 
+import WikiBot.Core.GenericBot;
+
 /**
  * Page is a custom class designed to store Wiki pages.
  * It includes several functions to edit, replace, and view specific article contents.
- * 
- * Look at this page for links: https://github.com/maxamillion40/WikiBots-in-Java/wiki
  */
 public class Page extends SimplePage {
 	
-	private ArrayList<String> content = new ArrayList<String>();
+	private ArrayList<Integer> linePositions = new ArrayList<Integer>();
 	private ArrayList<Section> sections = new ArrayList<Section>();
-	private ArrayList<Link> links = new ArrayList<Link>();
-	private ArrayList<Template> templates = new ArrayList<Template>();
-	private ArrayList<Image> images = new ArrayList<Image>();
-	private ArrayList<String> categories = new ArrayList<String>();
+	private ArrayList<PageObjectAdvanced> pageObjects = new ArrayList<PageObjectAdvanced>();
+	private ArrayList<Category> categories = new ArrayList<Category>();
 	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
 	private ArrayList<Revision> revisions = new ArrayList<Revision>();
 	
 	public Page(String title_, int pageID_, String lan_) {
 		super(title_, lan_, pageID_);
 	}
-
-	//Set variables.
-	public void setContent(ArrayList<String> content_) {
-		content = content_;
-	}
-	
-	public void setContentLine(String content_, int lineID) {
-		if (lineID >= content.size()) {
-			return;
-		} else {
-			content.set(lineID, content_);
-		}
-	}
 	
 	//Modify variables.
-	public void addLine(String content_) {
-		content.add(content_);
+	@Override
+	public void setRawText(String rawText_) {
+		rawText = rawText_;
+		parseRawText();
+	}
+	
+	public void addLinePositions(int num) {
+		linePositions.add(num);
 	}
 	
 	public void addSection(Section section) {
@@ -46,19 +37,11 @@ public class Page extends SimplePage {
 	}
 	
 	
-	public void addLink(Link link) {
-		links.add(link);
+	public void addPageObject(PageObjectAdvanced po) {
+		pageObjects.add(po);
 	}
 	
-	public void addTemplate(Template template) {
-		templates.add(template);
-	}
-	
-	public void addImage(Image image) {
-		images.add(image);
-	}
-	
-	public void addCategory(String category) {
+	public void addCategory(Category category) {
 		categories.add(category);
 	}
 	
@@ -66,30 +49,22 @@ public class Page extends SimplePage {
 		interwikis.add(wiki);
 	}
 	
-	public void addRevisions(ArrayList<Revision> revisions_) {
+	public void setRevisions(ArrayList<Revision> revisions_) {
 		revisions.addAll(revisions_);
 	}
 	
-	public void setRawText(String txt) {
-		rawText = txt;
-	}
-	
 	//Get information.
-	//Content methods
-	public ArrayList<String> getContent() {
-		return content;
+	//Line methods
+	public int getLinePosition(int line) {
+		return linePositions.get(line);
 	}
 	
-	public String getContentLine(int lineID) {
-		return content.get(lineID);
-	}
-	
-	public int getLineCount() {
-		return content.size();
+	public int getNumLines() {
+		return linePositions.size();
 	}
 	
 	//Section methods
-	public Section getSection(int i) {
+	public Section getSectionByNum(int i) {
 		return sections.get(i);
 	}
 	
@@ -103,34 +78,31 @@ public class Page extends SimplePage {
 			throw new IndexOutOfBoundsException();
 		}
  		
-		int line1;
-		int line2;
+		int pos1;
+		int pos2;
 		
 		if (i == 0) {
-			line1 = 0;
+			pos1 = 0;
 		} else {
-			line1 = sections.get(i-1).getPosition().getLine();
+			pos1 = sections.get(i-1).getPosition();
 		}
 		if (i < sections.size()) {
-			line2 = sections.get(i).getPosition().getLine();
+			pos2 = sections.get(i).getPosition();
 		} else {
-			line2 = content.size();
+			pos2 = rawText.length();
 		}
 		
-		String temp = "";
-		
-		for (int line = line1; line < line2; line++) {
-			temp += content.get(line);
-			if (line < line2-1) {
-				temp += "\n";
-			}
-		}
-		return temp;
+		return rawText.substring(pos1, pos2);
 	}
 	
-	public Section getSection(Position pos) {
+	public Section getSection(int pos) {
+		
+		if (pos < 0 || pos >= rawText.length()) {
+			throw new IndexOutOfBoundsException();
+		}
+		
 		int i = 0;
-		while (pos.isGreaterThen(sections.get(i).getPosition())) {
+		while (i != sections.size() && pos > sections.get(i).getPosition()) {
 			i++;
 		}
 		if (i == 0) {
@@ -156,75 +128,55 @@ public class Page extends SimplePage {
 		return temp;
 	}
 	
-	//Link methods
-	public ArrayList<Link> getLinks() {
-		return links;
+	//PageObject methods
+	public int getNumPageObjects() {
+		return pageObjects.size();
 	}
 	
-	//Template methods
-	public boolean templatesContainLink(Link link) {
-		for (int i = 0; i < templates.size(); i ++) {
-			if ((templates.get(i)).containsLink(link)) {
-				return true;
-			}
-		}
-		return false;
+	public PageObjectAdvanced getPageObject(int index) {
+		return pageObjects.get(index);
 	}
 	
-	public ArrayList<Template> getTemplates() {
-		return templates;
-	}
-	
-	public Template getTemplate(String template) {
-		for (Template tmp : templates) {
-			if (tmp.getName().equalsIgnoreCase(template)) {
-				return tmp;
+	public PageObjectAdvanced getPageObject(String header) {
+		for (PageObjectAdvanced poa : pageObjects) {
+			if (poa.getHeader().equalsIgnoreCase(header)) {
+				return poa;
 			}
 		}
 		return null;
 	}
 	
-	public boolean containsTemplate(String template) {
-		for (Template tmp : templates) {
-			if (tmp.getName().equalsIgnoreCase(template)) {
-				return true;
+	public PageObjectAdvanced getPageObject(String header, String objectType) {
+		for (PageObjectAdvanced poa : pageObjects) {
+			if (poa.getHeader().equalsIgnoreCase(header) && poa.getObjectType().equalsIgnoreCase(objectType)) {
+				return poa;
 			}
 		}
-		return false;
+		return null;
 	}
 	
-	public void removeTemplate(String template) {
-		for (Template tmp : templates) {
-			if (tmp.getName().equalsIgnoreCase(template)) {
-				templates.remove(tmp);
-				return;
-			}
-		}
-	}
-	
-	//Image methods
-	public ArrayList<Image> getImages() {
-		return images;
-	}
-	
-	public boolean imagesContainLink(Link link) {
-		for (int i = 0; i < images.size(); i ++) {
-			if ((images.get(i)).containsLink(link)) {
-				return true;
-			}
-		}
-		return false;
+	public ArrayList<PageObjectAdvanced> getAllPageObjects() {
+		return pageObjects;
 	}
 	
 	//Category methods
 	public boolean containsCategory(String category) {
+		if (category.length() > 9 && category.substring(0,9).equals("Category:")) {
+			category = category.substring(9);
+		}
 		for (int i = 0; i < categories.size(); i++) {
-			if ((categories.get(i)).equals(category)) {
+			if ((categories.get(i).getCategoryName()).equals(category)) {
 				return true;
 			}
 		}
 		return false;
 	}
+	
+	public Category getCategory(int index) {
+		return categories.get(index);
+	}
+	
+	public int getNumCategories() { return categories.size(); }
 	
 	//Interwiki methods
 	public boolean containsInterwiki(String language) {
@@ -272,6 +224,13 @@ public class Page extends SimplePage {
 	public Revision getRevision(int i) {
 		return revisions.get(i);
 	}
+	
+	//Type methods
+	public SimplePage createSimplePage() {
+		SimplePage output = new SimplePage(title, lan, pageID);
+		output.setRawText(rawText);
+		return output;
+	}
 
 	@Override
 	public String toString() {
@@ -279,24 +238,14 @@ public class Page extends SimplePage {
 
 		output = "PAGE PAGE ;; Name: " + title + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
 		output += "Language: " + lan + "\n";
-		for (int i = 0; i < content.size(); i++) {
-			output += (content.get(i) + "\n");
-		}
+		output += rawText;
 		output += "\nWith sections: \n";
 		for (int i = 0; i < sections.size(); i++) {
 			output += (sections.get(i).toString2() + "\n");
 		}	
-		output += "\nWith links: \n";
-		for (int i = 0; i < links.size(); i++) {
-			output += (links.get(i) + "\n");
-		}
-		output += "\nWith templates: \n";
-		for (int i = 0; i < templates.size(); i++) {
-			output += (templates.get(i) + "\n");
-		}
-		output += "\nWith images: \n";
-		for (int i = 0; i < images.size(); i++) {
-			output += (images.get(i) + "\n");
+		output += "\nWith page objects: \n";
+		for (int i = 0; i < pageObjects.size(); i++) {
+			output += (pageObjects.get(i) + "\n");
 		}
 		output += "\nWith categories: \n";
 		for (int i = 0; i < categories.size(); i++) {
@@ -311,5 +260,346 @@ public class Page extends SimplePage {
 			output += (revisions.get(i) + "\n");
 		}
 		return output;
+	}
+	
+	/*
+	 * All page parsing code goes below!
+	 */
+	
+	private void parseRawText() {
+		//1-new lines
+		//2-pageObjects
+		//3-sections
+		//Clear any residual data.
+		linePositions.clear();
+		sections.clear();
+		pageObjects.clear();
+		categories.clear();
+		interwikis.clear();
+		
+		//Generate data.
+		parsePageForNewLines();
+		parsePageForPageObjects();
+		parsePageForSections();
+	}
+	
+	private void parsePageForNewLines() {
+		for (int i = 0; i != -1; i = rawText.indexOf("\n", i+1)) {
+			if (isPositionParsedAsMediawiki(i)) {
+				linePositions.add(i);
+			}
+		}
+	}
+	
+	private void parsePageForPageObjects() {
+		parseTextForPageObjects(rawText, 0, 0);
+	}
+	
+	private ArrayList<PageObject> parseTextForPageObjects(String text, int pos, int depth) {
+		ArrayList<PageObject> output = new ArrayList<PageObject>();
+		
+		int lastOpenIndex;
+		int openIndex = -1;
+		int innerCloseIndex = -1;
+		int objectID = -1;
+	
+		String[] openStrings = new String[]{"{{", "[[", "["};
+		String[] closeStrings = new String[]{"}}", "]]", "]"};
+		do {
+			//Find the text opening for a page object.
+			lastOpenIndex = openIndex;
+			int lowestIndex = -1;
+			for (int i = 0; i < openStrings.length; i++) {
+				openIndex = text.indexOf(openStrings[i], lastOpenIndex);
+				if ((openIndex < lowestIndex || lowestIndex == -1) && openIndex != -1) {
+					lowestIndex = openIndex;
+					objectID = i;
+				}
+			}
+			
+			//Test that we might have an object.
+			openIndex = lowestIndex;
+			if (openIndex != -1 && isPositionParsedAsMediawiki(openIndex+pos)) {
+				//Test that we do have a page object.
+				innerCloseIndex = findClosingPosition(text, openStrings[objectID], closeStrings[objectID], openIndex);
+				
+			objectParse:
+				if (innerCloseIndex != -1) {
+					// We have a page object. Parse!
+					PageObjectAdvanced po;
+					String objectText = text.substring(openIndex + openStrings[objectID].length(), innerCloseIndex);
+					String header;
+					
+					int tempIndex = objectText.indexOf("|");
+					if (tempIndex != -1) {
+						header = objectText.substring(0, tempIndex);
+					} else {
+						header = objectText;
+					}
+					
+					int outerCloseIndex = innerCloseIndex+closeStrings[objectID].length();
+					boolean isLink = false;
+					if (objectID == 0) {
+						//{{
+						//Check that we have a valid template.
+						for (String ignore : MediawikiDataManager.TemplateIgnore) {
+							if (header.length() >= ignore.length() && header.substring(0, ignore.length()).equalsIgnoreCase(ignore)) {
+								openIndex += ignore.length();
+								break objectParse;
+							}
+						}
+						
+						//Check that we do not have a parameter.
+						if (header.length() > 0 && header.substring(0,1).equals("{")) {
+							openIndex += 2;
+							break objectParse;
+						}
+						
+						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
+					} else if (objectID == 1) {
+						//[[
+						if (header.length() > 5 && header.substring(0,5).equalsIgnoreCase("File:")) {							
+							po = new Image(openIndex+pos, outerCloseIndex+pos, header);
+						} else if (header.length() > 9 && header.substring(0,9).equalsIgnoreCase("Category:")) {
+							//We have a category.
+							categories.add(new Category(objectText, openIndex+pos, outerCloseIndex+pos));
+							
+							openIndex = outerCloseIndex;
+							break objectParse;
+						} else {
+							//Check for interwiki
+							for (String iw: MediawikiDataManager.Interwiki) {
+								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
+									interwikis.add(new Interwiki(header.substring(iw.length()+1).trim(), iw, openIndex+pos, outerCloseIndex+pos));
+									
+									openIndex = outerCloseIndex;
+									break objectParse;
+								}
+							}
+							
+							//Check that this is indeed a link.
+							if (header.substring(0,1).equals("[")) {
+								openIndex += openStrings[objectID].length();
+								break objectParse;
+							}
+							
+							isLink = true;
+							po = new Link(openIndex+pos, outerCloseIndex+pos, title, header);
+						}
+					} else {
+						//[
+						//Is this an external link?
+						if ((header.length() > 7 && header.substring(0, 7).equals("http://")) || (header.length() > 2 && header.substring(0, 2).equals("//"))) {
+							isLink = true;
+							po = new ExternalLink(openIndex+pos, outerCloseIndex+pos, header);
+						} else {
+							openIndex += 1;
+							break objectParse;
+						}
+					}
+					
+					ArrayList<PageObject> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);//Page objects within the current page object.
+					
+					//Resolve link/template disambiguates
+					if (isLink && GenericBot.parseThurough) {
+						for (PageObject object: objects) {
+							if (object.getObjectType().equalsIgnoreCase("Template")) {
+								SimplePage sp = GenericBot.getWikiSimplePage(new PageLocation(((Template)object).getTemplateName(), lan));
+								if (sp.getRawText().contains("\n") && depth == 0) {
+									//Add all page objects to the page.
+									for (PageObject object2: objects) {
+										if (object2.getObjectType().equalsIgnoreCase("Category")) {
+											categories.add((Category)object2);
+										} else {
+											pageObjects.add((PageObjectAdvanced)object2);
+										}
+									}
+									
+									openIndex = outerCloseIndex;
+									break objectParse;
+								}
+							}
+						}
+					}
+					
+					//Parse for parameters.
+					ArrayList<Integer> parameterLocations= new ArrayList<Integer>();
+					while (tempIndex != -1) {
+						if (isPositionParsedAsMediawiki(tempIndex+pos)) {
+							parameterLocations.add(tempIndex);
+						}
+						tempIndex = objectText.indexOf("|", tempIndex+1);
+					}
+					
+					//Weed out extra | locations that child page objects use.
+					for (PageObject object : objects) {
+						ArrayList<Integer> toRemove = new ArrayList<Integer>();
+						for (int i = 0; i < parameterLocations.size(); i++) {
+							int paramLoc = parameterLocations.get(i);
+							if (paramLoc+openIndex+pos > object.getOpeningPosition() && paramLoc+openIndex+pos < object.getClosingPosition()) {
+								//This parameter is used by a child page object.
+								toRemove.add(paramLoc);
+							} else if (paramLoc > object.getClosingPosition()) {
+								//Break because checking higher page locations will not yield new results.
+								break;
+							}
+						}
+						
+						//Remove bad parameter locations.
+						parameterLocations.removeAll(toRemove);
+					}
+					
+					//Add parameters to our current PageObject.
+					for (int i = 0; i < parameterLocations.size(); i++) {
+						int paramLoc = parameterLocations.get(i)+1;
+						int paramEndLoc;
+						if (i == parameterLocations.size()-1) {
+							paramEndLoc = objectText.length();
+						} else {
+							paramEndLoc = parameterLocations.get(i+1);
+						}
+						
+						po.addParameter(objectText.substring(paramLoc, paramEndLoc));
+					}
+					
+					po.addPageObjects(objects);
+					
+					output.add(po);
+					
+					//Add the page object to the page.
+					if (depth == 0) {
+						pageObjects.add(po);
+					}
+					
+					//Done. Continue iteration.
+					openIndex = outerCloseIndex;
+				} else {
+					//No page object found. Move on.
+					openIndex += openStrings[objectID].length();
+				}
+			} else {
+				if (openIndex != -1) {
+					openIndex += openStrings[objectID].length();
+				}
+			}
+			
+		} while (openIndex != -1);
+		
+		return output;
+	}
+	
+	private void parsePageForSections() {
+		int openIndex = 0;
+		int depth;
+		String sectionText;
+		
+		do {
+			//Find section opening text.
+			depth = 2;
+			sectionText = new String(new char[depth]).replace("\0", "=");
+			openIndex = rawText.indexOf("\n" + sectionText, openIndex+1);
+			if (openIndex != -1) {
+				int oldIndex = openIndex;
+				//Increase depth of section until we can no longer do so.
+				while (openIndex == oldIndex) {
+					depth++;
+					sectionText = new String(new char[depth]).replace("\0", "=");
+					openIndex = rawText.indexOf("\n" + sectionText, oldIndex);
+				}
+				
+				//Test that we do in fact have a section. They should not contain \n.
+				int closeIndex = rawText.indexOf(sectionText + "\n", openIndex+depth);
+				if (closeIndex != -1) {
+					String substring = rawText.substring(openIndex, closeIndex);
+					if (!substring.contains("\n")) {
+						//We have a valid section. Add it.
+						addSection(new Section(substring.substring(depth), openIndex, depth));
+					}
+				}
+			}
+		} while (openIndex != -1);
+	}
+	
+	public boolean isPositionParsedAsMediawiki(int pos) {
+		//Start from the beginning of the page and work up.
+		int cursor = 0;
+		int lowest;//Earliest occurrence of MW escaped text.
+		int end = -1;//Last found MW escaped text close.
+		
+		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
+		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
+		
+		do {
+			cursor = end;
+			//Find MW escaped text in line.
+			lowest = -1;
+			int markupTextID = -1;
+			for (int i = 0; i < MWEscapeOpenText.size(); i++) {
+				int index = rawText.indexOf(MWEscapeOpenText.get(i), cursor);
+				if (index != -1) {
+					if (lowest == -1 || index < lowest) {
+						lowest = index;
+						markupTextID = i;
+					}
+				}
+			}
+			
+			//Move cursor
+			if (lowest != -1) {
+				cursor = lowest;
+
+				end = rawText.indexOf(MWEscapeCloseText.get(markupTextID), cursor+1) + MWEscapeCloseText.get(markupTextID).length();
+			} else {
+				cursor = -1;
+			}
+		} while (pos >= cursor && pos > end && cursor != -1 && end != -1);
+		
+		if (lowest == -1) {
+			//No escaped text on line.
+			return true;
+		} else {
+			//Escaped text on line.
+			return !(pos >= cursor && end > pos);
+		}
+	}
+	
+	private int findClosingPosition(String text, String open, String close, int start) {
+		//Method for finding where [[ ]] and {{ }} end.
+		int i = start;
+		int j;
+		int k = 0;//Keeps track of last found closing.
+		int depth = 1;
+
+		k = i;
+		i = text.indexOf(open, i+open.length());
+		j = text.indexOf(close, k+open.length());
+		if (i > j || (i == -1 && j != -1)) {
+			//This object has depth 1.
+			k = j;
+			depth = 0;
+		} else {
+			do {
+				//Checking individual line.
+				if (i<=j && i != -1) {
+					//Depth increased
+					k = i;
+					i = text.indexOf(open, i+open.length());
+					j = text.indexOf(close, k+open.length());
+					depth++;
+				} else if (j != -1) {
+					//Depth decreased
+					k = j;
+					if (i != -1) {
+						i = text.indexOf(open, j+close.length());
+					}
+					j = text.indexOf(close, j+close.length());
+					depth--;
+				}
+			} while(depth>0 && j != -1);
+		}
+		if (depth != 0 ) {
+			throw new Error("Unclosed parseable item at: " + start + "  Page title: " + title);
+		}
+		return k;
 	}
 }

@@ -13,6 +13,7 @@ public class QueryBackLinks extends QueryList {
 		values.add(page.getTitle());
 		keys.add("bllimit");
 		values.add("" + 40);
+		unescapeText = true;
 	}
 	
 	/*
@@ -24,6 +25,7 @@ public class QueryBackLinks extends QueryList {
 		values.add(page.getTitle());
 		keys.add("bllimit");
 		values.add("" + depth);
+		unescapeText = true;
 	}
 	
 	public QueryBackLinks(PageLocation page, int depth, String blcontinue) {
@@ -34,5 +36,7 @@ public class QueryBackLinks extends QueryList {
 		values.add("" + depth);
 		keys.add("blcontinue");
 		values.add(blcontinue);
+		unescapeText = true;
+		unescapeHTML = false;
 	}
 }

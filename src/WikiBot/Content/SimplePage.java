@@ -4,7 +4,7 @@ package WikiBot.Content;
 /**
  * SimplePage is a simple version of page that does not store information such as links, templates, interwiki, and more.
  */
-public class SimplePage extends PageLocationContainer {
+public class SimplePage extends PageLocationContainer implements Cloneable {
 
 	protected int pageID;
 	protected String lan;
@@ -36,6 +36,11 @@ public class SimplePage extends PageLocationContainer {
 		return rawText;
 	}
 	
+	//Type methods
+	/*public Page createPage() {
+		
+	}*/
+	
 	@Override
 	public String toString() {
 		String output;
@@ -43,6 +48,12 @@ public class SimplePage extends PageLocationContainer {
 		output = "SIMPLE PAGE ;; Name: " + title + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
 		output += "Language: " + lan + "\n";
 		output += "Raw text: \n" + rawText;
+		return output;
+	}
+	
+	public SimplePage clone() {
+		SimplePage output = new SimplePage(title, lan, pageID);
+		output.setRawText(rawText);
 		return output;
 	}
 }

@@ -26,6 +26,8 @@ public class QueryPageRevisions extends APIcommand {
 		}
 		keys.add("rvlimit");
 		values.add("" + revisionLimit);
+		unescapeText = true;
+		unescapeHTML = true;
 	}
 	
 	public QueryPageRevisions(PageLocation loc, int revisionLimit, boolean getContent) {
@@ -47,5 +49,7 @@ public class QueryPageRevisions extends APIcommand {
 		}
 		keys.add("rvlimit");
 		values.add("" + revisionLimit);
+		unescapeText = true;
+		unescapeHTML = true;
 	}
 }

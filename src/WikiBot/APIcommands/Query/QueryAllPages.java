@@ -5,6 +5,7 @@ public class QueryAllPages extends QueryList {
 		super(language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
+		unescapeText = true;
 	}
 	
 	public QueryAllPages(String language, int depth, String apcontinue) {
@@ -13,5 +14,7 @@ public class QueryAllPages extends QueryList {
 		values.add("" + depth);
 		keys.add("apcontinue");
 		values.add(apcontinue);
+		unescapeText = true;
+		unescapeHTML = false;
 	}
 }

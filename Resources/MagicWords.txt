@@ -1,2 +1,0 @@
-# A list of all Mediawiki magic words.
-CURRENTDAY

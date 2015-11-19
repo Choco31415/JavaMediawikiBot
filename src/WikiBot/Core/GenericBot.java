@@ -7,7 +7,6 @@ import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList; 
-import java.util.Arrays;
 import java.util.Locale;
 
 import static org.apache.commons.lang3.StringEscapeUtils.*;
@@ -29,16 +28,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
-import WikiBot.Content.Image;
-import WikiBot.Content.Interwiki;
-import WikiBot.Content.Link;
+import WikiBot.Content.MediawikiDataManager;
 import WikiBot.Content.Page;
 import WikiBot.Content.PageLocation;
-import WikiBot.Content.Position;
 import WikiBot.Content.Revision;
-import WikiBot.Content.Section;
 import WikiBot.Content.SimplePage;
-import WikiBot.Content.Template;
 
 /**
  * Generic Bot is the parent of every other bot.
@@ -46,12 +40,8 @@ import WikiBot.Content.Template;
 public class GenericBot extends javax.swing.JPanel {
 	
 	protected static final long serialVersionUID = 1L;
+	protected static MediawikiDataManager mdm;
 	protected static ArrayList<String> log = new ArrayList<String>();
-	protected static ArrayList<String> Interwiki;
-	protected static ArrayList<String> InterwikiURL;
-	protected static ArrayList<String> MagicWords = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
-	protected static ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
 	protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	protected static String baseURL = "http://wiki.scratch.mit.edu/w";
 	
@@ -65,20 +55,13 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static int APIlimit = 10;//The [hard] maximum items per query call. 
 	protected static int revisionDepth = 10;//The number of revisions to include per page.
 	protected static boolean getRevisionContent = false;//When getting a page, should previous page content be queried?
-	protected static boolean printPageDownloads;//Should the bot log page downloads?
+	protected static boolean logPageDownloads = true;//Should the bot log page downloads?
+	protected static boolean logAPIresults = true;//Should the bot log API results?
+	public static boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
 	
 	public GenericBot() {
 		//Read in some files.
-		ArrayList<String> temp = readFileAsList("/MWEscapeTexts.txt", 0, true, true);
-		for (int i = 0; i < temp.size(); i += 2) {
-			MWEscapeOpenText.add(temp.get(i));
-			MWEscapeCloseText.add(temp.get(i + 1));
-		}
-		
-		temp = readFileAsList("/MagicWords.txt", 0, true, true);
-		for (int i = 0; i < temp.size(); i += 1) {
-			MagicWords.add(temp.get(i));
-		}
+		mdm = new MediawikiDataManager();
 		
 		httpclient = HttpClientBuilder.create().build();
 		context =  HttpClientContext.create();
@@ -91,7 +74,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return parseWikiPage(XMLcode);
 	}
 	
-	static public SimplePage getWikiPageSimple(PageLocation loc) {
+	static public SimplePage getWikiSimplePage(PageLocation loc) {
 		//This method fetches a Wiki page.
 		String XMLcode = getWikiPageXMLCode(loc);
 		
@@ -107,7 +90,7 @@ public class GenericBot extends javax.swing.JPanel {
 	static private String getWikiPageXMLCode(PageLocation loc) {		
 		String page = APIcommand(new QueryPageContent(loc));
 		
-	    if (printPageDownloads) {
+	    if (logPageDownloads) {
 	    	pageDownloaded(loc.getTitle());
 	    }
 	    
@@ -128,7 +111,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return pages;
 	}
 	
-	static public ArrayList<SimplePage> getWikiPagesSimple(ArrayList<PageLocation> locs) {		
+	static public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
 		String XMLstring = getWikiPagesXMLCode(locs);
@@ -148,7 +131,7 @@ public class GenericBot extends javax.swing.JPanel {
 		
 		String XMLstring = APIcommand(new QueryPageContent(locs));
 		
-        if (printPageDownloads) {
+        if (logPageDownloads) {
         	if (locs.size() > 1) {
         		pageDownloaded(locs.get(0).getTitle(), locs.get(locs.size()-1).getTitle());
         	} else {
@@ -168,7 +151,7 @@ public class GenericBot extends javax.swing.JPanel {
 		SimplePage newPage = null;
 		String title = parseXMLforInfo("title", XMLcode, "\",", 3, 0);
 		try {
-			newPage = new SimplePage(title, getLanguageFromURL(baseURL), Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)));
+			newPage = new SimplePage(title, mdm.getLanguageFromURL(baseURL), Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)));
 		} catch (NumberFormatException e) {
 			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
@@ -186,495 +169,28 @@ public class GenericBot extends javax.swing.JPanel {
 		Page newPage = null;
 		String title = parseXMLforInfo("title", XMLcode, "\",", 3, 0);
 		try {
-			newPage = new Page(title, Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)), getLanguageFromURL(baseURL));
+			newPage = new Page(title, Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)), mdm.getLanguageFromURL(baseURL));
 		} catch (NumberFormatException e) {
 			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
 		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\"") + 5, XMLcode.indexOf("\"}]}")));
 		
-		String line = "";
-		int j = 0;
-		for (int i = XMLcode.indexOf("\"*\"") + 4; i!=-1; i=j) {
-			j = XMLcode.indexOf("\n", i+1);
-
-			if (j > 0) {
-				line = XMLcode.substring(i+1, j);
-				newPage.addLine(line);
-
-			} else {
-				line = XMLcode.substring(i+1, XMLcode.indexOf("\"}]}"));
-				newPage.addLine(line);
-			}
-		}
-		parsePageForTemplates(newPage);
-		parsePageForLinks(newPage);
-		parsePageForSections(newPage);
-		getPastReveisions(newPage);
+		getPastRevisions(newPage);
 		return newPage;
 	}
 	
-	static private void parsePageForTemplates(Page page) {
-		Template temp;
-		ArrayList<String> lines = page.getContent();
-		Position pos;
-		Position end;
-		//Check each line
-		for (int i = 0; lines.size()>i; i++) {
-			//Parse each template
-			for(int p = (lines.get(i)).indexOf("{{"); p != -1; p=(lines.get(i)).indexOf("{{", p+1)) {
-				pos = new Position(i, p);
-				//Check that the text is parsed as MediaWiki.
-				if (isPositionParsedAsMediawiki(page, pos)) {
-					//Check that the template is not a parameter.
-					if (lines.get(i).substring(p, p+3).equals("{{{")) {
-						p += 3;
-					} else {
-						//Find and parse that template
-						end = findClosingPosition(page, "{{", "}}", new Position(i, lines.get(i).indexOf("{{", p)));
-						if (end != null) {
-							if (end.getLine() == i) {
-								//We have a single line template.
-								temp = parseTemplate(page, new ArrayList<String>(Arrays.asList(lines.get(i))), p, end.getPosInLine(), pos);
-							} else {
-								//We have a multi-line template.
-								temp = parseTemplate(page, new ArrayList<String>(lines.subList(i, end.getLine()+1)), p, end.getPosInLine(), pos);
-							}
-							if (temp != null) {
-								page.addTemplate(temp);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	static private Template parseTemplate(Page page, ArrayList<String> text, int buffer, int topBuffer, Position pos) {
-		//Parse multiple lines for a single template.
-
-		Template temp;
-		String title;
-		if (text.get(0).indexOf("|", buffer) != -1 && ((text.get(0).indexOf("|", buffer) < text.get(0).indexOf("}}", buffer)) || text.size() != 1)) {
-			title = text.get(0).substring(text.get(0).indexOf("{{", buffer) + 2, text.get(0).indexOf("|", buffer));
-			temp = new Template(pos, title);
-		} else {
-			if (text.get(0).indexOf("}}", buffer) != -1) {
-				title = text.get(0).substring(text.get(0).indexOf("{{", buffer) + 2, text.get(0).indexOf("}}", buffer));
-			} else {
-				title = text.get(0).substring(text.get(0).indexOf("{{", buffer) + 2);
-			}
-			if (MagicWords.contains(title)) {
-				return null;
-			} else {
-				temp = new Template(pos, title);
-			}
-		}
-		parseTemplateTextForLinks(page, temp, text, buffer, pos);
-		parseTextForParameters(page, temp, null, text, buffer+2, topBuffer-1, pos, true);
-		return temp;
-	}
-	
-	static private void parseTextForParameters(Page page, Template templ, Image img, ArrayList<String> text, int buffer, int topBuffer, Position pos, boolean TemplNotImg) {
-		//We find parameters in templates.
-		String line;
-		int j = -1;//cursor for |
-		int k = buffer;
-		int q;
-		String param = "";
-		//i is the line offset from pos
-		for (int i = 0; i < text.size(); i++) {
-			//This for loop goes through a line at a time.
-			line = text.get(i);
-			if (i == 0) {
-				j = line.indexOf("|", buffer);
-			} else {
-				j = line.indexOf("|");
-			}
-			for (int m = 0; j != -1 && !(i+1 == text.size() && j > topBuffer); m++) {
-				if (m != 0) {
-					k = j;
-					j = line.indexOf("|", j+1);
-				}
-				
-				//To ensure links don't mess up parameter parsing.
-				q = line.indexOf("[[", k);
-				while (q < j && q != -1) {
-					if (q < j && q != -1) {
-						q = findClosingPosition(page, "[[", "]]", new Position(pos.getLine() + i, q)).getPosInLine();
-						j = line.indexOf("|", q);
-					}
-					q = line.indexOf("[[", q);
-				}
-				
-
-				if (k != -1) {
-					if (j == -1) {
-						if (i + 1 == text.size()) {
-							param = line.substring(k+1, topBuffer);
-						} else {
-							param = line.substring(k+1, line.length());
-						}
-					} else if (j != -1 ) {
-						if (i + 1 == text.size() && j > topBuffer) {
-							param = line.substring(k+1, topBuffer);
-						} else {
-							param = line.substring(k+1, j);
-						}
-					}
-				}
-				
-				//Check that text is parsed as Mediawiki;
-				if (!isPositionParsedAsMediawiki(page, new Position(pos.getLine() + i, k)) && m != 0) {
-					continue;
-				}
-				
-				if (m != 0) {
-					if (TemplNotImg) {
-						templ.addParameter(param);
-					} else {
-						img.addParameter(param);
-					}
-				}
-			}
-			j = -1;
-			k = -1;
-		}
-	}
-	
-	static private void  parseTemplateTextForLinks(Page page, Template temp, ArrayList<String> lines, int buffer, Position pos) {
-		//Parse multiple lines for links.
-		for (int i = 0; i < lines.size(); i++) {
-			if (i+1 < lines.size()) {
-				parseLineForLinksImagesCategories(page, temp, null, lines.get(i), buffer, Integer.MAX_VALUE, new Position(pos.getLine() + i, pos.getPosInLine()), 1);
-			} else {
-				parseLineForLinksImagesCategories(page, temp, null, lines.get(i), buffer, (lines.get(i).indexOf("}}")), new Position(pos.getLine() + i, pos.getPosInLine()), 1);
-			}
-		}
-	}
-	
-	static private void parseLineForLinksImagesCategories(Page page, Template templ, Image img, String line, int buffer, int topBuffer, Position pos, int inputDataType) {
-		/*
-		 * Variable Input Data Type:
-		 * 0-Page (true)
-		 * 1-Template (false)
-		 * 2-Image
-		 */
-
-		//Parse a single line for stuff
-
-		//Check that the text is parsed as MediaWiki.
-		
-		int i = line.indexOf("[[", buffer);
-		int j = -1;//Tracks item closing position.
-		int k = line.indexOf("[", buffer);
-		String text;
-		while ((i != -1 || k != -1) && (i<topBuffer || k<topBuffer)) {
-			if (i <= k && i != -1) {
-				//We have a Wikilink, image, or category.
-				j = line.indexOf("]]", i);
-				if (i != -1 && j == -1) {
-					logError("Unclosed or multi-line link/image/category detected at " + new Position(pos.getLine(), i) + ". Page title: " + page.getTitle());
-					return;
-				}
-				
-				if (line.indexOf("||", i) != -1 && line.indexOf("||", i) < j) {
-					logError("Double pipes detected in link/image/category at " + new Position(pos.getLine(), i) + ". Page title: " + page.getTitle());
-				}
-				if (line.indexOf("|", i) != -1 && line.indexOf("|", i) < j) {
-					text = line.substring(i+2, line.indexOf("|", i));	
-				} else {
-					text = line.substring(i+2, j);
-				}
-				if ((text.length() > 9 && text.substring(0,9).equals("Category:"))) {
-					//We have a category!
-					//Check that text is parsed as Mediawiki;
-					if (isPositionParsedAsMediawiki(page, new Position(pos.getLine(), i))) {
-						page.addCategory(text.substring(9));
-					}
-					
-
-				} else if ((text.length() > 5 && text.substring(0,5).equals("File:"))) {
-					//We have an image!
-					//Check that text is parsed as Mediawiki;
-					if (isPositionParsedAsMediawiki(page, new Position(pos.getLine(), i))) {
-						k = i;
-						i = line.indexOf("[[", i+1);
-						j = findClosingPosition(page, "[[", "]]", new Position(pos.getLine(), k)).getPosInLine()-1;
-						if (i > j || i == -1) {
-							i = k;
-						} else {
-							i = j;
-						}
-						Image image = parseImage(page, line, text, i, new Position(pos.getLine(), i), j, inputDataType == 0);
-						if (image == null) {
-							logError("Image Error at: " + pos + " Page title: " + page.getTitle());
-						} else {
-							if (inputDataType == 0) {
-								page.addImage(image);
-							} else {
-								templ.addImage(image);
-							}
-						}
-					}
-				} else {
-					//We have a link!
-					//Check that text is parsed as Mediawiki;
-					if (isPositionParsedAsMediawiki(page, new Position(pos.getLine(), i))) {
-						Link link = parseLink(page, line, text, i, pos, inputDataType == 0);
-						if (link != null) {
-							if (inputDataType == 0) {
-								page.addLink(link);
-							} else {
-								if (inputDataType == 1) {
-									templ.addLink(link);
-								} else {
-									img.addLink(link);
-								}
-							}
-						}
-					}
-				}
-				//Iteration!
-				k = i;	
-				i = line.indexOf("[[", k+1);
-				k = line.indexOf("[", k+1);
-			} else {
-				//We might have an external link. Must check.
-				
-				//Check that text is parsed as Mediawiki;
-				if (isPositionParsedAsMediawiki(page, new Position(pos.getLine(), k))) {
-					Link link = parseExternalLink(page, line, k, j, pos);
-					if (link != null) {
-						if (inputDataType == 0) {
-							page.addLink(link);
-						} else if (inputDataType == 1) {
-							templ.addLink(link);
-						} else {
-							img.addLink(link);
-						}
-					}
-				}
-				
-				//Iteration!
-				if (i != -1) {
-					i = line.indexOf("[[", k+1);
-				}
-				k = line.indexOf("[", k+1);
-			}
-		}
-	}
-	
-	static private Link parseLink(Page page, String line, String text, int i, Position pos, boolean PageNotTemp) {
-		//We know we don't have a file or a category. Now to check if have an interwiki link.
-		String linkText = null;
-		boolean temp = true;
-		String temp2;
-		for (int l = 0; l < Interwiki.size(); l++) {
-			temp2 = Interwiki.get(l);
-			if (text.length() > temp2.length() && text.substring(0,temp2.length()).equalsIgnoreCase(temp2)) {
-				//We weed out interwiki links, checking against interwiki prefixes one at a time.
-				temp = false;
-				String interwikiText = text.substring(temp2.length());
-				interwikiText = interwikiText.trim();
-				page.addInterwiki(new Interwiki(interwikiText, temp2));
-			}
-		}
-		if (temp) {
-
-			if (text.contains("]") || text.contains("[")) {
-				//This is not a link, but some page text.
-				return null;
-			}
-			if ( text.substring(0,1).equals("/") || text.substring(0,1).equals("#")) {
-				//This link is headed to a subpage/subsection and the destination must reflect that.
-				linkText = text;
-				text = page.getTitle() + text;
-			} else if (text.substring(0,1).equals(":")) {
-				//Category and or file link.
-				text = text.substring(1);
-			}
-			if (line.indexOf("|", i) < line.indexOf("]]", i) && line.indexOf("|", i) != -1) {
-				//Parse for link text, the text a user actually sees.
-				//Account for [[Scratch Wiki talk:Community Portal|]] = Community Portal
-				linkText = line.substring(line.indexOf("|", i)+1, line.indexOf("]]", i));
-				if (linkText.equals("")) {
-					if (text.indexOf(":") == -1) {
-						logError("Link with no displayed text detected at " + new Position(pos.getLine(), i) + ". Page title: " + page.getTitle());
-					} else {
-						linkText = text.substring(text.indexOf(":"));
-					}
-				}
-			}
-			Link link_;
-			if (PageNotTemp) {
-				if (linkText == null) {
-					link_ = new Link(new Position(pos.getLine(), i), text);
-				} else {
-					link_ = new Link(new Position(pos.getLine(), i), text, linkText);
-				}
-				if (page.templatesContainLink(link_)) {
-					return null;
-				}
-			} else {
-				if (linkText == null) {
-					link_ = new Link(new Position(pos.getLine(), i), text);
-				} else {
-					link_ = new Link(new Position(pos.getLine(), i), text, linkText);
-				}
-			}
-			return link_;
-		}
-		return null;
-	}
-	
-	static private Link parseExternalLink(Page page, String line, int k, int j, Position pos) {
-		//We have an external link!
-
-		if (line.length() > 2 && !line.substring(0,2).equals("  ")) {
-			String text;
-			j = line.indexOf("]", k);
-			if (j == -1) {
-				//No external link here.
-				return null;
-			}
-			if (line.indexOf("|", k) != -1 && line.indexOf("|", k) <= j) {
-				text = line.substring(k+1, line.indexOf("|", k));
-			} else {
-				text = line.substring(k+1, j);
-			}
-			
-
-			if ((text.length() > 7 && text.substring(0, 7).equals("http://")) || (text.length() > 2 && text.substring(0, 2).equals("//"))) {
-				
-				Link link_;
-				if (text.contains(" ")) {
-					int index = text.indexOf(" ");
-					link_ = new Link(new Position(pos.getLine(), k), text.substring(0, index), text.substring(index+1));
-				} else {
-					link_ = new Link(new Position(pos.getLine(), k), text);
-				}
-				if (!page.templatesContainLink(link_)) {
-					return link_;
-				}
-			}
-		}
-		return null;
-	}
-	
-	static private Image parseImage(Page page, String line, String text, int i, Position pos, int topBuffer, boolean pageNotTemp) {
-		//Position, name, parameters, links.
-		Image image = new Image(pos, text);
-		parseTextForParameters(page, null, image, new ArrayList<String>(Arrays.asList(line.substring(pos.getPosInLine()+1, topBuffer+1))), 0, topBuffer-1-pos.getPosInLine(), pos, false);
-		parseLineForLinksImagesCategories(page, null, image, line, pos.getPosInLine()+1, topBuffer+1, pos, 2);
-		return image;
-	}
-	
-	static private void parsePageForLinks(Page page) {
-		//Position, Link, Link Text
-		ArrayList<String> content = page.getContent();
-		for (int i = 0; i < content.size(); i++) {
-			parseLineForLinksImagesCategories(page, null, null, content.get(i), 0, Integer.MAX_VALUE, new Position(i, 0), 0);
-		}
-	}
-	
-	static protected Position findClosingPosition(Page page, String open, String close, Position start) {
-		//Method for finding where [[ ]] and {{ }} end.
-		int lineNum = start.getLine();
-		int i = start.getPosInLine();
-		int j;
-		int k = 0;//Keeps track of last found closing.
-		int depth = 1;
-
-		String line = page.getContentLine(lineNum);
-		k = i;
-		i = line.indexOf(open, i+open.length());
-		j = line.indexOf(close, k+open.length());
-		if (i > j || (i == -1 && j != -1)) {
-			//This object has depth 1.
-			depth = 0;
-			k = j;
-		} else {
-			do {
-				//Looking one line at a time.
-				do {
-					//Checking individual line.
-					if (i<=j && i != -1) {
-						//Depth increased
-						k = i;
-						i = line.indexOf(open, i+open.length());
-						j = line.indexOf(close, k+open.length());
-						depth++;
-					} else if (j != -1) {
-						//Depth decreased
-						k = j;
-						if (i != -1) {
-							i = line.indexOf(open, j+close.length());
-						}
-						j = line.indexOf(close, j+close.length());
-						depth--;
-					}
-				} while (depth != 0 && j != -1);
-				
-				if (depth != 0) {
-					//Load in next line, and set up i and j
-					lineNum++;
-					if (lineNum < page.getLineCount()) {
-						line = page.getContentLine(lineNum);
-					}
-					i = line.indexOf(open, 0);
-					j = line.indexOf(close, 0);
-					k = 0;
-				}
-			} while(depth>0 && lineNum < page.getLineCount());
-		}
-		if (lineNum > page.getLineCount()) {
-			logError("Unclosed parseable item at: " + start + "  Page title: " + page.getTitle());
-			return null;
-		}
-		return new Position(lineNum, k+1);
-	}
-	
-	static private void parsePageForSections(Page page) {
-		//Position, title, depth.
-		ArrayList<String> content = page.getContent();
-		String line;
-		boolean found;
-		int index;
-		int index2;
-		Position pos;
-		int j;
-		for (int i = 0; i < content.size(); i++) {
-			line = content.get(i);
-			found = true;
-			for (j = 1; found; j++) {
-				found = false;
-				index = line.indexOf(new String(new char[j]).replace("\0", "="));
-				if (index == 0) {
-					index2 = line.indexOf(new String(new char[j]).replace("\0", "="), index+1);
-					if (index2 != -1) {
-						found = true;
-					}
-				}
-			}
-			j -= 2;
-			if (j != 0) {
-				index = line.indexOf(new String(new char[j]).replace("\0", "="));
-				index2 = line.indexOf(new String(new char[j]).replace("\0", "="), index+1);
-				pos = new Position(i, 0);
-				page.addSection(new Section(line.substring(index+j, index2), pos, j));
-			}
-		}
-	}
-	
-	static private void getPastReveisions(Page page) {
+	/**
+	 * @param The page to attach revisions to.
+	 */
+	static private void getPastRevisions(Page page) {
 		//This method fetches the revisions of a page.
 		String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
 		
 		//Parse page for info.
 		if (getRevisionContent) {
-			page.addRevisions(getRevisions(returned, "<rev user=", "</rev>", true, page.getTitle()));
+			page.setRevisions(getRevisions(returned, "<rev user=", "</rev>", true, page.getTitle()));
 		} else {
-			page.addRevisions(getRevisions(returned, "<rev user=", "\" />", false, page.getTitle()));
+			page.setRevisions(getRevisions(returned, "<rev user=", "\" />", false, page.getTitle()));
 		}
 	}
 	
@@ -765,9 +281,9 @@ public class GenericBot extends javax.swing.JPanel {
 				Revision rev;
 				if (forceTitle == null) {
 					title = parseXMLforInfo("title", revision, "\"");
-					rev = new Revision(new PageLocation(title, getLanguageFromURL(baseURL)), user, comment, date);
+					rev = new Revision(new PageLocation(title, mdm.getLanguageFromURL(baseURL)), user, comment, date);
 				} else {
-					rev = new Revision(new PageLocation(forceTitle, getLanguageFromURL(baseURL)), user, comment, date);
+					rev = new Revision(new PageLocation(forceTitle, mdm.getLanguageFromURL(baseURL)), user, comment, date);
 				}
 				rev.setPageContent(content);
 				output.add(rev);
@@ -1005,8 +521,8 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	/**
 	 * @param ur The url you want to get.
-	 * @param unescapeText Unescapes string literals. Ex: \n, \s
-	 * @param unescapeHTML4 Unescapes HTML4 text, including unicode. Stronger than unescapeText. Ex: \u0065
+	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
+	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: &#039;
 	 */
 	static protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
 		log("Loading: " + ur);
@@ -1044,47 +560,6 @@ public class GenericBot extends javax.swing.JPanel {
         return page.toArray(new String[page.size()]);
 	}
 	
-	static public boolean isPositionParsedAsMediawiki(Page page, Position pos) {
-		//Start from the beginning of the page and work up.
-		Position cursor = new Position(0,0);
-		int lowest;//Earliest occurrence of MW escaped text.
-		Position end = new Position(0,0);//Last found MW escaped text close.
-		
-		do {
-			cursor = end;
-			//Find MW escaped text in line.
-			lowest = -1;
-			String line = page.getContentLine(cursor.getLine());
-			int markupTextID = -1;
-			for (int i = 0; i < MWEscapeOpenText.size(); i++) {
-				int index = line.indexOf(MWEscapeOpenText.get(i), cursor.getPosInLine());
-				if (index != -1) {
-					if (lowest == -1 || index < lowest) {
-						lowest = index;
-						markupTextID = i;
-					}
-				}
-			}
-			//Move cursor
-			if (lowest == -1) {
-				cursor.increaseLine(1);
-				cursor.setPosInLine(0);
-			} else {
-				cursor.setPosInLine(lowest);
-
-				end = findClosingPosition(page, MWEscapeOpenText.get(markupTextID), MWEscapeCloseText.get(markupTextID), cursor);
-			}
-		} while (pos.isGreaterThen(cursor) && pos.isGreaterThen(end));
-		
-		if (lowest == -1) {
-			//No escaped text on line.
-			return true;
-		} else {
-			//Escaped text on line.
-			return !(pos.isGreaterThen(cursor) && end.isGreaterThen(pos));
-		}
-	}
-	
 	/**
 	 * @param loc The pageLocation of the file.
 	 * @return A String of the url that goes directly to the image file (and nothing else).
@@ -1106,7 +581,7 @@ public class GenericBot extends javax.swing.JPanel {
         HttpEntity entity = null;
         List<Cookie> cookies = null;
         
-        baseURL = getWikiURL(language);
+        baseURL = mdm.getWikiURL(language);
         
         try {
         	logCookies(cookies);
@@ -1129,10 +604,14 @@ public class GenericBot extends javax.swing.JPanel {
 	        
 	        try {
 				xmlString = EntityUtils.toString(entity);
-				System.out.println(xmlString);
+				if (logAPIresults) {
+					System.out.println(xmlString);
+				}
 				if (j == 0) {
 					token = parseXMLforInfo("token", xmlString, "\"");
-					log(token);
+					if (logAPIresults) {
+						log(token);
+					}
 				}
 			} catch (org.apache.http.ParseException | IOException e) {
 				e.printStackTrace();
@@ -1150,7 +629,7 @@ public class GenericBot extends javax.swing.JPanel {
 	}
 	
 	static public String APIcommand(APIcommand command) {
-		baseURL = getWikiURL(command.getPageLocation().getLanguage());
+		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
 		String textReturned;
 		if (command.requiresGET()) {
@@ -1159,7 +638,7 @@ public class GenericBot extends javax.swing.JPanel {
 			textReturned = APIcommandHTTP(command);
 		}
 		
-		if (textReturned != null) {
+		if (textReturned != null && logAPIresults) {
 			//Do a quick look-over of the xml recieved
 			if (textReturned.contains("<!DOCTYPE HTML>") || textReturned.contains("<!DOCTYPE html>")) {
 				//We are handling HTML output
@@ -1205,6 +684,7 @@ public class GenericBot extends javax.swing.JPanel {
 				}
 			} else if (textReturned.contains("<?xml version")) {
 				//We are handling XML output
+				log("XML recieved.");
 			} else {
 				//We are handling JSON output
 				
@@ -1259,7 +739,8 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 		
 		try {
-			return compactArray(getURL(url, false, true), "\n");
+			//
+			return compactArray(getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML()), "\n");
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -1326,14 +807,16 @@ public class GenericBot extends javax.swing.JPanel {
 	}
 	
 	static public void logCookies(List<Cookie> cookies) {
-		log("List of cookies: ");
-		if (cookies.isEmpty()) {
-			log("None");
-        } else {
-            for (int i = 0; i < cookies.size(); i++) {
-            	log("- " + cookies.get(i).toString());
-            }
-        }
+		if (logAPIresults) {
+			log("List of cookies: ");
+			if (cookies.isEmpty()) {
+				log("None");
+	        } else {
+	            for (int i = 0; i < cookies.size(); i++) {
+	            	log("- " + cookies.get(i).toString());
+	            }
+	        }
+		}
 	}
 	
 	static private String getEditToken() {
@@ -1445,26 +928,6 @@ public class GenericBot extends javax.swing.JPanel {
 		return output;
 	}
 	
-	public static String getWikiURL(String wikiPrefix) {
-		wikiPrefix = wikiPrefix.replace(":", "");
-
-		for (int i = 0; i < Interwiki.size(); i++) {
-			if (Interwiki.get(i).equalsIgnoreCase(wikiPrefix) || Interwiki.get(i).equalsIgnoreCase(wikiPrefix + ":")) {
-				return InterwikiURL.get(i);
-			}
-		}
-		throw new Error();
-	}
-	
-	public static String getLanguageFromURL(String url) {
-		for (int i = 0; i < InterwikiURL.size(); i++) {
-			if (InterwikiURL.get(i).equalsIgnoreCase(url)) {
-				return Interwiki.get(i);
-			}
-		}
-		throw new Error();
-	}
-	
 	static public Date createDate(String text) {
 		//This takes a wiki date and converts it into a java date.
 		Date date = null;
@@ -1516,7 +979,7 @@ public class GenericBot extends javax.swing.JPanel {
 	}
 	
 	static public void setPPD(boolean boon) {
-		printPageDownloads = boon;
+		logPageDownloads = boon;
 	}
 	
 	static public void pageDownloaded(String name) {

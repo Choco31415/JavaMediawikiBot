@@ -2,17 +2,17 @@ package WikiBot.Content;
 
 
 public class Section {
-	private Position position;
+	private int position;
 	private String sectionTitle;
 	private int depth;
 	
-	public Section(String sectionTitle_, Position pos_, int depth_) {
+	public Section(String sectionTitle_, int pos_, int depth_) {
 		sectionTitle = sectionTitle_;
 		position = pos_;
 		depth = depth_;
 	}
 	
-	public Position getPosition() {
+	public int getPosition() {
 		return position;
 	}
 	

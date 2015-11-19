@@ -13,6 +13,7 @@ public class QueryPageContent extends APIcommand {
 		addParameter("titles", loc.getTitle());
 		addParameter("prop", "revisions");//Gets current page revision.
 		addParameter("rvprop", "content");//Gets current page revision content.
+		unescapeText = true;
 	}
 	
 	/**
@@ -25,6 +26,8 @@ public class QueryPageContent extends APIcommand {
 		addParameter("titles", compactArray(locs, "|"));
 		addParameter("prop", "revisions");
 		addParameter("rvprop", "content");
+		unescapeText = true;
+		unescapeHTML = false;
 	}
 	
 	static public String compactArray(ArrayList<PageLocation> array, String delimitor) {

@@ -89,10 +89,8 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		
 		setPPD(true);
 		
-	    // Set up in interwikis
-		ArrayList<ArrayList<String>> temp = readFamily(family, 0);
-		Interwiki = temp.get(0);
-		InterwikiURL = temp.get(1);
+	    // Read more data into mdm.
+		mdm.readFamily(family_, 0);
 		
 	    // Construct the button
 		logInButton = new Button("Log In");
@@ -123,7 +121,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	    infoBox = new Label("The interwikis supported are:");
 	    
 	    interwikiList = new List(5, true);
-	    for (String iw : Interwiki) {
+	    for (String iw : mdm.getInterwiki()) {
 	    	interwikiList.add(iw); 	
 	    }
 	    
@@ -339,15 +337,14 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		return temp;
 	}
 	
+	/*
+	 * This method is for processing a page beyond what is offered.
+	 * For example, in the DACH wiki, the en template creates an en interwiki.
+	 */
 	public void processFurther(Page pg) {
-		Template temp = pg.getTemplate("en");
+		Template temp = (Template)pg.getPageObject("en", "Template");
 		if (temp != null) {
-			if (temp.getParameterCount() > 0) {
-				String text = temp.getParameter(0).trim();
-				if (text.length() <10 || !text.substring(0,10).equalsIgnoreCase("Interwiki=")) {
-					pg.addInterwiki(new Interwiki(text, "En:"));	
-				}
-			}
+			pg.addInterwiki(new Interwiki(temp.getParameter(0), "en", -1, -1));
 		}
 	}
 	
@@ -478,7 +475,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	
 	public void logInEverywhere() {
 		setConsoleText("Attempting login everywhere.");
-		for (String languageCode : Interwiki) {
+		for (String languageCode : mdm.getInterwiki()) {
 			logInAt(languageCode);
 		}
 	}
@@ -550,32 +547,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 			validate();
 			repaint();
 		}
-	}
-	
-	/**
-	 * This method returns the file as two ArrayLists of:
-	 * 0 - The interwiki prefix
-	 * 1 - The interwiki url
-	 */
-	public ArrayList<ArrayList<String>> readFamily(String family, int commentBufferLineCount) {
-		ArrayList<String> lines = readFileAsList("/Families/" + family + ".txt", commentBufferLineCount, false, true);
-		
-		// Gather array size
-		ArrayList<String> interwiki = new ArrayList<String>();
-		ArrayList<String> interwikiUrl = new ArrayList<String>();
-		
-		for (String line : lines) {
-			if (!line.equals("")) {
-				int index = line.indexOf(":");
-				interwiki.add(line.substring(0, index).trim());
-				interwikiUrl.add(line.substring(index+1).trim());
-			}
-		}
-		
-		ArrayList<ArrayList<String>> temp = new ArrayList<ArrayList<String>>();
-		temp.add(interwiki);
-		temp.add(interwikiUrl);
-		return temp;
 	}
 	
 	public void setConsoleText(String text) {

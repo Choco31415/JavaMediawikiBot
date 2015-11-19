@@ -7,7 +7,9 @@ import WikiBot.Content.PageLocationContainer;
 
 public class APIcommand extends PageLocationContainer {
 	
-	boolean requiresPOST = false;
+	protected boolean requiresPOST = false;
+	protected boolean unescapeText = false;
+	protected boolean unescapeHTML = true;
 
 	protected ArrayList<String> keys = new ArrayList<String>();
 	protected ArrayList<String> values = new ArrayList<String>();
@@ -111,6 +113,10 @@ public class APIcommand extends PageLocationContainer {
 	
 	public void setRequiresGET(boolean bool) { requiresPOST = bool; }
 	public boolean requiresGET() { return requiresPOST; }
+	public void setUnescapeText(boolean bool) { unescapeText = bool; }
+	public boolean shouldUnescapeText() { return unescapeText; }
+	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
+	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	
 	public String getSummary() {
 		String temp;

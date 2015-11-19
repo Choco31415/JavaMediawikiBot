@@ -1,0 +1,7 @@
+//A list of all Mediawiki magic words.
+CURRENTDAY
+FULLPAGENAME
+PAGENAME
+//A list of all other words that are not templates
+#switch
+#ifeq

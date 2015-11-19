@@ -2,96 +2,54 @@ package WikiBot.Content;
 
 import java.util.ArrayList;
 
-public class Template {
-	private Position position;
-	private String name;
-	private ArrayList<String> parameters = new ArrayList<String>();
-	private ArrayList<Image> images = new ArrayList<Image>();
-	private ArrayList<Link> links = new ArrayList<Link>();
+public class Template extends PageObjectAdvanced {
 	
-	public Template(Position pos_, String name_, ArrayList<String> params, ArrayList<Image> images_, ArrayList<Link> links_) {
-		position = pos_;
-		name = name_;
-		parameters = params;
-		images = images_;
-		links = links_;
+	String templateName;
+	
+	public Template(int openPos_, int closePos_, String pageTitle_, String rawTemplateText_, ArrayList<PageObject> pageObjects_, ArrayList<String> parameters_) {
+		super("Template", rawTemplateText_, openPos_, closePos_, parameters_, pageObjects_, "{{", "}}");
+		setTemplateName(pageTitle_, rawTemplateText_);
 	}
 	
-	public Template(Position pos_, String name_) {
-		position = pos_;
-		name = name_;
+	public Template(int openPos_, int closePos_, String pageTitle_, String rawTemplateText_) {
+		super("Template", rawTemplateText_, openPos_, closePos_, "{{", "}}");
+		setTemplateName(pageTitle_, rawTemplateText_);
 	}
 	
-	public void addParameter(String param) {
-		parameters.add(param);
-	}
-	
-	public void addImage(Image image) {
-		images.add(image);
-	}
-	
-	public void addLink(Link link) {
-		links.add(link);
-	}
-	
-	public Position getPosition() {
-		return position;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public int getParameterCount() {
-		return parameters.size();
-	}
-	
-	public ArrayList<String> getParameters() {
-		return parameters;
-	}
-	
-	public String getParameter(int i) {
-		return parameters.get(i);
-	}
-	
-	public ArrayList<Image> getImages() {
-		return images;
-	}
-	
-	public Image getImage(int i) {
-		return images.get(i);
-	}
-	
-	public ArrayList<Link> getLinks() {
-		return links;
-	}
-	
-	public boolean containsLink(Link link) {
-		for (int i = 0; i < links.size(); i++) {
-			if ((links.get(i)).equals(link)) {
-				return true;
-			}
+	private void setTemplateName(String pageTitle_, String rawTemplateText_) {
+		if (header.length() >= 1 & header.substring(0,1).equals("/")) {
+			templateName = pageTitle_ + rawTemplateText_;
+		} else if (header.length() >= 1 & header.substring(0,1).equals(":")) {
+			templateName = rawTemplateText_.substring(1);
+		} else if (header.length() >= 9 && header.substring(0,9).equalsIgnoreCase("Template")) {
+			templateName = rawTemplateText_;
+		} else {
+			templateName = "Template:" + header;
 		}
-		return false;
+	}
+	
+	public String getTemplateName() {
+		return templateName;
+	}
+	
+	public String simpleToString() {
+		return "(Template) Name: "  + header + " (at: " + openPos + ")";
 	}
 	
 	@Override
 	public String toString() {
 		String output;
 
-		output = "(Template) Name: " + name + "\nWith links: ";
-		for (int i = 0; i < links.size(); i++) {
-			output += (links.get(i) + " , ");
-		}
-		output += "\nWith images: ";
-		for (int i = 0; i < images.size(); i++) {
-			output += (images.get(i) + " , ");
-		}
+		output = simpleToString();
 		output += "\nWith parameters: ";
 		for (int i = 0; i < parameters.size(); i++) {
 			output += (parameters.get(i) + " , ");
 		}
-		output += "\nAt: " + position;
+		output += "\nWith pageObjects: ";
+		for (int i = 0; i < pageObjects.size(); i++) {
+			output += (pageObjects.get(i).simpleToString() + " , ");
+		}
+
 		return output;
 	}
 }
