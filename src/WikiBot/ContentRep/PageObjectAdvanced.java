@@ -29,6 +29,10 @@ public abstract class PageObjectAdvanced extends PageObject {
 		parameters.add(param);
 	}
 	
+	public void setParameter(int index, String param) {
+		parameters.set(index, param);
+	}
+	
 	//Get information.
 	
 	public String getHeader() {

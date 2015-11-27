@@ -21,6 +21,11 @@ public abstract class PageObject {
 		textClosing = textClosing_;
 	}
 	
+	//Set information
+	public void setOpeningPosition(int index) {
+		openPos = index;
+	}
+	
 	//Get information.
 	public int getOpeningPosition() {
 		return openPos;
