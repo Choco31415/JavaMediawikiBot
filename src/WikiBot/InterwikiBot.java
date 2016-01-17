@@ -42,10 +42,15 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		Page page = getWikiPage(new PageLocation("User:ErnieParke/TestWikiBots", "en"));
-		ArrayList<Link> pos = page.getLinks();
-		for (Link object: pos) {
-			System.out.println(object);
+		ArrayList<PageLocation> pageLocs = getCategoryPages(new PageLocation("Category:Scratch 2.0", "en"));
+		//pageLocs = pageLocs.subList(0,  11);
+		ArrayList<SimplePage> pages = getWikiSimplePages(pageLocs);
+		
+		for (int i = 0; i < 10; i++) {
+			SimplePage p = pages.get(i);
+			System.out.println(p);
+			PageLocation newLoc = new PageLocation("-en:" + p.getTitle(), "test");
+			proposeEdit(new EditPage(newLoc, p.getRawText(), "Uploading some pages to the wiki."), "Uploading page");
 		}
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
@@ -75,5 +80,48 @@ public class InterwikiBot extends BotPanel {
 				cluster.clear();
 			}
 		}*/
+	}
+	
+	/*
+	 * This method is for processing a page beyond what is offered.
+	 * For example, in the DACH wiki, the en template creates an en interwiki.
+	 */
+	public void processFurther(Page pg) {
+		Template temp = (Template)pg.getPageObject("en", "Template");
+		if (temp != null) {
+			pg.addInterwiki(new Interwiki(temp.getParameter(0), "en", -1, -1));
+		}
+	}
+	
+	public Page getWikiPage(PageLocation pl) {
+		Page temp = super.getWikiPage(pl);
+		processFurther(temp);
+		return temp;
+	}
+	
+	/**
+	 * IMPORTANT: This method only accepts pages from the same wiki.
+	 */
+	public ArrayList<Page> getWikiPagesBatch(ArrayList<PageLocation> pls) {
+		
+		if (pls.size() == 0) {
+			throw new Error();
+		}
+		
+		//Check that everything is from the same language.
+		String wikiLang = pls.get(0).getLanguage();
+		for (PageLocation pl : pls) {
+			if (!pl.getLanguage().equals(wikiLang)) {
+				throw new Error();
+			}
+		}
+		
+		ArrayList<Page> temp = getWikiPages(pls);
+		
+		for (Page pg : temp) {
+			processFurther(pg);
+		}
+		
+		return temp;
 	}
 }

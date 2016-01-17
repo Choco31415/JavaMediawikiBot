@@ -641,11 +641,15 @@ public class Page extends SimplePage {
 					sectionText = new String(new char[depth]).replace("\0", "=");
 					openIndex = rawText.indexOf("\n" + sectionText, oldIndex);
 				}
+				//Backtrack a bit.
+				depth--;
+				sectionText = new String(new char[depth]).replace("\0", "=");
+				openIndex = oldIndex;
 				
 				//Test that we do in fact have a section. They should not contain \n.
 				int closeIndex = rawText.indexOf(sectionText + "\n", openIndex+depth);
 				if (closeIndex != -1) {
-					String substring = rawText.substring(openIndex, closeIndex);
+					String substring = rawText.substring(openIndex+1, closeIndex);
 					if (!substring.contains("\n")) {
 						//We have a valid section. Add it.
 						addSection(new Section(substring.substring(depth), openIndex, depth));

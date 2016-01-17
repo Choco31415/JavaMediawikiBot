@@ -9,6 +9,9 @@ public class PageTitle {
 	private String nameSpace;
 	private String titleWithoutNameSpace;
 	
+	/**
+	 * @param title_ The title of the page.
+	 */
 	public PageTitle(String title_) {
 		title = title_;
 		
