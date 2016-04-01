@@ -432,32 +432,62 @@ public class GenericBot extends javax.swing.JPanel {
 		return toReturn;
 	}
 	
+	/**
+	 * This method gets all pages starting from the beginning.
+	 * @param language
+	 * @param depth
+	 * @return
+	 */
 	static public ArrayList<PageLocation> getAllPages(String language, int depth) {
-		return getAllPages(language, depth, null);
+		return getAllPages(language, depth, null, null);
 	}
 	
 	/**
-	 * This method gets 30 recent changes per query call, so it might make multiple query calls.
+	 * This method gets all pages starting from the parameter "from".
 	 * @param language
 	 * @param depth
 	 * @param from
 	 * @return
 	 */
 	static public ArrayList<PageLocation> getAllPages(String language, int depth, String from) {
+		return getAllPages(language, depth, from, null);
+	}
+	
+	/**
+	 * This method gets 30 pages per query call, so it might make multiple query calls.
+	 * @param language
+	 * @param depth
+	 * @param from
+	 * @param apnamespace The id of the namespace being crawled.
+	 * @return
+	 */
+	static public ArrayList<PageLocation> getAllPages(String language, int depth, String from, Integer apnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String apcontinue = null;
 		
 		do {
 			//Make query call.
 			String returned;
-			if (apcontinue == null) {
-				if (from != null) {
-					returned = APIcommand(new QueryAllPages(language, Math.min(3, APIlimit), from));
+			if (apnamespace == null) {
+				if (apcontinue == null) {
+					if (from != null) {
+						returned = APIcommand(new QueryAllPages(language, APIlimit, from));
+					} else {
+						returned = APIcommand(new QueryAllPages(language, APIlimit));
+					}
 				} else {
-					returned = APIcommand(new QueryAllPages(language, Math.min(3, APIlimit)));
+					returned = APIcommand(new QueryAllPages(language, APIlimit, apcontinue));
 				}
 			} else {
-				returned = APIcommand(new QueryAllPages(language, Math.min(3, APIlimit), apcontinue));
+				if (apcontinue == null) {
+					if (from != null) {
+						returned = APIcommand(new QueryAllPages(language, APIlimit, from, apnamespace));
+					} else {
+						returned = APIcommand(new QueryAllPages(language, APIlimit, apnamespace));
+					}
+				} else {
+					returned = APIcommand(new QueryAllPages(language, APIlimit, apcontinue, apnamespace));
+				}
 			}
 			
 			//Parse text returned.
@@ -504,6 +534,47 @@ public class GenericBot extends javax.swing.JPanel {
 			}
 		} while(j != -1);
 		return output;
+	}
+	
+	/**
+	 * Warning: Only supported in MW v.1.23 and above!
+	 * @param language The language of the wiki.
+	 * @param prefix The prefix that you are searching for.
+	 * @return A list of pages with the given prefix.
+	 */
+	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix) {
+		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
+		Integer psoffset = null;
+		
+		do {
+			//Make query call.
+			String returned;
+			if (psoffset == null) {
+				returned = APIcommand(new QueryPrefix(language, prefix));
+			} else {
+				returned = APIcommand(new QueryPrefix(language, prefix, psoffset));
+			}
+			
+			//Parse text returned.
+			ArrayList<String> pageTitles= getPages(returned, "<ps", "/>");
+			
+			//Transfer page names into wrapper class.
+			for (String pageName : pageTitles) {
+				PageLocation loc2 = new PageLocation(pageName, language);
+				toReturn.add(loc2);
+			}	
+			
+			//Try continuing the query.
+			try {
+				psoffset = Integer.parseInt(parseXMLforInfo("psoffset", returned, "\""));
+			} catch (IndexOutOfBoundsException e) {
+				psoffset = null;
+			}
+		} while (psoffset != null);
+		
+		log.add("All pages with prefix " + prefix + " queried.");
+		
+		return toReturn;
 	}
 	
 	static protected ArrayList<String> getXMLItems(String XMLdata, String openingText, String closingText, int botBuffer) {

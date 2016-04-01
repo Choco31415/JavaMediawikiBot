@@ -34,7 +34,13 @@ public abstract class PageObjectAdvanced extends PageObject {
 	}
 	
 	//Get information.
-	
+	/**
+	 * Gets the header of the page object.
+	 * For templates, it would be the template name.
+	 * For images, it would be the image.
+	 * So on.
+	 * @return header
+	 */
 	public String getHeader() {
 		return header;
 	}

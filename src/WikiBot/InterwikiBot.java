@@ -42,16 +42,23 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		ArrayList<PageLocation> pageLocs = getCategoryPages(new PageLocation("Category:Scratch 2.0", "en"));
-		//pageLocs = pageLocs.subList(0,  11);
-		ArrayList<SimplePage> pages = getWikiSimplePages(pageLocs);
-		
-		for (int i = 0; i < 10; i++) {
-			SimplePage p = pages.get(i);
-			System.out.println(p);
-			PageLocation newLoc = new PageLocation("-en:" + p.getTitle(), "test");
-			proposeEdit(new EditPage(newLoc, p.getRawText(), "Uploading some pages to the wiki."), "Uploading page");
+		getRevisionContent = true;
+		revisionDepth = 2;
+		ArrayList<PageLocation> pages = getAllPages("en", 152, "Jvvg/AF/", 2);
+		for (PageLocation loc : pages) {
+			if (loc.getTitle().contains("Template:")) {
+				String pageTitle = loc.getTitleWithoutNameSpace();
+				int index = pageTitle.indexOf(":");
+				pageTitle = "Template:" + pageTitle.substring(index+1);
+				System.out.println(pageTitle);
+				
+				Page p = getWikiPage(loc);
+				Revision r = p.getRevision(1);
+				System.out.println(r.getPage());
+				//proposeEdit(new EditPage(new PageLocation(pageTitle, loc.getLanguage()), sp.getRawText(), "For AF."), "AF");
+			}
 		}
+		
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
 		/*ArrayList<String> ignore = new ArrayList<String>();

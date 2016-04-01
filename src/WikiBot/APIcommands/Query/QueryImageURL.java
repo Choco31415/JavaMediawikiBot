@@ -5,7 +5,6 @@ import WikiBot.ContentRep.PageLocation;
 
 public class QueryImageURL extends APIcommand {
 	public QueryImageURL(PageLocation loc) {
-		//			input = getURL(baseURL + "/api.php?format=json&action=query&titles=" +  + "&prop=imageinfo&iiprop=url"
 		super(loc);
 		keys.add("format");
 		values.add("json");

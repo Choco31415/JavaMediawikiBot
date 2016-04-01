@@ -1,1 +1,0 @@
-Set Pen Color to ()

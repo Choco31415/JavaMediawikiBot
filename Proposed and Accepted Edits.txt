@@ -1,0 +1,123 @@
+***Proposed Edits***
+(Edit) Wiki: Template:External Programs
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{Header Template
+| [[File:Danger.png|30px]]
+| [[Scratch]] and the [[Scratch Wiki]] have included links to insecure external programs. Although Scratch never has viruses, that doesn't stop them from infecting you with external sites.
+}}
+
+(Edit) Wiki: Template:External Links
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{Header Template
+| [[File:StarlessHomestar.jpg|75px]]
+|bgColor=white
+|borderColor=red
+|'''This does not look good for Homestar Runner.'''
+This page has links to outside of the Scratch website or Wikipedia. However, we are not able to see if the website is safe because Strong Bad ate Homestar's tracking star. Just hope that the viruses don't hurt, OK? Or else it can hurt the digital world even badder than the Compy 386 virus attack or the Love Letter virus!
+}}
+
+(Edit) Wiki: Template:Disambig
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{Header Template
+| [[File:Disambig.png|30px]]
+| '''This is a disambiguation page''', which lists possible pages that may or (more likely) may not be remotely related to what you are actually looking for. 
+}}
+
+(Edit) Wiki: Template:Delete
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{Header Template
+|1= [[File:Silver the Hedgehog.png|50px]]
+|2= Silver says, '''"It's no use"''', so this page needs a little bye-bye. {{#if: {{{1|}}} | <br/><small>Reason for deletion: {{{1}}}</small> }}<br/> ''<small>Admins or cats: remember to check the {{plain link|{{fullurl:{{FULLPAGENAME}}|action=history}}|page history}} and [[Special:WhatLinksHere/{{FULLPAGENAME}}|what links here]] before saying goodbye to the page. Silver doesn't care, though.</small>''
+|bgColor=<nowiki>#FF9999</nowiki>
+|borderColor=<nowiki>#FF0000</nowiki>
+}}
+<!--<includeonly><div id="divBlank" style="display: none;"></includeonly>-->
+<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Pages in Need of Deletion]]}}</includeonly>
+
+(Edit) Wiki: Template:Citation needed
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+<sup><nowiki>[</nowiki>[[Help:References#Cite Your Sources or Die|''big fat lie'']]<nowiki>]</nowiki></sup>
+
+(Edit) Wiki: Template:Caution
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{#if: {{{1|}}}|<table cellspacing="0" cellpadding="0" border="0" style="background: transparent;"><tr><td nowrap="nowrap" valign="top">}}<span style="position: relative; top: 2px;">[[File:The worst Sonic game ever.jpg|link=|18px]]</span> '''RISE OF [[Questions about Scratch|SONIC '06]]:''' {{#if: {{{1|}}}|</td><td valign="top" style="padding-left:0.5em; position: relative; top: 3px">{{{1|}}}</td></tr></table>}}
+
+(Edit) Wiki: Template:Block
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{| style="border:1px solid #E0E0E0;border-top-left-radius:10px;border-top-right-radius:10px;box-shadow:0 2px 3px rgb(34, 25, 25);margin-bottom: 0.5em;margin-left: 1em;float: right;clear: right;min-width:225px;background:white"
+|- 
+| colspan="2" style="padding:7px 20px;background-color:#F7F7F7;font-size:1.2em;text-align:center;border-bottom:1px solid #E0E0E0;" | {{{name|{{PAGENAME}}}}}
+|- align="center"
+{{#if: {{{image|}}} | {{!}} colspan="2" style="padding:0.5em;" {{!}} [[{{{image}}}]] }}
+|-
+{{#if: {{{category|}}} | {{!}} '''Category''' {{!}}{{!}} {{{category}}} }}
+|-
+{{#if: {{{type|}}} | {{!}} '''Type''' {{!}}{{!}} {{{type}}} }}
+|-
+{{#if: {{{added|}}} | {{!}} '''Introduced in''' {{!}}{{!}} {{{added}}} }}
+|-
+{{#if: {{{removed|}}} | {{!}} '''Removed in''' {{!}}{{!}} {{{removed}}} }}
+|}<noinclude><br style="clear:both;" />
+{{/doc}}[[Category:Other Block Templates|Block]]</noinclude>
+
+(Edit) Wiki: Template:Bad Image
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+{{Header Template
+| [[File:Bananas.png|26px]]
+| 2='''This image looks like a bunch of bananas.''' You can unbend it <includeonly> <span class="plain links">[{{fullurl:Special:Upload|wpDestFile={{FULLPAGENAMEE}}&wpForReUpload=1}} here]</span></includeonly>, but nobody will care. It's still a bunch of bananas, only this time it's straight! This is a very, very long sentence in which you'll most like lose your breath halfway through, and it looks like you need some more bananas for that bowl, but unfortunately we have 401 more things to do before this, which includes finishing this sentence. Whew!
+
+{{quote|Jellyfish!|A random NFL fan|A curvy yellow fruit with lots of potassium}}
+
+{{#if: {{{1|}}} | <br/><small>Reason: {{{1}}}</small> | }}
+}}
+
+(Edit) Wiki: Template:-
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+—<noinclude>
+{{Template:-/doc}}</noinclude>
+
+(Edit) Wiki: Template:!
+Page name: en
+Edit type: edit
+Summary: For AF.
+Bot: true
+Text: 
+|<noinclude>{{/doc}}[[Category:Meta Templates|!]]</noinclude>
+
+***Accepted Edits***
