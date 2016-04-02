@@ -44,25 +44,9 @@ public class InterwikiBot extends BotPanel {
 	public void code() {
 		getRevisionContent = true;
 		revisionDepth = 2;
-		ArrayList<PageLocation> pages = getAllPages("en", 170, "Jvvg/AF/", 2);
-		for (PageLocation loc : pages) {
-			try {
-				System.out.println(loc.getTitle());
-				if (loc.getTitle().contains("Template:")) {
-					String pageTitle = loc.getTitleWithoutNameSpace();
-					int index = pageTitle.indexOf(":");
-					pageTitle = "Template:" + pageTitle.substring(index+1);
-					System.out.println(pageTitle);
-					
-					Page p = getWikiPage(new PageLocation(pageTitle, loc.getLanguage()));
-					Revision r = p.getRevision(1);
-					//System.out.println(r.getPage());
-					proposeEdit(new EditPage(new PageLocation(pageTitle, loc.getLanguage()), r.getPage(), "AF is done."), "AF");
-				}
-			} catch (Error e) {
-				
-			}
-		}
+		Page p = getWikiPage(new PageLocation("Template:Stub", "en"));
+		Revision r = p.getRevision(1);
+		System.out.println(r.getPage());
 		
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		

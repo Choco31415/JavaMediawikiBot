@@ -1,6 +1,8 @@
 //An incomplete list of all Mediawiki magic words.
 CURRENTDAY
 FULLPAGENAME
+TALKPAGENAME
+PAGENAME
 PAGENAME
 //An incomplete list of all other words that are not templates
 #switch

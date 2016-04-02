@@ -484,7 +484,7 @@ public class Page extends SimplePage {
 							}
 						}
 						
-						//Check that we do not have a parameter.
+						//Check that we do not have a {{{ }}} parameter.
 						if (header.length() > 0 && header.substring(0,1).equals("{")) {
 							openIndex += 2;
 							break objectParse;
@@ -533,7 +533,8 @@ public class Page extends SimplePage {
 						}
 					}
 					
-					ArrayList<PageObjectAdvanced> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);//Page objects within the current page object.
+					//Page objects within the current page object.
+					ArrayList<PageObjectAdvanced> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);
 					
 					//Resolve link/template disambiguates
 					if (isLink && GenericBot.parseThurough) {
