@@ -42,11 +42,10 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		getRevisionContent = true;
+		getRevisionContent = false;
 		revisionDepth = 2;
-		Page p = getWikiPage(new PageLocation("Template:Stub", "en"));
-		Revision r = p.getRevision(1);
-		System.out.println(r.getPage());
+		Page p = getWikiPage(new PageLocation("User:ErnieParke/TestWikiBots", "en"));
+		System.out.println(p);
 		
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		

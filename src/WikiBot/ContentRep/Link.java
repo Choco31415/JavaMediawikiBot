@@ -42,6 +42,6 @@ public class Link extends PageObjectAdvanced {
 	
 	@Override
 	public String toString() {
-		return "(Link) Text: " + link + " (Link Text: " + getDisplayedText() + ") (at: " + openPos + ")";
+		return "(Link) To: " + link + " (Link Text: " + getDisplayedText() + ") (at: " + openPos + ")";
 	}
 }

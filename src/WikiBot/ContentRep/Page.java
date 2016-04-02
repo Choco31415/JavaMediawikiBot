@@ -493,7 +493,8 @@ public class Page extends SimplePage {
 						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
 					} else if (objectID == 1) {
 						//[[
-						if (header.length() > 5 && header.substring(0,5).equalsIgnoreCase("File:")) {							
+						if (header.length() > 5 && header.substring(0,5).equalsIgnoreCase("File:")) {
+							//We have an image.
 							po = new Image(openIndex+pos, outerCloseIndex+pos, header);
 						} else if (header.length() > 9 && header.substring(0,9).equalsIgnoreCase("Category:")) {
 							//We have a category.
@@ -513,6 +514,8 @@ public class Page extends SimplePage {
 							}
 							
 							//Check that this is indeed a link.
+							//Extra [ means the link is slightly further down.
+							//Odd multiples of [ do not create a link.
 							if (header.substring(0,1).equals("[")) {
 								openIndex += openStrings[objectID].length();
 								break objectParse;
@@ -537,11 +540,14 @@ public class Page extends SimplePage {
 					ArrayList<PageObjectAdvanced> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);
 					
 					//Resolve link/template disambiguates
+					//Aka templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
+					//It all depends on if the template is multi-lined or not.
 					if (isLink && GenericBot.parseThurough) {
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
 								SimplePage sp = GenericBot.getWikiSimplePage(new PageLocation(((Template)object).getTemplateName(), lan));
 								if (sp.getRawText().contains("\n") && depth == 0) {
+									//This is parsed as a template.
 									//Add all page objects to the page.
 									for (PageObject object2: objects) {
 										if (object2.getObjectType().equalsIgnoreCase("Category")) {
