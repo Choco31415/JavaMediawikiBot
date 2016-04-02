@@ -1,78 +1,210 @@
 ***Proposed Edits***
-(Edit) Wiki: Template:External Programs
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Warning
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
+Bot: true
+Text: 
+{{#if: {{{1|}}}|<table cellspacing="0" cellpadding="0" border="0" style="background: transparent;"><tr><td nowrap="nowrap" valign="top">}}<span style="position: relative; top: 2px;">[[File:Attention.png|18px|Warning|link=]]</span> '''Warning:''' {{#if: {{{1|}}}|</td><td valign="top" style="padding-left:0.5em; position: relative; top: 5px">'''{{{1|}}}'''</td></tr></table>}}<noinclude>[[Category:Templates|Warning]]{{/doc}}</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Unreleased
+Edit type: edit
+Summary: AF is done.
 Bot: true
 Text: 
 {{Header Template
-| [[File:Danger.png|30px]]
-| [[Scratch]] and the [[Scratch Wiki]] have included links to insecure external programs. Although Scratch never has viruses, that doesn't stop them from infecting you with external sites.
+| [[File:Clock.png|30px]]
+| This article or section contains information about a feature from a future version of [[Scratch]] that is unreleased and is subject to change. Some [[Block Plugin|Scratch Blocks]] may not display correctly on this page.
 }}
+{{#ifeq:{{{cat}}}|no||[[Category:Unreleased|{{PAGENAME}}]]}}
+<noinclude>{{/doc}}[[Category:Templates|Unreleased]]</noinclude>
 
-(Edit) Wiki: Template:External Links
-Page name: en
+(Edit) Wiki: en
+Page name: Template:T/piece
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
+Bot: true
+Text: 
+{{#ifeq: {{{1|---}}}|---|||<font color="gray">''<{{{1}}}>''</font>}}<noinclude>{{T/piece/doc}}[[Category:Meta Templates|T/piece]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:T
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+<nowiki>{{</nowiki>[[Template:{{{1}}}|{{{1}}}]]{{t/piece|{{{2|---}}}}}{{t/piece|{{{3|---}}}}}{{t/piece|{{{4|---}}}}}{{t/piece|{{{5|---}}}}}{{t/piece|{{{6|---}}}}}{{t/piece|{{{7|---}}}}}{{t/piece|{{{8|---}}}}}{{t/piece|{{{9|---}}}}}{{t/piece|{{{10|---}}}}}{{t/piece|{{{11|---}}}}}{{t/piece|{{{12|---}}}}}{{t/piece|{{{13|---}}}}}{{t/piece|{{{14|---}}}}}{{t/piece|{{{15|---}}}}}{{t/piece|{{{16|---}}}}}{{t/piece|{{{17|---}}}}}{{t/piece|{{{18|---}}}}}{{t/piece|{{{19|---}}}}}{{t/piece|{{{20|---}}}}}{{t/piece|{{{21|---}}}}}<nowiki>}}</nowiki><noinclude>{{T/doc}}[[Category:Quicklink Templates|T]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Scratch Team Page
+Edit type: edit
+Summary: AF is done.
 Bot: true
 Text: 
 {{Header Template
-| [[File:StarlessHomestar.jpg|75px]]
-|bgColor=white
-|borderColor=red
-|'''This does not look good for Homestar Runner.'''
-This page has links to outside of the Scratch website or Wikipedia. However, we are not able to see if the website is safe because Strong Bad ate Homestar's tracking star. Just hope that the viruses don't hurt, OK? Or else it can hurt the digital world even badder than the Compy 386 virus attack or the Love Letter virus!
-}}
+|1= [[File:Scratch Cat-cropped.png|60px]]
+|2= '''This article has been created and is maintained by the [[Scratch Team]].''' As such, it should be treated as an official informational page. It may be linked to from several different places on the main site.
+Please only make minor changes to the content of this page.
+}}<includeonly>{{#ifeq:{{NAMESPACE}}|{{ns:0}}<!--Article space-->|[[Category:Scratch Team Pages|{{PAGENAME}}]]}}</includeonly><noinclude>{{/doc}}[[Category:Templates|Scratch Team Page]]</noinclude>
 
-(Edit) Wiki: Template:Disambig
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Quote
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
+Bot: true
+Text: 
+{| class="cquote" style="margin:auto;"
+| valign="top" style="width:20px; font-size:36px; font-family:'Times New Roman', serif; font-weight:bold; text-align:left; padding:3px;" | “
+| valign="top" style="padding:3px;" | {{{1|Insert the text of the quote here, without quotation marks.}}}
+| valign="bottom" style="width:20px; font-size:36px; font-family:'Times New Roman', serif; font-weight:bold; text-align:right; padding:3px;" | ”
+|-
+{{#if:{{{2|}}}{{{3|}}}|
+{{!}} colspan="3" style="padding-top:10px;" {{!}} {{#if:{{{2|<noinclude>Origin</noinclude>}}}|<p style="font-size:smaller; text-align:right;"><cite style="font-style:normal;">– {{{2}}}{{#if:{{{3|<noinclude>Source</noinclude>}}}|, {{{3}}}}}</cite></p>}}
+}}
+|}<noinclude>[[Category:Templates|Quote]]{{/doc}}</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Outdated
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{{Header Template|[[File:Archive.png|left|50px]]|'''The subject of this article or section has changed dramatically and requires updating.''' Please keep in mind that some of the information or images may not be accurate or relevant to the current version of [[Scratch]], the [[Scratch Website|Scratch website]], or the article subject. <br />{{#if:{{{1|}}}|<small>Specifically, it needs {{{1}}}.</small>}}}}
+<includeonly>{{#ifeq:{{{cat}}}|no||[[Category:Outdated Articles]]}}</includeonly><noinclude>{{/doc}}[[Category:Templates|Outdated]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Obsolete feature
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{{Header Template|[[File:Archive.png|40px]]|This article or section documents a feature not included in the current version of Scratch ([[Scratch 2.0|2.0]]). It is only useful from a historical perspective. {{#if:{{{1|}}}|For information on the feature that replaced this one, see [[{{{1}}}]].}}}}<noinclude>
+{{/doc}}
+[[Category:Templates|Obsolete feature]]</noinclude><!--
+--><includeonly>{{#ifeq:{{{cat}}}|no||[[Category:Articles about the past]]}}</includeonly>
+
+(Edit) Wiki: en
+Page name: Template:Note
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{{#if:{{{1|}}}|<table cellspacing="0" cellpadding="0" border="0" style="background: transparent;"><tr><td nowrap="nowrap" valign="top">}}<span style="position: relative; top: 4px;">[[File:Information.png|18px|Warning|link=]]</span> '''Note:''' {{#if:{{{1|}}}|</td><td valign="top" style="padding-left: 0.5em; position: relative; top: 6px; padding-bottom: 6px;">{{{1}}}</td></tr></table>}}<noinclude>{{/doc}}
+[[Category:Templates|Note]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Main
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+:''Main {{#ifeq:{{NAMESPACE:{{{1}}}}}|{{ns:0}}|article|page}}: [[{{{1}}}]]''<noinclude>
+
+{{/doc}}
+
+[[Category:Templates|Main]]
+
+</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Inaccurate
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{{Header Template
+| [[File:Document.png|26px]]
+| This article or section needs '''additional citations for verification.''' Its information may not be accurate. Editors can help by [[Help:References|adding references]].
+}}
+<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Inaccurate Articles|{{PAGENAME}}]]}}</includeonly><noinclude>{{/doc}}[[Category:Templates]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:Header Template
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{| style="border:1px solid #E0E0E0;border-top-left-radius:10px;border-top-right-radius:10px;box-shadow:0 2px 3px rgba(34, 25, 25, 0.5);padding:7px 20px;position:relative;background-color:{{#if:{{{bgColor|}}}|{{{bgColor}}}|<nowiki>#F7F7F7</nowiki>}};border-bottom:1px solid {{#if:{{{borderColor|}}}|{{{borderColor}}}|<nowiki>#E0E0E0</nowiki>}};"
+|-
+| style="padding-right:10px;" | {{{1|[[File:Wiki.png|50px]]}}}
+| {{{2|This is a "meta-template" used to standardize other templates. The first argument is usually an image, the second is the text. The <code>bgColor</code> param allows a background color to be set, and <code>borderColor</code>, a border color.}}}
+|}
+<noinclude>[[Category:Meta Templates|Header Template]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:External Programs
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+{{Header Template
+| [[File:SandCastleIcon.png|60px]]
+| This page has links to outside of the Scratch website or to Wikipedia. Always remember to stay safe when using the internet since we can't guarantee the safety of other sites. 
+}}<noinclude>{{/doc}}
+[[Category:Templates|External Programs]]</noinclude>
+
+(Edit) Wiki: en
+Page name: Template:External Links
+Edit type: edit
+Summary: AF is done.
+Bot: true
+Text: 
+#REDIRECT [[Template:External Programs]]
+
+(Edit) Wiki: en
+Page name: Template:Disambig
+Edit type: edit
+Summary: AF is done.
 Bot: true
 Text: 
 {{Header Template
 | [[File:Disambig.png|30px]]
-| '''This is a disambiguation page''', which lists possible pages that may or (more likely) may not be remotely related to what you are actually looking for. 
-}}
+| '''This is a [[Scratch Wiki:Disambiguation|disambiguation page]]''', which lists possible pages that you may be looking for. If a link [[Special:WhatLinksHere/{{FULLPAGENAME}}|led you here]], you may want to change the link to point directly to the correct article.
+}}<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Disambiguations|{{PAGENAME}}]]}}</includeonly><noinclude>
+{{/doc}}
+[[Category:Templates|Disambig]]
+</noinclude>
 
-(Edit) Wiki: Template:Delete
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Delete
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
 {{Header Template
-|1= [[File:Silver the Hedgehog.png|50px]]
-|2= Silver says, '''"It's no use"''', so this page needs a little bye-bye. {{#if: {{{1|}}} | <br/><small>Reason for deletion: {{{1}}}</small> }}<br/> ''<small>Admins or cats: remember to check the {{plain link|{{fullurl:{{FULLPAGENAME}}|action=history}}|page history}} and [[Special:WhatLinksHere/{{FULLPAGENAME}}|what links here]] before saying goodbye to the page. Silver doesn't care, though.</small>''
+|1= [[File:Document stub.png|26px]]
+|2= '''This page no longer has any use and needs to be deleted.''' The user who added this template does not have permission to delete the page. {{#if: {{{1|}}} | <br/><small>Reason for deletion: {{{1}}}</small> }}<br/> ''<small>Admins and Experienced Wikians: remember to check the {{plain link|{{fullurl:{{FULLPAGENAME}}|action=history}}|page history}} and [[Special:WhatLinksHere/{{FULLPAGENAME}}|what links here]] before deleting.</small>''
 |bgColor=<nowiki>#FF9999</nowiki>
 |borderColor=<nowiki>#FF0000</nowiki>
-}}
-<!--<includeonly><div id="divBlank" style="display: none;"></includeonly>-->
-<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Pages in Need of Deletion]]}}</includeonly>
+}}<!--<includeonly><div id="divBlank" style="display: none;"></includeonly>-->
+<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Pages in Need of Deletion]]}}</includeonly><noinclude>{{/doc}}[[Category:Templates|Delete]]</noinclude>
 
-(Edit) Wiki: Template:Citation needed
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Citation needed
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
-<sup><nowiki>[</nowiki>[[Help:References#Cite Your Sources or Die|''big fat lie'']]<nowiki>]</nowiki></sup>
+<sup>[''[[Help:References|citation needed]]'']</sup><noinclude>
+{{/doc}}
+[[Category:Templates|Citation needed]]</noinclude>
 
-(Edit) Wiki: Template:Caution
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Caution
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
-{{#if: {{{1|}}}|<table cellspacing="0" cellpadding="0" border="0" style="background: transparent;"><tr><td nowrap="nowrap" valign="top">}}<span style="position: relative; top: 2px;">[[File:The worst Sonic game ever.jpg|link=|18px]]</span> '''RISE OF [[Questions about Scratch|SONIC '06]]:''' {{#if: {{{1|}}}|</td><td valign="top" style="padding-left:0.5em; position: relative; top: 3px">{{{1|}}}</td></tr></table>}}
+{{#if: {{{1|}}}|<table cellspacing="0" cellpadding="0" border="0" style="background: transparent;"><tr><td nowrap="nowrap" valign="top">}}<span style="position: relative; top: 2px;">[[File:Caution (2).png|link=]]</span> '''Caution:''' {{#if: {{{1|}}}|</td><td valign="top" style="padding-left:0.5em; position: relative; top: 3px">{{{1|}}}</td></tr></table>}}<noinclude>[[Category:Templates|Caution]]{{/doc}}[[de:t:Caution]]</noinclude>
 
-(Edit) Wiki: Template:Block
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Block
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
-{| style="border:1px solid #E0E0E0;border-top-left-radius:10px;border-top-right-radius:10px;box-shadow:0 2px 3px rgb(34, 25, 25);margin-bottom: 0.5em;margin-left: 1em;float: right;clear: right;min-width:225px;background:white"
+{{April Fools}}{| style="border:1px solid #E0E0E0;border-top-left-radius:10px;border-top-right-radius:10px;box-shadow:0 2px 3px rgb(34, 25, 25);margin-bottom: 0.5em;margin-left: 1em;float: right;clear: right;min-width:225px;background:white"
 |- 
 | colspan="2" style="padding:7px 20px;background-color:#F7F7F7;font-size:1.2em;text-align:center;border-bottom:1px solid #E0E0E0;" | {{{name|{{PAGENAME}}}}}
 |- align="center"
@@ -88,36 +220,35 @@ Text:
 |}<noinclude><br style="clear:both;" />
 {{/doc}}[[Category:Other Block Templates|Block]]</noinclude>
 
-(Edit) Wiki: Template:Bad Image
-Page name: en
+(Edit) Wiki: en
+Page name: Template:Bad Image
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
 {{Header Template
 | [[File:Bananas.png|26px]]
-| 2='''This image looks like a bunch of bananas.''' You can unbend it <includeonly> <span class="plain links">[{{fullurl:Special:Upload|wpDestFile={{FULLPAGENAMEE}}&wpForReUpload=1}} here]</span></includeonly>, but nobody will care. It's still a bunch of bananas, only this time it's straight! This is a very, very long sentence in which you'll most like lose your breath halfway through, and it looks like you need some more bananas for that bowl, but unfortunately we have 401 more things to do before this, which includes finishing this sentence. Whew!
-
-{{quote|Jellyfish!|A random NFL fan|A curvy yellow fruit with lots of potassium}}
-
-{{#if: {{{1|}}} | <br/><small>Reason: {{{1}}}</small> | }}
+| 2='''This image is unsatisfactory.''' Feel free to upload a new version of this image<includeonly> <span class="plainlinks">[{{fullurl:Special:Upload|wpDestFile={{FULLPAGENAMEE}}&wpForReUpload=1}} here]</span></includeonly>.{{#if: {{{1|}}} | <br/><small>Reason: {{{1}}}</small> | }}
 }}
+<noinclude>{{/doc}}[[Category:Templates|Bad image]]</noinclude>
+<includeonly>{{#ifeq: {{{cat}}} | no | | [[Category:Unsatisfactory images|{{PAGENAME}}]]}}</includeonly>
 
-(Edit) Wiki: Template:-
-Page name: en
+(Edit) Wiki: en
+Page name: Template:-
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
 —<noinclude>
-{{Template:-/doc}}</noinclude>
+{{/doc}}
+[[Category:Templates]]</noinclude>
 
-(Edit) Wiki: Template:!
-Page name: en
+(Edit) Wiki: en
+Page name: Template:!
 Edit type: edit
-Summary: For AF.
+Summary: AF is done.
 Bot: true
 Text: 
-|<noinclude>{{/doc}}[[Category:Meta Templates|!]]</noinclude>
+|<noinclude>{{/doc}}[[Category:Templates|!]]</noinclude>
 
 ***Accepted Edits***

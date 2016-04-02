@@ -277,7 +277,7 @@ public class GenericBot extends javax.swing.JPanel {
 				content = null;
 				if (includeContent) {
 					comment = parseXMLforInfo("comment", revision, "\" contentformat", 2, 0);
-					content = parseXMLforInfo("xml:space=\"preserve\"", revision, "</rev>");
+					content = parseXMLforInfo("xml:space=\"preserve\"", revision, "</rev>", 1, 0);
 				} else {
 					comment = parseXMLforInfo("comment", revision, closingText, 2, 0);
 				}

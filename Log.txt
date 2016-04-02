@@ -1,3 +1,83 @@
 Log:
-Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=prefixsearch&format=xml&action=query&pssearch=User%3AJvvg%2FAF%2F
-All pages with prefix User:Jvvg/AF/ queried.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FAF%2F&apnamespace=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FAF%2FHacking&apnamespace=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FAF%2FPython&apnamespace=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FAF%2FScreamer&apnamespace=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FAF%2FTemplate%3AObsolete_feature&apnamespace=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&list=allpages&aplimit=30&apcontinue=Jvvg%2FHeader&apnamespace=2
+All pages queried.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3A%21&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:! is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3A%21&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3A-&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:- is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3A-&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ABad_Image&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Bad Image is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ABad_Image&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ABlock&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Block is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ABlock&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ACaution&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Caution is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ACaution&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ACitation_needed&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Citation needed is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ACitation_needed&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ADelete&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Delete is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ADelete&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ADisambig&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Disambig is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ADisambig&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AExternal_Links&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:External Links is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AExternal_Links&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AExternal_Programs&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:External Programs is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AExternal_Programs&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AHeader_Template&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Header Template is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AHeader_Template&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AInaccurate&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Inaccurate is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AInaccurate&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AMain&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Main is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AMain&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ANotUseful&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:NotUseful is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ATALKPAGENAME&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:TALKPAGENAME is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ANote&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Note is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3ANote&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AObsolete_feature&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Obsolete feature is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AObsolete_feature&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AOutdated&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Outdated is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AOutdated&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AQuote&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Quote is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AQuote&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AScratch_Team_Page&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Scratch Team Page is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AScratch_Team_Page&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AStub&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Stub is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3ATALKPAGENAME&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:TALKPAGENAME is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AT&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:T is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AT&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AT%2Fpiece&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:T/piece is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AT%2Fpiece&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AUnreleased&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Unreleased is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AUnreleased&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=Template%3AWarning&prop=revisions&rvprop=content
+http://wiki.scratch.mit.edu/w // Template:Warning is downloaded.
+Loading: http://wiki.scratch.mit.edu/w/api.php?format=xml&action=query&prop=revisions&titles=Template%3AWarning&rvprop=user%7Ccomment%7Ctimestamp%7Ccontent&rvlimit=2
+Login status at en: true
