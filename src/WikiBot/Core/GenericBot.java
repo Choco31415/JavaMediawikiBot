@@ -28,6 +28,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
+import WikiBot.ContentRep.ImageInfo;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Revision;
@@ -638,10 +639,69 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	/**
 	 * @param loc The pageLocation of the file.
+	 * @param propertyNames The list of properties you are querying for.
+	 * @return A ImageInfo class containing
+	 */
+	static protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
+		log("Getting image info for: " + loc.getTitle());
+		
+		String xmlString = APIcommand(new QueryImageInfo(loc, propertyNames));
+		
+		System.out.println(xmlString);
+		
+		if (xmlString.contains("\"missing\":\"\"")) {
+			logError("File does not exist.");
+			return null;
+		}
+		
+		ImageInfo toReturn = new ImageInfo(loc);
+		
+		int i = 0;
+		do {
+			String name = propertyNames.get(i);
+			String value = "";
+			
+			//Get the parameter's value from the MediaWiki output.
+			if (name.equalsIgnoreCase("dimensions")) {
+				//Dimension returns two numbers.
+				propertyNames.add("width");
+				propertyNames.add("height");
+			} else {
+				value = parseXMLforInfo( name + "\"", xmlString, ",", 1, 0);
+				
+				//Any value surrounded with "" is a String, and the "" should be removed.
+				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
+					value = value.substring(1, value.length()-1);
+				}
+				
+				toReturn.addProperty(name, value);
+			}
+			
+			i += 1;
+		} while (i < propertyNames.size());
+		
+		return toReturn;
+	}
+	
+	/**
+	 * 
+	 * @param loc The pageLocation of the file.
+	 * @return The url, dimensions, and media type of the image.
+	 */
+	static protected ImageInfo getImageInfo(PageLocation loc) {
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("url");
+		properties.add("dimensions");
+		properties.add("size");
+		return getImageInfo(loc, properties);
+	}
+	
+	/**
+	 * @param loc The pageLocation of the file.
 	 * @return A String of the url that goes directly to the image file (and nothing else).
 	 */
-	static String getDirectImageURL(PageLocation loc) {
-		log("Getting image direct url: " + loc.getTitle());
+	static protected String getDirectImageURL(PageLocation loc) {
+		log("Getting image direct url for: " + loc.getTitle());
 		
 		String xmlString = APIcommand(new QueryImageURL(loc));
 		
@@ -934,7 +994,7 @@ public class GenericBot extends javax.swing.JPanel {
 		if (j != -1) {
 			return XMLcode.substring(i,  j);
 		} else {
-			return "";
+			return null;
 		}
 	}
 	

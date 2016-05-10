@@ -199,7 +199,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	 */
 	public abstract void code();
 	
-	 public void run() {
+	public void run() {
 	      Thread myThread = Thread.currentThread();
 	        while (clockThread == myThread) {
 	        	sleepInSeconds(statusUpdateWaitTime);

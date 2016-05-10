@@ -1,4 +1,4 @@
-en: http://wiki.scratch.mit.edu/w
+en: https://wiki.scratch.mit.edu/w
 de: http://scratch-dach.info/w
 id: http://scratch-indo.info/w
 ru: http://scratch-ru.info/w
