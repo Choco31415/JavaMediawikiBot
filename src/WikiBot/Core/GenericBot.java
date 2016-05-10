@@ -648,8 +648,6 @@ public class GenericBot extends javax.swing.JPanel {
 		
 		String xmlString = APIcommand(new QueryImageInfo(loc, propertyNames));
 		
-		System.out.println(xmlString);
-		
 		if (xmlString.contains("\"missing\":\"\"")) {
 			logError("File does not exist.");
 			return null;
