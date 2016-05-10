@@ -29,22 +29,6 @@ public class QueryImageInfo extends APIcommand {
 		unescapeHTML = true;
 	}
 	
-	public QueryImageInfo(PageLocation loc, String infoType) {
-		super(loc);
-		keys.add("format");
-		values.add("json");
-		keys.add("action");
-		values.add("query");
-		keys.add("titles");
-		values.add(loc.getTitle());
-		keys.add("prop");
-		values.add("imageinfo");
-		keys.add("iiprop");
-		values.add(infoType);
-		unescapeText = true;
-		unescapeHTML = true;
-	}
-	
 	public QueryImageInfo(PageLocation loc) {
 		super(loc);
 		keys.add("format");
@@ -56,7 +40,7 @@ public class QueryImageInfo extends APIcommand {
 		keys.add("prop");
 		values.add("imageinfo");
 		keys.add("iiprop");
-		values.add("url|size|dimensions");
+		values.add("url|size|dimensions");//default
 		unescapeText = true;
 		unescapeHTML = true;
 	}

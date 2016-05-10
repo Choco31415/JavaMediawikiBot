@@ -638,6 +638,7 @@ public class GenericBot extends javax.swing.JPanel {
 	}
 	
 	/**
+	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Imageinfo
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return A ImageInfo class containing
@@ -701,16 +702,10 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @return A String of the url that goes directly to the image file (and nothing else).
 	 */
 	static protected String getDirectImageURL(PageLocation loc) {
-		log("Getting image direct url for: " + loc.getTitle());
-		
-		String xmlString = APIcommand(new QueryImageURL(loc));
-		
-		if (xmlString.contains("\"missing\":\"\"")) {
-			logError("File does not exist.");
-			return null;
-		}
-		
-		return parseXMLforInfo("url\"", xmlString, "\",");
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("url");
+		ImageInfo info = getImageInfo(loc, properties);
+		return info.getProperty("url");
 	}
 	
 	static public boolean logIn(String username, String password, String language) {
