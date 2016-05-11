@@ -80,7 +80,7 @@ public abstract class PageObjectAdvanced extends PageObject {
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the objects with this header.
+	 * @return Of the page objects this contains, get the first object with this header.
 	 */
 	public PageObjectAdvanced getPageObject(String header) {
 		for (PageObjectAdvanced poa : pageObjects) {
@@ -92,7 +92,7 @@ public abstract class PageObjectAdvanced extends PageObject {
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the objects with this header and of this object type.
+	 * @return Of the page objects this contains, get the first object with this header and of this object type.
 	 */
 	public PageObjectAdvanced getPageObject(String header, String objectType) {
 		for (PageObjectAdvanced poa : pageObjects) {
@@ -101,6 +101,21 @@ public abstract class PageObjectAdvanced extends PageObject {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @return Of the page objects this contains, get the objects with this object type.
+	 */
+	public ArrayList<PageObjectAdvanced> getPageObjectOfType(String objectType) {
+		ArrayList<PageObjectAdvanced> toReturn = new ArrayList<PageObjectAdvanced>();
+		
+		for (PageObjectAdvanced poa : pageObjects) {
+			if (poa.getObjectType().equalsIgnoreCase(objectType)) {
+				toReturn.add(poa);
+			}
+		}
+		
+		return toReturn;
 	}
 	
 	public ArrayList<PageObjectAdvanced> getAllPageObjects() {
@@ -115,6 +130,15 @@ public abstract class PageObjectAdvanced extends PageObject {
 		return toReturn;
 	}
 	
+	public int getNumParameters() {
+		return parameters.size();
+	}
+	
+	/**
+	 * 
+	 * @param index The parameter that you want to get. This starts counting at 0 after the object header.
+	 * @return
+	 */
 	public String getParameter(int index) {
 		return parameters.get(index);
 	}
