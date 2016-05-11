@@ -876,12 +876,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 		
 		try {
-			try {
-				return compactArray(getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML()), "\n");
-			} catch (NullPointerException e) {
-				logError("Website not reached: " + url);
-				return null;
-			}
+			return compactArray(getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML()), "\n");
 		} catch (IOException e) {
 			throw new Error(e);
 		}
