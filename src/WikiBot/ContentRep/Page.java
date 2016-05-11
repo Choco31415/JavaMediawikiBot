@@ -472,7 +472,7 @@ public class Page extends SimplePage {
 						header = objectText;
 					}
 					
-					int outerCloseIndex = innerCloseIndex+closeStrings[objectID].length();
+					int outerCloseIndex = innerCloseIndex;
 					boolean isLink = false;
 					if (objectID == 0) {
 						//{{

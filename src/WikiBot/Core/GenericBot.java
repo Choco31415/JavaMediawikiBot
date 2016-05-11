@@ -876,7 +876,6 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 		
 		try {
-			//
 			return compactArray(getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML()), "\n");
 		} catch (IOException e) {
 			throw new Error(e);

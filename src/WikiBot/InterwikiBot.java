@@ -44,9 +44,8 @@ public class InterwikiBot extends BotPanel {
 	public void code() {
 		getRevisionContent = false;
 		
-		PageLocation img = new PageLocation("File:ErnieParke Top.png", "en");
-		System.out.println(getImageInfo(img));
-		System.out.println("a:" + getDirectImageURL(img));
+		PageLocation loc = new PageLocation("User:ErnieParke/TestWikiBots", "en");
+		System.out.println(getWikiPage(loc));
 		
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
 		
