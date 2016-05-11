@@ -577,8 +577,9 @@ public class Page extends SimplePage {
 					for (PageObject object : objects) {
 						ArrayList<Integer> toRemove = new ArrayList<Integer>();
 						for (int i = 0; i < parameterLocations.size(); i++) {
-							int paramLoc = parameterLocations.get(i);
-							if (paramLoc+openIndex+pos > object.getOpeningPosition() && paramLoc+openIndex+pos < object.getClosingPosition()) {
+							int paramLoc = parameterLocations.get(i);//The global location of a child parameter.
+							int deliminatorLoc = paramLoc+openIndex+pos+po.getOpeningString().length();//The global location of the |
+							if ( deliminatorLoc > object.getOpeningPosition() && deliminatorLoc < object.getClosingPosition()) {
 								//This parameter is used by a child page object.
 								toRemove.add(paramLoc);
 							} else if (paramLoc > object.getClosingPosition()) {
