@@ -493,7 +493,7 @@ public class Page extends SimplePage {
 						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
 					} else if (objectID == 1) {
 						//[[
-						if (header.length() > 5 && header.substring(0,5).equalsIgnoreCase("File:")) {
+						if (header.length() > 6 && (header.substring(0,5).equalsIgnoreCase("File:") || header.substring(0,5).equalsIgnoreCase("Image:"))) {
 							//We have an image.
 							po = new Image(openIndex+pos, outerCloseIndex+pos, header);
 						} else if (header.length() > 9 && header.substring(0,9).equalsIgnoreCase("Category:")) {
