@@ -838,9 +838,9 @@ public class GenericBot extends javax.swing.JPanel {
 					throw new Error(error);
 				} else {
 					if (textReturned.length() < 1000) {
-						System.out.println("JSON: " + textReturned);
+						log("JSON: " + textReturned);
 					} else {
-						System.out.println("JSON: " + textReturned.substring(0, 1000));	
+						log("JSON: " + textReturned.substring(0, 1000));	
 					}
 					//log("JSON: " + textReturned);
 					
