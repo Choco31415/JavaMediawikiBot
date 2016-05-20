@@ -2,6 +2,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
+sourceCompatibility = 1.7
+
 repositories {
     jcenter()
 }
