@@ -1,4 +1,7 @@
-pply plugin: 'java'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'findbugs'
 
 repositories {
     mavenCentral()
@@ -9,5 +12,5 @@ dependencies {
     compile 'org.apache.commons:commons-logging:1.2'
     compile 'org.apache.httpcomponents:httpcomponents-client:4.5.2'
     compile 'org.apache.httpcomponents:httpcomponents-core:4.4.4'
-    testCompile 'junit:junit:'4.+'
+    testCompile 'junit:junit:4.+'
 }
