@@ -276,6 +276,9 @@ public class Page extends SimplePage {
 	public <T extends PageObjectAdvanced> ArrayList<T> getPageObjectsRecursive(Class<T> objectType) {
 		ArrayList<T> toReturn = new ArrayList<T>();
 		
+		if (pageObjects.size() > 0) {
+			return toReturn;
+		}
 		for (PageObjectAdvanced object : getAllPageObjectsRecursive()) {
 			if (objectType.isAssignableFrom(object.getClass())) {
 				toReturn.add((T)object);
