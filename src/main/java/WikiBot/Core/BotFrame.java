@@ -20,8 +20,7 @@ public class BotFrame {
       
        frame.setSize(myPanel.getWidth(), myPanel.getHeight());
        frame.setLocationRelativeTo(null);
-       frame.setVisible(true);
-       
+       frame.setVisible(true);       
    }
 
    public static void main(String[] args) {
