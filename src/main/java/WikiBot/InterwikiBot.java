@@ -16,7 +16,7 @@ public class InterwikiBot extends BotPanel {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * This is where I initialize my custom bot.
+	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public InterwikiBot() {
 		super("Scratch");
@@ -44,37 +44,45 @@ public class InterwikiBot extends BotPanel {
 	public void code() {
 		getRevisionContent = false;
 		
-		PageLocation loc = new PageLocation("User:ErnieParke/TestWikiBots", "en");
-		System.out.println(getWikiPage(loc));
+		int sample = 10;
+		
+		ArrayList<PageLocation> locs = getAllPages("En", sample);
+		
+		for (int i = 0; i < locs.size(); i += 10) {
+			ArrayList<PageLocation> subLocs = new ArrayList<PageLocation>();
+			subLocs.addAll(locs.subList(i, Math.min(i+10, locs.size())));
+			ArrayList<Page> pages = getWikiPages(subLocs);
+			
+			for (Page page : pages) {
+				String mainPageName = "En:" + page.getTitle();
+				String templatePageName = mainPageName + "/translate";
+				String templatePageRawText = 
+"{{Translate\n" +
+"|En=" + mainPageName + "\n" +
+"|It=???\n" +
+"|Fr=???\n" +
+"|Es=???\n" + 
+"|Pl=???\n" +
+"|Sk=???\n" +
+"|TR=???\n" +
+"|Pt=???\n" +
+"}}";
+				String mainpageRawText = page.getRawText();
+				ArrayList<Link> links = page.getLinksRecursive();
+				for (int l = links.size()-1; l >= 0; l--) {
+					Link link = links.get(l);
+					if (!link.getHeader().contains("File:") && !link.getHeader().contains("Image:") && !link.getHeader().contains("Template:") && !link.getHeader().substring(0, 1).equals(":")) {
+						mainpageRawText = mainpageRawText.substring(0, link.getOpeningPosition()) + "En:" + mainpageRawText.substring(link.getOpeningPosition());
+					}
+				}
+				mainpageRawText = "{{" + templatePageName + "}}\n" + page.getRawText();
+				proposeEdit(new EditPage(new PageLocation(mainPageName, "test"), mainpageRawText, "Uploading Translate Page"), "Main");
+				proposeEdit(new EditPage(new PageLocation(templatePageName, "test"), templatePageRawText, "Uploading Page"), "Template");
+			}
+		}
+		
 		
 		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
-		
-		/*ArrayList<String> ignore = new ArrayList<String>();
-		ignore.add("Category:Users' Images");
-		ignore.add("Category:Users' Logos");
-		ignore.add("Category:April Fools' Day Images");
-		ignore.add("Scratch Cat");
-		ignore.add("Most Common Scripts");
-		ArrayList<PageLocation> pageLocs = getCategoryPagesRecursive(new PageLocation("Category:Images", "en"), ignore);
-		System.out.println(pageLocs.size());
-		
-		ArrayList<PageLocation> cluster = new ArrayList<PageLocation>();
-		for (int i = 0; i < pageLocs.size(); i++) {
-			cluster.add(pageLocs.get(i));
-			if (cluster.size() == 10 || i == pageLocs.size() - 1) {
-				ArrayList<SimplePage> pages;
-				
-				pages = getWikiPagesSimple(cluster);
-				
-				for (int j = 0; j < pages.size(); j++) {
-					PageLocation pageLoc = pages.get(j).getPageLocation();
-					//	public UploadFileByURL(PageLocation pl_, String URL_, String pageText_, String uploadComment_) {
-					APIcommand command = new UploadFileByURL(new PageLocation(pageLoc.getTitle(), "test"), getDirectImageURL(pageLoc), pages.get(j).getRawText(), "Transfering images from " + getWikiURL("en"));
-					proposeEdit(command, "upload");
-				}
-				cluster.clear();
-			}
-		}*/
 	}
 	
 	/*
