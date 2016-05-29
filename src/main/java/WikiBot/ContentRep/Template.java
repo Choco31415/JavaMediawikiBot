@@ -43,11 +43,20 @@ public class Template extends PageObjectAdvanced {
 		output = simpleToString();
 		output += "\nWith parameters: ";
 		for (int i = 0; i < parameters.size(); i++) {
-			output += (parameters.get(i) + " , ");
+			output += parameters.get(i);
+			if (i != parameters.size()-1) {
+				output += " , ";
+			}
 		}
 		output += "\nWith pageObjects: ";
+		if (pageObjects.size() == 0) {
+			output += "none";
+		}
 		for (int i = 0; i < pageObjects.size(); i++) {
-			output += (pageObjects.get(i).simpleToString() + " , ");
+			output += pageObjects.get(i).simpleToString();
+			if (i != pageObjects.size()-1) {
+				output += " , ";
+			}
 		}
 
 		return output;
