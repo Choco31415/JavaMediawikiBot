@@ -165,21 +165,23 @@ public class Page extends SimplePage {
 		return pageObjects.get(index);
 	}
 	
-	public PageObjectAdvanced getPageObject(String header) {
+	public PageObjectAdvanced getPageObject(String header) {		
 		for (PageObjectAdvanced poa : pageObjects) {
 			if (poa.getHeader().equalsIgnoreCase(header)) {
 				return poa;
 			}
 		}
+		
 		return null;
 	}
 	
-	public PageObjectAdvanced getPageObject(String header, String objectType) {
+	public PageObjectAdvanced getPageObject(String header, String objectType) {		
 		for (PageObjectAdvanced poa : pageObjects) {
 			if (poa.getHeader().equalsIgnoreCase(header) && poa.getObjectType().equalsIgnoreCase(objectType)) {
 				return poa;
 			}
 		}
+		
 		return null;
 	}
 	
@@ -188,10 +190,13 @@ public class Page extends SimplePage {
 	}
 	
 	public ArrayList<PageObjectAdvanced> getAllPageObjectsRecursive() {
-		ArrayList<PageObjectAdvanced> toReturn = pageObjects;
+		ArrayList<PageObjectAdvanced> toReturn = new ArrayList<PageObjectAdvanced>();
+		
 		for (PageObjectAdvanced poa : pageObjects) {
 			toReturn.addAll(poa.getAllPageObjectsRecursive());
+			toReturn.add(poa);
 		}
+		
 		return toReturn;
 	}
 	
@@ -276,9 +281,6 @@ public class Page extends SimplePage {
 	public <T extends PageObjectAdvanced> ArrayList<T> getPageObjectsRecursive(Class<T> objectType) {
 		ArrayList<T> toReturn = new ArrayList<T>();
 		
-		if (pageObjects.size() > 0) {
-			return toReturn;
-		}
 		for (PageObjectAdvanced object : getAllPageObjectsRecursive()) {
 			if (objectType.isAssignableFrom(object.getClass())) {
 				toReturn.add((T)object);
@@ -301,10 +303,11 @@ public class Page extends SimplePage {
 	
 	/**
 	 * @param name The name of the category. It accepts Category:CatName and CatName.
-	 * @return The category that has name {@name}.
+	 * @return The category that has name {@name}. Null if not found.
 	 */
 	public Category getCategory(String name) {
 		String categoryName = (new PageTitle(name)).getTitleWithoutNameSpace();
+		
 		for (Category cat : categories) {
 			if (cat.getCategoryNameWithoutNameSpace().equalsIgnoreCase(categoryName)) {
 				return cat;
@@ -475,7 +478,7 @@ public class Page extends SimplePage {
 						header = objectText;
 					}
 					
-					int outerCloseIndex = innerCloseIndex;
+					int outerCloseIndex = innerCloseIndex + closeStrings[objectID].length();
 					boolean isLink = false;
 					if (objectID == 0) {
 						//{{
@@ -582,11 +585,11 @@ public class Page extends SimplePage {
 						for (int i = 0; i < parameterLocations.size(); i++) {
 							int paramLoc = parameterLocations.get(i);//The global location of a child parameter.
 							int deliminatorLoc = paramLoc+openIndex+pos+po.getOpeningString().length();//The global location of the |
-							if ( deliminatorLoc > object.getOpeningPosition() && deliminatorLoc < object.getClosingPosition()) {
+							if ( deliminatorLoc > object.getOuterOpeningPosition() && deliminatorLoc < object.getOuterClosingPosition()) {
 								//This parameter is used by a child page object.
 								toRemove.add(paramLoc);
-							} else if (paramLoc > object.getClosingPosition()) {
-								//Break because checking higher page locations will not yield new results.
+							} else if (paramLoc > object.getOuterClosingPosition()) {
+								//Break because any further | to be checked are guaranteed to be higher then the child page object.
 								break;
 							}
 						}

@@ -27,11 +27,31 @@ public abstract class PageObject {
 	}
 	
 	//Get information.
-	public int getOpeningPosition() {
+	/**
+	 * @return Where the object starts. In this example link, it returns the position *: *[[Variable]]
+	 */
+	public int getOuterOpeningPosition() {
 		return openPos;
 	}
 	
-	public int getClosingPosition() {
+	/**
+	 * @return Where the object starts, inside the object's enclosing brackets. In this example link, it returns the position *: [[*Variable]]
+	 */
+	public int getInnerOpeningPosition() {
+		return openPos + textOpening.length();
+	}
+	
+	/**
+	 * @return Where the object ends, inside the object's enclosing brackets. In this example link, it returns the position *: [[Variable*]]
+	 */
+	public int getInnerClosingPosition() {
+		return closePos - textClosing.length();
+	}
+	
+	/**
+	 * @return Where the object ends. In this example link, it returns the position *: [[Variable]]*
+	 */
+	public int getOuterClosingPosition() {
 		return closePos;
 	}
 	
