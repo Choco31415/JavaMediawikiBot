@@ -10,7 +10,6 @@ public class Link extends PageObjectAdvanced {
 	 * @param closePos_ The closing position of the link.
 	 * @param rawLink_ The link text.
 	 */
-	
 	public Link(int openPos_, int closePos_, String pageTitle_, String rawLink_) {
 		super("Link", rawLink_, openPos_, closePos_, "[[", "]]");
 		if ( rawLink_.substring(0,1).equals("/") || rawLink_.substring(0,1).equals("#")) {
@@ -34,6 +33,13 @@ public class Link extends PageObjectAdvanced {
 		} else {
 			return header;
 		}
+	}
+	
+	/**
+	 * @return Does this link have alternate display text?
+	 */
+	public boolean hasDisplayText() {
+		return parameters.size() > 0;
 	}
 	
 	public String simpleToString() {

@@ -507,7 +507,7 @@ public class GenericBot extends javax.swing.JPanel {
 			try {
 				apcontinue = parseXMLforInfo("apcontinue", returned, "\"");
 				apcontinue = apcontinue.replace("_", " ");
-				System.out.println(apcontinue);
+				System.out.println("Next page batch starts at: " + apcontinue);
 			} catch (IndexOutOfBoundsException e) {
 				apcontinue = null;
 			}
