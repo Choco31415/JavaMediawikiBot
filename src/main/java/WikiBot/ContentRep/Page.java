@@ -353,6 +353,10 @@ public class Page extends SimplePage {
 		return interwikis.get(index);
 	}
 	
+	public ArrayList<Interwiki> getInterwikis() {
+		return interwikis;
+	}
+	
 	public int getNumInterwiki() {
 		return interwikis.size();
 	}
@@ -464,6 +468,15 @@ public class Page extends SimplePage {
 				//Test that we do have a page object.
 				innerCloseIndex = findClosingPosition(text, openStrings[objectID], closeStrings[objectID], openIndex);
 				
+				if (objectID == 1) {
+					//Mediawiki preference. If a link closing can be put one character further, do it.
+					if (text.length() >= innerCloseIndex + 1 + closeStrings[1].length()) {
+						if (text.substring(innerCloseIndex + 1, innerCloseIndex + 1 + closeStrings[1].length()).equals(closeStrings[1])) {
+							innerCloseIndex += 1;
+						}
+					}
+				}
+				
 			objectParse:
 				if (innerCloseIndex != -1) {
 					// We have a page object. Parse!
@@ -476,6 +489,12 @@ public class Page extends SimplePage {
 						header = objectText.substring(0, tempIndex);
 					} else {
 						header = objectText;
+					}
+					
+					//Handle some edge cases where the header is incorrectly guessed.
+					if (header.equals("[") || header.equals("]")) {
+						openIndex += 1;
+						break objectParse;
 					}
 					
 					int outerCloseIndex = innerCloseIndex + closeStrings[objectID].length();
@@ -499,7 +518,11 @@ public class Page extends SimplePage {
 						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
 					} else if (objectID == 1) {
 						//[[
-						if (header.length() > 6 && (header.substring(0,5).equalsIgnoreCase("File:") || header.substring(0,6).equalsIgnoreCase("Image:"))) {
+						if (header.length() == 0) {
+							//False positive.
+							openIndex = outerCloseIndex;
+							break objectParse;
+						} else if (header.length() > 6 && (header.substring(0,5).equalsIgnoreCase("File:") || header.substring(0,6).equalsIgnoreCase("Image:"))) {
 							//We have an image.
 							po = new Image(openIndex+pos, outerCloseIndex+pos, header);
 						} else if (header.length() > 9 && header.substring(0,9).equalsIgnoreCase("Category:")) {
@@ -567,6 +590,21 @@ public class Page extends SimplePage {
 									break objectParse;
 								}
 							}
+						}
+					}
+					
+					//If a link contains another link, the outer link isn't really a link...
+					if (isLink) {
+						for (PageObjectAdvanced o : objects) {
+							if (o.getObjectType().equalsIgnoreCase("link")) {
+								openIndex += 2;
+								break objectParse;
+							}
+						}
+						
+						if (objectText.contains(openStrings[1])) {
+							openIndex += 2;
+							break objectParse;
 						}
 					}
 					
@@ -717,42 +755,48 @@ public class Page extends SimplePage {
 	}
 	
 	private int findClosingPosition(String text, String open, String close, int start) {
-		//Method for finding where [[ ]] and {{ }} end.
-		int i = start;
-		int j;
-		int k = 0;//Keeps track of last found closing.
-		int depth = 1;
-
-		k = i;
-		i = text.indexOf(open, i+open.length());
-		j = text.indexOf(close, k+open.length());
-		if (i > j || (i == -1 && j != -1)) {
-			//This object has depth 1.
-			k = j;
-			depth = 0;
-		} else {
-			do {
-				//Checking individual line.
-				if (i<=j && i != -1) {
-					//Depth increased
-					k = i;
-					i = text.indexOf(open, i+open.length());
-					j = text.indexOf(close, k+open.length());
-					depth++;
-				} else if (j != -1) {
-					//Depth decreased
-					k = j;
-					if (i != -1) {
-						i = text.indexOf(open, j+close.length());
+		try {
+			//Method for finding where [[ ]] and {{ }} end.
+			int i = start;
+			int j;
+			int k = 0;//Keeps track of last found closing.
+			int depth = 1;
+	
+			k = i;
+			i = text.indexOf(open, i+open.length());
+			j = text.indexOf(close, k+open.length());
+			if (i > j || (i == -1 && j != -1)) {
+				//This object has depth 1.
+				k = j;
+				depth = 0;
+			} else {
+				do {
+					//Checking individual line.
+					if (i<=j && i != -1) {
+						//Depth increased
+						k = i;
+						i = text.indexOf(open, i+open.length());
+						j = text.indexOf(close, k+open.length());
+						depth++;
+					} else if (j != -1) {
+						//Depth decreased
+						k = j;
+						if (i != -1) {
+							i = text.indexOf(open, j+close.length());
+						}
+						j = text.indexOf(close, j+close.length());
+						depth--;
 					}
-					j = text.indexOf(close, j+close.length());
-					depth--;
-				}
-			} while(depth>0 && j != -1);
+				} while(depth>0 && j != -1);
+			}
+			if (depth != 0 ) {
+				GenericBot.logError("Detected possible unclosed parseable item at: " + start + "  Page title: " + title);
+				return start + open.length();
+			}
+			return k;
+		} catch (Error e) {
+			System.out.println(text + ":" + open + ":" + close + ":" + start);
+			throw new Error();
 		}
-		if (depth != 0 ) {
-			throw new Error("Unclosed parseable item at: " + start + "  Page title: " + title);
-		}
-		return k;
 	}
 }

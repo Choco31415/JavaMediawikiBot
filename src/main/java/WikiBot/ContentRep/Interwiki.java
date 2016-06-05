@@ -12,15 +12,36 @@ public class Interwiki extends PageLocationContainer {
 		closePos = closePos_;
 	}
 	
+	//Get information.
 	public String getTitle() {
 		return title;
 	}
 	
-	public int getOpeningPosition() {
+	/**
+	 * @return Where the object starts. In this example link, it returns the position *: *[[Variable]]
+	 */
+	public int getOuterOpeningPosition() {
 		return openPos;
 	}
 	
-	public int getClosingPosition() {
+	/**
+	 * @return Where the object starts, inside the object's enclosing brackets. In this example link, it returns the position *: [[*Variable]]
+	 */
+	public int getInnerOpeningPosition() {
+		return openPos + 2;
+	}
+	
+	/**
+	 * @return Where the object ends, inside the object's enclosing brackets. In this example link, it returns the position *: [[Variable*]]
+	 */
+	public int getInnerClosingPosition() {
+		return closePos - 2;
+	}
+	
+	/**
+	 * @return Where the object ends. In this example link, it returns the position *: [[Variable]]*
+	 */
+	public int getOuterClosingPosition() {
 		return closePos;
 	}
 	
