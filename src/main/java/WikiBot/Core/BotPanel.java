@@ -174,7 +174,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    SwingWorker<Void, Void> runWorker = new SwingWorker<Void, Void>() {
 		        @Override
 		        public Void doInBackground() {
-		        	//code();
+		        	// code();
 		        	
 		            return null;
 		        }
@@ -310,7 +310,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	public void writeFile(String text, String location) {
 		PrintWriter writer = null;
 		try {
-			System.out.println(location);
+			System.out.println("Writting file: " + location);
 			writer = new PrintWriter(location, "UTF-8");
 		} catch (FileNotFoundException e) {
 			System.out.println("Err1 File Not Found");

@@ -59,7 +59,8 @@ public class GenericBot extends javax.swing.JPanel {
 	//Configuration variables.
 	protected static int APIlimit = 10;//The [hard] maximum items per query call. 
 	protected static int revisionDepth = 10;//The number of revisions to include per page.
-	protected static boolean getRevisionContent = false;//When getting a page, should previous page content be queried?
+	protected static boolean getRevisions = false;//When getting a page, should additional API calls be made to fetch revision history?
+	protected static boolean getRevisionContent = false;//When getting a page, should revision page content be queried?
 	protected static boolean logPageDownloads = true;//Should the bot log page downloads?
 	protected static boolean logAPIresults = true;//Should the bot log API results?
 	public static boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
@@ -179,7 +180,7 @@ public class GenericBot extends javax.swing.JPanel {
 		} catch (NumberFormatException e) {
 			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
-		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\"") + 5, XMLcode.indexOf("\"}]}")));
+		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\":") + 5, XMLcode.indexOf("\"}]}")));
 		
 		getPastRevisions(newPage);
 		return newPage;
@@ -189,14 +190,16 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param The page to attach revisions to.
 	 */
 	static private void getPastRevisions(Page page) {
-		//This method fetches the revisions of a page.
-		String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
-		
-		//Parse page for info.
-		if (getRevisionContent) {
-			page.setRevisions(getRevisions(returned, "<rev user=", "</rev>", true, page.getTitle()));
-		} else {
-			page.setRevisions(getRevisions(returned, "<rev user=", "\" />", false, page.getTitle()));
+		//This method fetches the revisions of a page, if needed.
+		if (getRevisions) {
+			String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
+			
+			//Parse page for info.
+			if (getRevisionContent) {
+				page.setRevisions(getRevisions(returned, "<rev user=", "</rev>", true, page.getTitle()));
+			} else {
+				page.setRevisions(getRevisions(returned, "<rev user=", "\" />", false, page.getTitle()));
+			}
 		}
 	}
 	

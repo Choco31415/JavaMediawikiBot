@@ -128,7 +128,9 @@ public class APIcommand extends PageLocationContainer {
 				temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
 			}
 		}
-		temp += "\nText: \n" + getValue("text");
+		if (doesKeyExist("text")) {
+			temp += "\nText: \n" + getValue("text");
+		}
 		return temp;
 	}
 
