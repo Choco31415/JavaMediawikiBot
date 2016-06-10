@@ -45,14 +45,14 @@ public class SimplePage extends PageLocationContainer implements Cloneable {
 	public String toString() {
 		String output;
 
-		output = "SIMPLE PAGE ;; Name: " + title + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
+		output = "SIMPLE PAGE ;; Name: " + getTitle() + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
 		output += "Language: " + lan + "\n";
 		output += "Raw text: \n" + rawText;
 		return output;
 	}
 	
 	public SimplePage clone() {
-		SimplePage output = new SimplePage(title, lan, pageID);
+		SimplePage output = new SimplePage(getTitle(), lan, pageID);
 		output.setRawText(rawText);
 		return output;
 	}

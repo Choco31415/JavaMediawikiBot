@@ -59,23 +59,28 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	protected Button acceptAllButton;
 	protected static Label infoBox;
 	protected List interwikiList;
-    
-    protected String myWikiLanguage = "en";
-    protected int maxProposedEdits = -1;//The largest number of changes proposed per "run". -1 for no max.
-    
-    protected String family = "";//The wiki family.
-	protected String botUsername = "";
-	protected String botPassword = null;
-	protected int waitTimeBetweenEdits = 12;
-	protected double statusUpdateWaitTime = 0.05;
-    
+	
     Thread clockThread;
 	protected boolean pushingChanges = false;//True if paused or not.
 	protected boolean pausedPushing = false;
 	private int errorCounter = 0;
 	private int errorMessageLifeSpan = 5;
+    
+	SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
-	SwingWorker<Void, Void> pushWorker;
+	/*
+	 * Bot Preferences
+	 */
+    protected String myWikiLanguage = "en";
+    protected String family = "";//The wiki family.
+    
+	protected String botUsername = "";
+	protected String botPassword;//Never, never, NEVER store your password in the code.
+	
+    protected int maxProposedEdits = -1;//The largest number of changes proposed per "run". -1 for no max.
+	protected int waitTimeBetweenEdits = 12;
+	
+	protected double statusUpdateWaitTime = 0.05;//How much time do you want between each GUI refresh?
 	
 	public BotPanel(String family_) {
 		family = family_;
@@ -174,7 +179,12 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    SwingWorker<Void, Void> runWorker = new SwingWorker<Void, Void>() {
 		        @Override
 		        public Void doInBackground() {
-		        	// code();
+		        	try {
+		        		code();
+		        	} catch (Throwable e) {
+		        		logError(e.getMessage());
+		        		e.printStackTrace();
+		        	}
 		        	
 		            return null;
 		        }
@@ -187,7 +197,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		        }
 		    };
 		    
-		    code();
 		    runWorker.execute();
 		} else {
 			setConsoleText("To continue, review some proposed edits.");

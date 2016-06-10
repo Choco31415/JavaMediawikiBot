@@ -372,38 +372,8 @@ public class Page extends SimplePage {
 	
 	//Type methods
 	public SimplePage createSimplePage() {
-		SimplePage output = new SimplePage(title, lan, pageID);
+		SimplePage output = new SimplePage(getTitle(), lan, pageID);
 		output.setRawText(rawText);
-		return output;
-	}
-
-	@Override
-	public String toString() {
-		String output;
-
-		output = "PAGE PAGE ;; Name: " + title + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
-		output += "Language: " + lan + "\n";
-		output += rawText;
-		output += "\nWith sections: \n";
-		for (int i = 0; i < sections.size(); i++) {
-			output += (sections.get(i).toString2() + "\n");
-		}	
-		output += "\nWith page objects: \n";
-		for (int i = 0; i < pageObjects.size(); i++) {
-			output += (pageObjects.get(i) + "\n");
-		}
-		output += "\nWith categories: \n";
-		for (int i = 0; i < categories.size(); i++) {
-			output += (categories.get(i) + " , ");
-		}
-		output += "\nWith interwikis: \n";
-		for (int i = 0; i < interwikis.size(); i++) {
-			output += (interwikis.get(i) + " , ");
-		}
-		output += "\n\nWith revision history: \n";
-		for (int i = 0; i < revisions.size(); i++) {
-			output += (revisions.get(i) + "\n");
-		}
 		return output;
 	}
 	
@@ -480,7 +450,7 @@ public class Page extends SimplePage {
 			objectParse:
 				if (innerCloseIndex != -1) {
 					// We have a page object. Parse!
-					PageObjectAdvanced po;
+					PageObjectAdvanced po = null;
 					String objectText = text.substring(openIndex + openStrings[objectID].length(), innerCloseIndex);
 					String header;
 					
@@ -515,7 +485,7 @@ public class Page extends SimplePage {
 							break objectParse;
 						}
 						
-						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
+						po = new Template(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
 					} else if (objectID == 1) {
 						//[[
 						if (header.length() == 0) {
@@ -551,7 +521,7 @@ public class Page extends SimplePage {
 							}
 							
 							isLink = true;
-							po = new Link(openIndex+pos, outerCloseIndex+pos, title, header);
+							po = new Link(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
 						}
 					} else {
 						//[
@@ -722,12 +692,59 @@ public class Page extends SimplePage {
 		
 		do {
 			cursor = end;
-			//Find MW escaped text in line.
+			
+			//Find the lowest MW escaped text.
 			lowest = -1;
 			int markupTextID = -1;
+			
 			for (int i = 0; i < MWEscapeOpenText.size(); i++) {
-				int index = rawText.indexOf(MWEscapeOpenText.get(i), cursor);
+				int index;//The location where this markup occurs.
+				String markupOpening = MWEscapeOpenText.get(i);
+				
+				//Find the lowest location of this markup, if it exists.
+				//Any markup that is an HTML tag requires some leeway.
+				if (markupOpening.substring(0, 1).equals("<") && markupOpening.contains(">")) {
+					//This markup is a tag.
+					//Check if we have a tag by itself.
+					index = rawText.indexOf(markupOpening, cursor);
+					
+					if (index == -1) {
+						//We do not have the tag by itself.
+						//Check to see if we have a tag with attributes. Or weird spacing.
+						boolean tagOpeningExists = false;
+						
+						//There are two cases which we have to check against.
+						//Case #1
+						markupOpening = markupOpening.substring(0, markupOpening.indexOf(">")) + " ";
+						index = rawText.indexOf(markupOpening, cursor);
+						
+						tagOpeningExists = index != -1;
+						
+						//Case #2
+						if (!tagOpeningExists) {
+							markupOpening = markupOpening.substring(0, markupOpening.length()-1) + "\n";
+							index = rawText.indexOf(markupOpening, cursor);
+							
+							tagOpeningExists = index != -1;
+						}
+
+						if (tagOpeningExists) {
+							//The tag opening exists. Now does it properly close?
+							if (rawText.indexOf(">", index) == -1) {
+								//Nope.
+								index = -1;
+							}
+						} else {
+							//Markup tag not detected.
+						}
+					}
+				} else {
+					//This markup is not a tag.
+					index = rawText.indexOf(markupOpening, cursor);
+				}
+				
 				if (index != -1) {
+					//Record which markup tag is the lowest.
 					if (lowest == -1 || index < lowest) {
 						lowest = index;
 						markupTextID = i;
@@ -737,19 +754,21 @@ public class Page extends SimplePage {
 			
 			//Move cursor
 			if (lowest != -1) {
+				//Move the cursor to the end of the markup pair.
 				cursor = lowest;
-
+				
 				end = rawText.indexOf(MWEscapeCloseText.get(markupTextID), cursor+1) + MWEscapeCloseText.get(markupTextID).length();
 			} else {
+				//Reached end of page.
 				cursor = -1;
 			}
 		} while (pos >= cursor && pos > end && cursor != -1 && end != -1);
 		
 		if (lowest == -1) {
-			//No escaped text on line.
+			//No markup text found on page.
 			return true;
 		} else {
-			//Escaped text on line.
+			//Check if this markup text contains @pos.
 			return !(pos >= cursor && end > pos);
 		}
 	}
@@ -790,7 +809,7 @@ public class Page extends SimplePage {
 				} while(depth>0 && j != -1);
 			}
 			if (depth != 0 ) {
-				GenericBot.logError("Detected possible unclosed parseable item at: " + start + "  Page title: " + title);
+				GenericBot.logError("Detected possible unclosed parseable item at: " + start + "  Page title: " + getTitle());
 				return start + open.length();
 			}
 			return k;
@@ -798,5 +817,35 @@ public class Page extends SimplePage {
 			System.out.println(text + ":" + open + ":" + close + ":" + start);
 			throw new Error();
 		}
+	}
+	
+	@Override
+	public String toString() {
+		String output;
+
+		output = "PAGE PAGE ;; Name: " + getTitle() + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
+		output += "Language: " + lan + "\n";
+		output += rawText;
+		output += "\nWith sections: \n";
+		for (int i = 0; i < sections.size(); i++) {
+			output += (sections.get(i).toString2() + "\n");
+		}	
+		output += "\nWith page objects: \n";
+		for (int i = 0; i < pageObjects.size(); i++) {
+			output += (pageObjects.get(i) + "\n");
+		}
+		output += "\nWith categories: \n";
+		for (int i = 0; i < categories.size(); i++) {
+			output += (categories.get(i) + " , ");
+		}
+		output += "\nWith interwikis: \n";
+		for (int i = 0; i < interwikis.size(); i++) {
+			output += (interwikis.get(i) + " , ");
+		}
+		output += "\n\nWith revision history: \n";
+		for (int i = 0; i < revisions.size(); i++) {
+			output += (revisions.get(i) + "\n");
+		}
+		return output;
 	}
 }

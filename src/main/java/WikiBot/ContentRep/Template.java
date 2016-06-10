@@ -17,9 +17,9 @@ public class Template extends PageObjectAdvanced {
 	}
 	
 	private void setTemplateName(String pageTitle_, String rawTemplateText_) {
-		if (header.length() >= 1 & header.substring(0,1).equals("/")) {
+		if (header.length() >= 1 && header.substring(0,1).equals("/")) {
 			templateName = pageTitle_ + rawTemplateText_;
-		} else if (header.length() >= 1 & header.substring(0,1).equals(":")) {
+		} else if (header.length() >= 1 && header.substring(0,1).equals(":")) {
 			templateName = rawTemplateText_.substring(1);
 		} else if (header.length() >= 9 && header.substring(0,9).equalsIgnoreCase("Template")) {
 			templateName = rawTemplateText_;

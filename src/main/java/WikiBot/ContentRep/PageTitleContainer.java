@@ -4,11 +4,9 @@ package WikiBot.ContentRep;
 public abstract class PageTitleContainer {
 
 	protected PageTitle titleObject;
-	protected String title;
 	
 	public PageTitleContainer(String title_) {
 		titleObject = new PageTitle(title_);
-		title = title_;
 	}
 	
 	public PageTitleContainer(PageTitle titleObject_) {

@@ -45,6 +45,9 @@ public abstract class PageObjectAdvanced extends PageObject {
 		return header;
 	}
 	
+	/**
+	 * @return The number of pageObjects this object contains.
+	 */
 	public int getNumPageObjects() {
 		return pageObjects.size();
 	}

@@ -14,7 +14,7 @@ public class Interwiki extends PageLocationContainer {
 	
 	//Get information.
 	public String getTitle() {
-		return title;
+		return super.getTitle();
 	}
 	
 	/**

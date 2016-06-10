@@ -4,6 +4,7 @@ FULLPAGENAME
 TALKPAGENAME
 PAGENAME
 PAGENAME
+NUMBEROFARTICLES
 //An incomplete list of all other words that are not templates
 #switch
 #ifeq
