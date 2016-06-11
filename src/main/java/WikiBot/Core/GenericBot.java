@@ -4,6 +4,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.io.*;
 import java.util.Date;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList; 
@@ -43,31 +44,29 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	protected static final long serialVersionUID = 1L;
 	
-	private static GenericBot instance = new GenericBot();
-	
-	public MediawikiDataManager mdm;
-	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
-	protected String baseURL = "http://wiki.scratch.mit.edu/w";//The url on which the bot is currently operating.
+	public static MediawikiDataManager mdm;
+	protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+	protected static String baseURL = "http://wiki.scratch.mit.edu/w";//The url on which the bot is currently operating.
 	
 	//These variables keep track of data concerning the status of the bot.
-	protected ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
-	protected ArrayList<String> log = new ArrayList<String>();
-	protected int numErrors = 0;
-	protected long lastCommandTimestamp = 0;//The timestamp of the last API command.
+	protected static ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
+	protected static ArrayList<String> log = new ArrayList<String>();
+	protected static int numErrors = 0;
+	protected static long lastCommandTimestamp = 0;//The timestamp of the last API command.
 	
 	//These variables are used for networking purposes (GET and POST requests).
-    private HttpClient httpclient;
-	private HttpClientContext context;
+    private static HttpClient httpclient;
+	private static HttpClientContext context;
 
 	//Configuration variables.
-	protected int APIlimit = 10;//The [hard] maximum items per query call. 
-	protected int revisionDepth = 10;//The number of revisions to include per page.
-	protected boolean getRevisions = false;//When getting a page, should additional API calls be made to fetch revision history?
-	protected boolean getRevisionContent = false;//When getting a page, should revision page content be queried?
-	protected boolean logPageDownloads = true;//Should the bot log page downloads?
-	protected boolean logAPIresults = true;//Should the bot log API results?
-	public boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
-	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
+	protected static int APIlimit = 10;//The [hard] maximum items per query call. 
+	protected static int revisionDepth = 10;//The number of revisions to include per page.
+	protected static boolean getRevisions = false;//When getting a page, should additional API calls be made to fetch revision history?
+	protected static boolean getRevisionContent = false;//When getting a page, should revision page content be queried?
+	protected static boolean logPageDownloads = true;//Should the bot log page downloads?
+	protected static boolean logAPIresults = true;//Should the bot log API results?
+	public static boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
+	protected static double APIthrottle = 0.5;//The minimum amount of time between API commands.
 	
 	public GenericBot() {
 		//Read in some files.
@@ -77,10 +76,6 @@ public class GenericBot extends javax.swing.JPanel {
 		context =  HttpClientContext.create();
 	}
 	
-	public GenericBot getInstance() {
-		return instance;
-	}
-	
 	public Page getWikiPage(PageLocation loc) {
 		//This method fetches a Wiki page.
 		String XMLcode = getWikiPageXMLCode(loc);
@@ -88,20 +83,20 @@ public class GenericBot extends javax.swing.JPanel {
 		return parseWikiPage(XMLcode);
 	}
 	
-	public SimplePage getWikiSimplePage(PageLocation loc) {
+	static public SimplePage getWikiSimplePage(PageLocation loc) {
 		//This method fetches a Wiki page.
 		String XMLcode = getWikiPageXMLCode(loc);
 		
 		return parseWikiPageSimple(XMLcode);
 	}
 	
-	public boolean doesPageExist(PageLocation loc) {
+	static public boolean doesPageExist(PageLocation loc) {
 		String XMLcode = getWikiPageXMLCode(loc);
 		
 		return !XMLcode.contains("\"pages\":{\"-1\"");
 	}
 	
-	private String getWikiPageXMLCode(PageLocation loc) {		
+	static private String getWikiPageXMLCode(PageLocation loc) {		
 		String page = APIcommand(new QueryPageContent(loc));
 		
 	    if (logPageDownloads) {
@@ -111,7 +106,7 @@ public class GenericBot extends javax.swing.JPanel {
 	    return page;
 	}
 	
-	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
+	static public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
 		
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
@@ -125,7 +120,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return pages;
 	}
 	
-	public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
+	static public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
 		String XMLstring = getWikiPagesXMLCode(locs);
@@ -138,7 +133,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return simplePages;
 	}
 	
-	private String getWikiPagesXMLCode(ArrayList<PageLocation> locs) {
+	static private String getWikiPagesXMLCode(ArrayList<PageLocation> locs) {
 		if (locs.size() == 0) {
 			return null;
 		}
@@ -156,7 +151,7 @@ public class GenericBot extends javax.swing.JPanel {
         return XMLstring;
 	}
 
-	protected SimplePage parseWikiPageSimple(String XMLcode) {
+	static protected SimplePage parseWikiPageSimple(String XMLcode) {
 		/*
 		 * This is a custom built XML parser for Wiki pages.
 		 * It creates a SimplePage object.
@@ -174,7 +169,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return newPage;
 	}
 	
-	protected Page parseWikiPage(String XMLcode) {
+	static protected Page parseWikiPage(String XMLcode) {
 		/*
 		 * This is a custom built XML parser for Wiki pages.
 		 * It creates a Page object.
@@ -196,7 +191,7 @@ public class GenericBot extends javax.swing.JPanel {
 	/**
 	 * @param The page to attach revisions to.
 	 */
-	private void getPastRevisions(Page page) {
+	static private void getPastRevisions(Page page) {
 		//This method fetches the revisions of a page, if needed.
 		if (getRevisions) {
 			String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
@@ -210,7 +205,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 	
-	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
+	static public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
 		//This method fetches the revisions of a page.
 		String returned = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
 		
@@ -227,7 +222,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param depth The amount of revisions you want returned.
 	 * @return A list of recent changes wrapped in revisions.
 	 */
-	public ArrayList<Revision> getRecentChanges(String language, int depth) {
+	static public ArrayList<Revision> getRecentChanges(String language, int depth) {
 		//This method fetches the recent changes.
 		ArrayList<Revision> toReturn = new ArrayList<Revision>();
 		String rccontinue = null;//Used to continue queries.
@@ -264,7 +259,7 @@ public class GenericBot extends javax.swing.JPanel {
 	/*
 	 * This is a specialized function and should not be used outside of this class.
 	 */
-	private ArrayList<Revision> getRevisions(String XMLdata, String openingText, String closingText, boolean includeContent, String forceTitle) {
+	static private ArrayList<Revision> getRevisions(String XMLdata, String openingText, String closingText, boolean includeContent, String forceTitle) {
 		//This method takes XML data and parses it for revisions.
 		ArrayList<Revision> output = new ArrayList<Revision>();
 		String revision;
@@ -313,7 +308,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param loc The page location of the category.
 	 * @return Returns an arraylist of all pages in a category.
 	 */
-	public ArrayList<PageLocation> getCategoryPages(PageLocation loc) {
+	static public ArrayList<PageLocation> getCategoryPages(PageLocation loc) {
 		String returned;
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String cmcontinue = null;
@@ -347,7 +342,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return toReturn;
 	}
 	
-	public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc) {
+	static public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc) {
 		ArrayList<PageLocation> pageLocs = new ArrayList<PageLocation>();
 		ArrayList<PageLocation> toAdd = new ArrayList<PageLocation>();
 		
@@ -371,7 +366,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param ignore Do not include these categories and pages in the returned result.
 	 * @param loc The page location.
 	 */
-	public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc, ArrayList<String> ignore) {
+	static public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc, ArrayList<String> ignore) {
 		ArrayList<PageLocation> pageLocs = new ArrayList<PageLocation>();
 		ArrayList<PageLocation> toAdd = new ArrayList<PageLocation>();
 		
@@ -396,7 +391,7 @@ public class GenericBot extends javax.swing.JPanel {
 	/*
 	 * This method gets all pages that links to loc.
 	 */
-	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc) {
+	static public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc) {
 		return getPagesThatLinkTo(loc, Integer.MAX_VALUE);
 	}
 	
@@ -406,7 +401,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param depth The amount of pages to get.
 	 * @return A list of page that link to loc.
 	 */
-	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
+	static public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
 		//This method gets all the pages that link to another page. Redirects are included.
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String blcontinue = null;
@@ -449,7 +444,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param depth
 	 * @return
 	 */
-	public ArrayList<PageLocation> getAllPages(String language, int depth) {
+	static public ArrayList<PageLocation> getAllPages(String language, int depth) {
 		return getAllPages(language, depth, null, null);
 	}
 	
@@ -460,7 +455,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param from
 	 * @return
 	 */
-	public ArrayList<PageLocation> getAllPages(String language, int depth, String from) {
+	static public ArrayList<PageLocation> getAllPages(String language, int depth, String from) {
 		return getAllPages(language, depth, from, null);
 	}
 	
@@ -472,7 +467,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param apnamespace The id of the namespace being crawled.
 	 * @return
 	 */
-	public ArrayList<PageLocation> getAllPages(String language, int depth, String from, Integer apnamespace) {
+	static public ArrayList<PageLocation> getAllPages(String language, int depth, String from, Integer apnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String apcontinue = null;
 		
@@ -528,7 +523,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return toReturn;
 	}
 	
-	protected ArrayList<String> getPages(String XMLdata, String openingText, String closingText) {
+	static protected ArrayList<String> getPages(String XMLdata, String openingText, String closingText) {
 		//This method takes XMLdata and parses it for page names.
 		ArrayList<String> output = new ArrayList<String>();
 		int j = 0;
@@ -588,7 +583,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return toReturn;
 	}
 	
-	protected ArrayList<String> getXMLItems(String XMLdata, String openingText, String closingText, int botBuffer) {
+	static protected ArrayList<String> getXMLItems(String XMLdata, String openingText, String closingText, int botBuffer) {
 		//This method takes XMLdata and parses it for page names.
 		ArrayList<String> output = new ArrayList<String>();
 		int j = 0;
@@ -611,7 +606,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: &#039;
 	 */
-	protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
+	static protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
 		log("Loading: " + ur);
 		
 		//This method actual fetches a web page, and turns it into a more easily use-able format.
@@ -653,7 +648,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return A ImageInfo class containing
 	 */
-	protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
+	static protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
 		log("Getting image info for: " + loc.getTitle());
 		
 		String xmlString = APIcommand(new QueryImageInfo(loc, propertyNames));
@@ -697,7 +692,7 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param loc The pageLocation of the file.
 	 * @return The url, dimensions, and media type of the image.
 	 */
-	protected ImageInfo getImageInfo(PageLocation loc) {
+	static protected ImageInfo getImageInfo(PageLocation loc) {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
 		properties.add("dimensions");
@@ -709,14 +704,14 @@ public class GenericBot extends javax.swing.JPanel {
 	 * @param loc The pageLocation of the file.
 	 * @return A String of the url that goes directly to the image file (and nothing else).
 	 */
-	protected String getDirectImageURL(PageLocation loc) {
+	static protected String getDirectImageURL(PageLocation loc) {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
 		ImageInfo info = getImageInfo(loc, properties);
 		return info.getProperty("url");
 	}
 	
-	public boolean logIn(String username, String password, String language) {
+	static public boolean logIn(String username, String password, String language) {
         HttpEntity entity = null;
         List<Cookie> cookies = null;
         
@@ -771,7 +766,7 @@ public class GenericBot extends javax.swing.JPanel {
         return success;
 	}
 	
-	public String APIcommand(APIcommand command) {
+	static public String APIcommand(APIcommand command) {
 		//Check throttle.
 		throttleAction();
 		
@@ -794,7 +789,7 @@ public class GenericBot extends javax.swing.JPanel {
 				
 				//Error handling
 				if (textReturned.contains("This is an auto-generated MediaWiki API documentation page")) {
-					System.out.println(textReturned.substring(0,textReturned.indexOf("</a>")+4));
+					System.out.println(textReturned.substring(0,textReturned.indexOf("</a>")+4));//Keep
 					log("MediawikiAPI documentation page returned.");
 					
 					String error = parseXMLforInfo("error code", textReturned, "\"");
@@ -873,7 +868,7 @@ public class GenericBot extends javax.swing.JPanel {
 	/**
 	 * Automatically unescapes HTML5.
 	 */
-	private String APIcommandHTTP(APIcommand command) {
+	static private String APIcommandHTTP(APIcommand command) {
 		String url = baseURL + "/api.php?";
 		String[] editKeys = command.getKeysArray();
 		String[] editValues = command.getValuesArray();
@@ -892,7 +887,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 
-	private String APIcommandGET(APIcommand command) {
+	static private String APIcommandGET(APIcommand command) {
 		HttpEntity entity;
 		
 		String token = getEditToken();
@@ -932,7 +927,7 @@ public class GenericBot extends javax.swing.JPanel {
 	/*
 	 * A method for creating a Web POST request.
 	 */
-	private HttpEntity getPOST(String url, String[] name, String[] value) {
+	static private HttpEntity getPOST(String url, String[] name, String[] value) {
         HttpResponse response = null;
 		
         HttpPost httpost = new HttpPost(url);
@@ -952,7 +947,7 @@ public class GenericBot extends javax.swing.JPanel {
         return response.getEntity();
 	}
 	
-	public void logCookies(List<Cookie> cookies) {
+	static public void logCookies(List<Cookie> cookies) {
 		if (logAPIresults) {
 			log("List of cookies: ");
 			if (cookies.isEmpty()) {
@@ -965,7 +960,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 	
-	private String getEditToken() {
+	static private String getEditToken() {
 		String[] keys = new String[]{"action", "type", "format"};
 		String[] values = null;
 		values = new String[]{"tokens", "edit", "xml"};
@@ -985,7 +980,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return token;
 	}
 	
-	protected String parseXMLforInfo(String info, String XMLcode, String ending) {
+	static protected String parseXMLforInfo(String info, String XMLcode, String ending) {
 		//This method aids in XML parsing.
 		int i = XMLcode.indexOf(info);
 		if (i == -1) {
@@ -1000,7 +995,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 	
-	protected String parseXMLforInfo (String info, String XMLcode, String ending, int bufferBot, int bufferTop) {
+	static protected String parseXMLforInfo (String info, String XMLcode, String ending, int bufferBot, int bufferTop) {
 		//This method aids in XML parsing.
 		int i = 0;
 		i = XMLcode.indexOf(info);
@@ -1049,7 +1044,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return null;
 	}
 	
-	public String compactArray(String[] array) {
+	static public String compactArray(String[] array) {
 		//This takes an array of strings and compacts it into one string.
 		String output = "";
 		
@@ -1060,7 +1055,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return output;
 	}
 	
-	public String compactArray(String[] array, String delimitor) {
+	static public String compactArray(String[] array, String delimitor) {
 		//This takes an array of strings and compacts it into one string.
 		String output = "";
 		
@@ -1074,7 +1069,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return output;
 	}
 	
-	public Date createDate(String text) {
+	static public Date createDate(String text) {
 		//This takes a wiki date and converts it into a java date.
 		Date date = null;
 		try {
@@ -1086,7 +1081,7 @@ public class GenericBot extends javax.swing.JPanel {
 		return date;
 	}
 	
-	public String URLencode(String url) {
+	static public String URLencode(String url) {
 		url = url.replace(" ", "_");
 		try {
 			return URLEncoder.encode(url, "UTF-8");
@@ -1096,46 +1091,51 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 	
-	public void log(String line) {
+	static public void log(String line) {
 		log.add(line);
 	}
 	
-	public void logError(String line) {
+	static public void logError(String line) {
 		numErrors++;
 		log.add("ERROR: " + line);
 	}
 	
-	public void printLog() {
+	static public void printLog() {
 		System.out.println("Log:");
 		for (int i = 0; i < log.size(); i++) {
 			System.out.println(log.get(i));
 		}
 	}
 	
-	public String concatLog() {
+	static public String concatLog() {
 		String temp = "Log:\n";
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		Date dateObject = new Date();
+		temp += "Printed on: " + dateFormat.format(dateObject) + "\n";//timestamp
+		
 		for (int i = 0; i < log.size(); i++) {
 			temp += log.get(i) + "\n";
 		}
 		return temp;
 	}
 	
-	public void pageDownloaded(String name) {
+	static public void pageDownloaded(String name) {
 		log(baseURL + " // " + name + " is downloaded.");
 	}
 	
-	public void pageDownloaded(String name, String name2) {
+	static public void pageDownloaded(String name, String name2) {
 		log(baseURL + " // " + name + " through " + name2 + " is downloaded.");
 	}
 	
-	public ArrayList<String> getLog() {
+	static public ArrayList<String> getLog() {
 		return log;
 	}
 	
 	/**
 	 * This method makes sure that the bot does not do particular actions too quickly.
 	 */
-	private void throttleAction() {
+	private static void throttleAction() {
 		long currentTime = System.currentTimeMillis();
 		long timeDifference = currentTime - lastCommandTimestamp;
 		long timeToWait = (long) (1000*APIthrottle - timeDifference);
@@ -1145,7 +1145,7 @@ public class GenericBot extends javax.swing.JPanel {
 		lastCommandTimestamp = System.currentTimeMillis();
 	}
 	
-	public void sleepInSeconds(double time) {
+	public static void sleepInSeconds(double time) {
 		try {
 			Thread.sleep((int)(1000*time));
 		} catch (InterruptedException e) {
@@ -1153,7 +1153,7 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 	}
 	
-	public void sleep(long time) {
+	public static void sleep(long time) {
 		try {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {

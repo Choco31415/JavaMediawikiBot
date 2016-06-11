@@ -196,6 +196,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 					validate();
 		        }
 		    };
+		    //code();
 		    
 		    runWorker.execute();
 		} else {
