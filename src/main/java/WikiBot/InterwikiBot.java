@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.text.WordUtils;
 
 import WikiBot.APIcommands.*;
 import WikiBot.ContentRep.*;
@@ -16,25 +20,24 @@ public class InterwikiBot extends BotPanel {
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * This is where I initialize my custom bot.
+	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public InterwikiBot() {
 		super("Scratch");
+		
+		//Preferences
 		panelName = "InterwikiBot";
 		
 		botUsername = "InterwikiBot";
 		
 		myWikiLanguage = "en";
-
-		/*lastCheckedPage = readFileAsList("/Last Page Read.txt", 0, false, true).get(0);
-
-		if (lastCheckedPage == null) {
-			lastCheckedPage = "";
-		}*/
 		
 		APIlimit = 30;
 		logAPIresults = false;
 		revisionDepth = 5;
+		
+		APIthrottle = 0.5;//Minimum time between any API commands.
+		waitTimeBetweenEdits = 12;//Minimum time between edits.
 	}
 	
 	/*
@@ -42,81 +45,21 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		getRevisionContent = false;
-		
-		PageLocation loc = new PageLocation("User:ErnieParke/TestWikiBots", "en");
-		System.out.println(getWikiPage(loc));
-		
-		//proposeEdit(new AppendText(new PageLocation("User:InterwikiBot", "test"), "test", "Test."), "append");
-		
-		/*ArrayList<String> ignore = new ArrayList<String>();
-		ignore.add("Category:Users' Images");
-		ignore.add("Category:Users' Logos");
-		ignore.add("Category:April Fools' Day Images");
-		ignore.add("Scratch Cat");
-		ignore.add("Most Common Scripts");
-		ArrayList<PageLocation> pageLocs = getCategoryPagesRecursive(new PageLocation("Category:Images", "en"), ignore);
-		System.out.println(pageLocs.size());
-		
-		ArrayList<PageLocation> cluster = new ArrayList<PageLocation>();
-		for (int i = 0; i < pageLocs.size(); i++) {
-			cluster.add(pageLocs.get(i));
-			if (cluster.size() == 10 || i == pageLocs.size() - 1) {
-				ArrayList<SimplePage> pages;
-				
-				pages = getWikiPagesSimple(cluster);
-				
-				for (int j = 0; j < pages.size(); j++) {
-					PageLocation pageLoc = pages.get(j).getPageLocation();
-					//	public UploadFileByURL(PageLocation pl_, String URL_, String pageText_, String uploadComment_) {
-					APIcommand command = new UploadFileByURL(new PageLocation(pageLoc.getTitle(), "test"), getDirectImageURL(pageLoc), pages.get(j).getRawText(), "Transfering images from " + getWikiURL("en"));
-					proposeEdit(command, "upload");
-				}
-				cluster.clear();
-			}
-		}*/
-	}
-	
-	/*
-	 * This method is for processing a page beyond what is offered.
-	 * For example, in the DACH wiki, the en template creates an en interwiki.
-	 */
-	public void processFurther(Page pg) {
-		Template temp = (Template)pg.getPageObject("en", "Template");
-		if (temp != null) {
-			pg.addInterwiki(new Interwiki(temp.getParameter(0), "en", -1, -1));
-		}
-	}
-	
-	public Page getWikiPage(PageLocation pl) {
-		Page temp = super.getWikiPage(pl);
-		processFurther(temp);
-		return temp;
-	}
-	
-	/**
-	 * IMPORTANT: This method only accepts pages from the same wiki.
-	 */
-	public ArrayList<Page> getWikiPagesBatch(ArrayList<PageLocation> pls) {
-		
-		if (pls.size() == 0) {
-			throw new Error();
-		}
-		
-		//Check that everything is from the same language.
-		String wikiLang = pls.get(0).getLanguage();
-		for (PageLocation pl : pls) {
-			if (!pl.getLanguage().equals(wikiLang)) {
-				throw new Error();
-			}
-		}
-		
-		ArrayList<Page> temp = getWikiPages(pls);
-		
-		for (Page pg : temp) {
-			processFurther(pg);
-		}
-		
-		return temp;
+		getRevisions = false;//Don't get page revisions.
+		getRevisionContent = false;//Same as above ^^.
+		parseThurough = false;
+
+		/*
+		 * Here is what our example bot will do.
+		 * It will get the page "Scratch Cat" from the "en" wiki.
+		 * It will print it out because I like printing out data.
+		 * It will append an interwiki to the page.
+		 * The edit summary will be "This page needs an interwiki. ^.^ "
+		 * The bot GUI will show an edit summary of "Interwiki"
+		 */
+		PageLocation loc = new PageLocation("Scratch Cat", "en");
+		Page page = getWikiPage(loc);
+		System.out.println(page);
+		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze", "This page needs an interwiki. ^.^ "), "Interwiki");
 	}
 }
