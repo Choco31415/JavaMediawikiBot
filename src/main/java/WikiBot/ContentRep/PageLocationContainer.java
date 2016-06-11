@@ -4,11 +4,9 @@ package WikiBot.ContentRep;
 public abstract class PageLocationContainer {
 
 	protected PageLocation pl;
-	protected String title;
 	
 	public PageLocationContainer(String title_, String lan_) {
 		pl = new PageLocation(title_, lan_);
-		title = title_;
 	}
 	
 	public PageLocationContainer(PageLocation pl_) {

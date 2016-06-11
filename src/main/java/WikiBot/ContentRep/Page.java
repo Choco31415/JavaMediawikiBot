@@ -36,17 +36,8 @@ public class Page extends SimplePage {
 		parseRawText();
 	}
 	
-	public void addLinePositions(int num) {
-		linePositions.add(num);
-	}
-	
-	public void addSection(Section section) {
-		sections.add(section);
-	}
-	
-	
-	public void addPageObject(PageObjectAdvanced po) {
-		pageObjects.add(po);
+	public void setRevisions(ArrayList<Revision> revisions_) {
+		revisions.addAll(revisions_);
 	}
 	
 	public void addCategory(Category category) {
@@ -55,10 +46,6 @@ public class Page extends SimplePage {
 	
 	public void addInterwiki(Interwiki wiki) {
 		interwikis.add(wiki);
-	}
-	
-	public void setRevisions(ArrayList<Revision> revisions_) {
-		revisions.addAll(revisions_);
 	}
 	
 	//Get information.
@@ -372,38 +359,8 @@ public class Page extends SimplePage {
 	
 	//Type methods
 	public SimplePage createSimplePage() {
-		SimplePage output = new SimplePage(title, lan, pageID);
+		SimplePage output = new SimplePage(getTitle(), lan, pageID);
 		output.setRawText(rawText);
-		return output;
-	}
-
-	@Override
-	public String toString() {
-		String output;
-
-		output = "PAGE PAGE ;; Name: " + title + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
-		output += "Language: " + lan + "\n";
-		output += rawText;
-		output += "\nWith sections: \n";
-		for (int i = 0; i < sections.size(); i++) {
-			output += (sections.get(i).toString2() + "\n");
-		}	
-		output += "\nWith page objects: \n";
-		for (int i = 0; i < pageObjects.size(); i++) {
-			output += (pageObjects.get(i) + "\n");
-		}
-		output += "\nWith categories: \n";
-		for (int i = 0; i < categories.size(); i++) {
-			output += (categories.get(i) + " , ");
-		}
-		output += "\nWith interwikis: \n";
-		for (int i = 0; i < interwikis.size(); i++) {
-			output += (interwikis.get(i) + " , ");
-		}
-		output += "\n\nWith revision history: \n";
-		for (int i = 0; i < revisions.size(); i++) {
-			output += (revisions.get(i) + "\n");
-		}
 		return output;
 	}
 	
@@ -428,9 +385,17 @@ public class Page extends SimplePage {
 		parsePageForSections();
 	}
 	
+	long performance = 0;
+	
 	private void parsePageForNewLines() {
-		for (int i = 0; i != -1; i = rawText.indexOf("\n", i+1)) {
-			if (isPositionParsedAsMediawiki(i)) {
+		//Only these escape texts impact new lines.
+		ArrayList<String> escapeOpenText = new ArrayList<String>();
+		ArrayList<String> escapeCloseText = new ArrayList<String>();
+		escapeOpenText.add("<!--");
+		escapeCloseText.add("-->");
+
+		for (int i = 0; i != -1; i = rawText.indexOf('\n', i+1)) {
+			if (isPositionParsedAsMediawiki(i, escapeOpenText, escapeCloseText)) {
 				linePositions.add(i);
 			}
 		}
@@ -450,6 +415,7 @@ public class Page extends SimplePage {
 	
 		String[] openStrings = new String[]{"{{", "[[", "["};
 		String[] closeStrings = new String[]{"}}", "]]", "]"};
+
 		do {
 			//Find the text opening for a page object.
 			lastOpenIndex = openIndex;
@@ -480,7 +446,7 @@ public class Page extends SimplePage {
 			objectParse:
 				if (innerCloseIndex != -1) {
 					// We have a page object. Parse!
-					PageObjectAdvanced po;
+					PageObjectAdvanced po = null;
 					String objectText = text.substring(openIndex + openStrings[objectID].length(), innerCloseIndex);
 					String header;
 					
@@ -515,7 +481,7 @@ public class Page extends SimplePage {
 							break objectParse;
 						}
 						
-						po = new Template(openIndex+pos, outerCloseIndex+pos, title, header);
+						po = new Template(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
 					} else if (objectID == 1) {
 						//[[
 						if (header.length() == 0) {
@@ -551,7 +517,7 @@ public class Page extends SimplePage {
 							}
 							
 							isLink = true;
-							po = new Link(openIndex+pos, outerCloseIndex+pos, title, header);
+							po = new Link(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
 						}
 					} else {
 						//[
@@ -704,30 +670,78 @@ public class Page extends SimplePage {
 					String substring = rawText.substring(openIndex+1, closeIndex);
 					if (!substring.contains("\n")) {
 						//We have a valid section. Add it.
-						addSection(new Section(substring.substring(depth), openIndex, depth));
+						sections.add(new Section(substring.substring(depth), openIndex, depth));
 					}
 				}
 			}
 		} while (openIndex != -1);
 	}
 	
+	/**
+	 * This method uses the default escape texts provided in src/main/resources/MWEscapeTexts.
+	 * @param pos The position to check.
+	 * @return Is this position parsed as Mediawiki, or not?
+	 */
 	public boolean isPositionParsedAsMediawiki(int pos) {
+		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
+		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
+		return isPositionParsedAsMediawiki(pos, MWEscapeOpenText, MWEscapeCloseText);
+	}
+	
+	public boolean isPositionParsedAsMediawiki(int pos, ArrayList<String> escapeOpenText, ArrayList<String> escapeCloseText) {
 		//Start from the beginning of the page and work up.
 		int cursor = 0;
 		int lowest;//Earliest occurrence of MW escaped text.
 		int end = -1;//Last found MW escaped text close.
 		
-		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
-		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
-		
 		do {
 			cursor = end;
-			//Find MW escaped text in line.
+			
+			//Find the lowest MW escaped text.
 			lowest = -1;
 			int markupTextID = -1;
-			for (int i = 0; i < MWEscapeOpenText.size(); i++) {
-				int index = rawText.indexOf(MWEscapeOpenText.get(i), cursor);
+			
+			for (int i = 0; i < escapeOpenText.size(); i++) {
+				int index;//The location where this markup occurs.
+				String markupOpening = escapeOpenText.get(i);
+				
+				//Find the lowest location of this markup, if it exists.
+				//Any markup that is an HTML tag requires some leeway.
+				if (markupOpening.substring(0, 1).equals("<") && markupOpening.contains(">")) {
+					//This markup is a tag.
+					//Check if we have a potential tag opening.
+					markupOpening = markupOpening.substring(0, markupOpening.indexOf('>'));
+					
+					index = rawText.indexOf(markupOpening, cursor);
+					
+					if (index != -1) {
+						//We have a potential tag opening. We need to make sure this tag opening is an actual tag, and not something else.
+						
+						String nextChar = rawText.substring(index + markupOpening.length(), index + markupOpening.length()+1);
+						//Check if the tag opening is plain, aka has no attributes or spacing.
+						if (nextChar.equals(">")) {
+							//This is our tag.
+						} else {
+							//Check if the tag has some spacing in it.
+							if (nextChar.equals(" ") || nextChar.equals("\n")) {
+								//Check that the tag opening closes properly.
+								if (rawText.indexOf(">", index+1) == -1) {
+									//Nope.
+									index = -1;
+								}
+							} else {
+								//Nope.
+								index = -1;
+							}
+						}
+					}
+				} else {
+					//This markup is not a tag.
+					index = rawText.indexOf(markupOpening, cursor);
+				}
+				
 				if (index != -1) {
+					//Record which markup tag is the lowest.
 					if (lowest == -1 || index < lowest) {
 						lowest = index;
 						markupTextID = i;
@@ -737,66 +751,96 @@ public class Page extends SimplePage {
 			
 			//Move cursor
 			if (lowest != -1) {
+				//Move the cursor to the end of the markup pair.
 				cursor = lowest;
-
-				end = rawText.indexOf(MWEscapeCloseText.get(markupTextID), cursor+1) + MWEscapeCloseText.get(markupTextID).length();
+				
+				end = rawText.indexOf(escapeCloseText.get(markupTextID), cursor+1);
+				if (end != -1) {
+					end += escapeCloseText.get(markupTextID).length();
+				}
 			} else {
+				//Reached end of page.
 				cursor = -1;
 			}
 		} while (pos >= cursor && pos > end && cursor != -1 && end != -1);
 		
 		if (lowest == -1) {
-			//No escaped text on line.
+			//No markup text found on page.
 			return true;
 		} else {
-			//Escaped text on line.
+			//Check if this markup text contains @pos.
 			return !(pos >= cursor && end > pos);
 		}
 	}
 	
 	private int findClosingPosition(String text, String open, String close, int start) {
-		try {
-			//Method for finding where [[ ]] and {{ }} end.
-			int i = start;
-			int j;
-			int k = 0;//Keeps track of last found closing.
-			int depth = 1;
-	
-			k = i;
-			i = text.indexOf(open, i+open.length());
-			j = text.indexOf(close, k+open.length());
-			if (i > j || (i == -1 && j != -1)) {
-				//This object has depth 1.
-				k = j;
-				depth = 0;
-			} else {
-				do {
-					//Checking individual line.
-					if (i<=j && i != -1) {
-						//Depth increased
-						k = i;
-						i = text.indexOf(open, i+open.length());
-						j = text.indexOf(close, k+open.length());
-						depth++;
-					} else if (j != -1) {
-						//Depth decreased
-						k = j;
-						if (i != -1) {
-							i = text.indexOf(open, j+close.length());
-						}
-						j = text.indexOf(close, j+close.length());
-						depth--;
+		//Method for finding where [[ ]] and {{ }} end.
+		int i = start;
+		int j;
+		int k = 0;//Keeps track of last found closing.
+		int depth = 1;
+
+		k = i;
+		i = text.indexOf(open, i+open.length());
+		j = text.indexOf(close, k+open.length());
+		if (i > j || (i == -1 && j != -1)) {
+			//This object has depth 1.
+			k = j;
+			depth = 0;
+		} else {
+			do {
+				//Checking individual line.
+				if (i<=j && i != -1) {
+					//Depth increased
+					k = i;
+					i = text.indexOf(open, i+open.length());
+					j = text.indexOf(close, k+open.length());
+					depth++;
+				} else if (j != -1) {
+					//Depth decreased
+					k = j;
+					if (i != -1) {
+						i = text.indexOf(open, j+close.length());
 					}
-				} while(depth>0 && j != -1);
-			}
-			if (depth != 0 ) {
-				GenericBot.logError("Detected possible unclosed parseable item at: " + start + "  Page title: " + title);
-				return start + open.length();
-			}
-			return k;
-		} catch (Error e) {
-			System.out.println(text + ":" + open + ":" + close + ":" + start);
-			throw new Error();
+					j = text.indexOf(close, j+close.length());
+					depth--;
+				}
+			} while(depth>0 && j != -1);
 		}
+		if (depth != 0 ) {
+			GenericBot.log("Detected possible unclosed parseable item at page: " + getTitle() + " language: " + getLanguage());
+			return start + open.length();
+		}
+		return k;
+	}
+	
+	@Override
+	public String toString() {
+		String output;
+
+		output = "PAGE PAGE ;; Name: " + getTitle() + " ;; PAGE PAGE\nWith id: " + pageID  + "\n";
+		output += "Language: " + lan + "\n";
+		output += rawText;
+		output += "\nWith sections: \n";
+		for (int i = 0; i < sections.size(); i++) {
+			output += (sections.get(i).toString2() + "\n");
+		}	
+		output += "\nWith page objects: \n";
+		for (int i = 0; i < pageObjects.size(); i++) {
+			output += (pageObjects.get(i) + "\n");
+		}
+		output += "\nWith categories: \n";
+		for (int i = 0; i < categories.size(); i++) {
+			output += (categories.get(i) + " , ");
+		}
+		output += "\nWith interwikis: \n";
+		for (int i = 0; i < interwikis.size(); i++) {
+			output += (interwikis.get(i) + " , ");
+		}
+		output += "\n\nWith revision history: \n";
+		for (int i = 0; i < revisions.size(); i++) {
+			output += (revisions.get(i) + "\n");
+		}
+		return output;
 	}
 }

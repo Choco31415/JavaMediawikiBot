@@ -27,7 +27,6 @@ public class QueryPageContent extends APIcommand {
 		addParameter("prop", "revisions");
 		addParameter("rvprop", "content");
 		unescapeText = true;
-		unescapeHTML = false;
 	}
 	
 	static public String compactArray(ArrayList<PageLocation> array, String delimitor) {

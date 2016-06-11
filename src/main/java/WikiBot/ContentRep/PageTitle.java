@@ -24,14 +24,6 @@ public class PageTitle {
 		}
 	}
 	
-	public static String getNameSpace(String pageName) {
-		if (pageName.contains(":") && (pageName.indexOf(":") < pageName.indexOf("/") || !pageName.contains("/"))) {
-			return pageName.substring(0, pageName.indexOf(":"));
-		} else {
-			return "main";
-		}
-	}
-	
 	public String getTitle() { return title; }
 	public String getNameSpace() { return nameSpace; }
 	public String getTitleWithoutNameSpace() { return titleWithoutNameSpace; }

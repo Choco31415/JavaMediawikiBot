@@ -8,7 +8,6 @@ public class QueryPageRevisions extends APIcommand {
 	 * See this page for revision API info: https://www.mediawiki.org/wiki/API:Revisions
 	 */
 	public QueryPageRevisions(PageLocation loc, int pageID, int revisionLimit, boolean getContent) {
-		//returned = getURL(baseURL + "/api.php?format=xml&action=query&prop=revisions&pageids=" + page.getPageID() + "&rvprop=user|comment|timestamp&rvstartid=1000000000&rvendid=1&rvlimit=" + revisionDepth, false, true);
 		super(loc);
 		keys.add("format");
 		values.add("xml");
@@ -31,7 +30,6 @@ public class QueryPageRevisions extends APIcommand {
 	}
 	
 	public QueryPageRevisions(PageLocation loc, int revisionLimit, boolean getContent) {
-		//rvstartid=1000000000&rvendid=1&rvlimit=" + revisionDepth
 		super(loc);
 		keys.add("format");
 		values.add("xml");

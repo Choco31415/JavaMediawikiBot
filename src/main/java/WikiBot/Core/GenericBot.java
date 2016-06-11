@@ -4,6 +4,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.io.*;
 import java.util.Date;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList; 
@@ -37,6 +38,7 @@ import WikiBot.MediawikiData.MediawikiDataManager;
 
 /**
  * Generic Bot is the parent of every other bot.
+ * It is a singleton class.
  */
 public class GenericBot extends javax.swing.JPanel {
 	
@@ -787,7 +789,7 @@ public class GenericBot extends javax.swing.JPanel {
 				
 				//Error handling
 				if (textReturned.contains("This is an auto-generated MediaWiki API documentation page")) {
-					System.out.println(textReturned.substring(0,textReturned.indexOf("</a>")+4));
+					System.out.println(textReturned.substring(0,textReturned.indexOf("</a>")+4));//Keep
 					log("MediawikiAPI documentation page returned.");
 					
 					String error = parseXMLforInfo("error code", textReturned, "\"");
@@ -1107,6 +1109,11 @@ public class GenericBot extends javax.swing.JPanel {
 	
 	static public String concatLog() {
 		String temp = "Log:\n";
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		Date dateObject = new Date();
+		temp += "Printed on: " + dateFormat.format(dateObject) + "\n";//timestamp
+		
 		for (int i = 0; i < log.size(); i++) {
 			temp += log.get(i) + "\n";
 		}
