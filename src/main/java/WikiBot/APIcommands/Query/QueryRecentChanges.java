@@ -4,7 +4,7 @@ public class QueryRecentChanges extends QueryList {
 	public QueryRecentChanges(String language, int revisionLimit) {
 		super(language, "recentchanges");
 		keys.add("rcprop");
-		values.add("timestamp|title|user|comment");
+		values.add("timestamp|title|user|comment|flags");
 		keys.add("rclimit");
 		values.add("" + revisionLimit);
 		unescapeText = true;
@@ -17,7 +17,7 @@ public class QueryRecentChanges extends QueryList {
 	public QueryRecentChanges(String language, int revisionLimit, String rccontinue) {
 		super(language, "recentchanges");
 		keys.add("rcprop");
-		values.add("timestamp|title|user|comment");
+		values.add("timestamp|title|user|comment|flags");
 		keys.add("rclimit");
 		values.add("" + revisionLimit);
 		keys.add("rccontinue");

@@ -19,9 +19,9 @@ public class QueryPageRevisions extends APIcommand {
 		values.add("" + pageID);
 		keys.add("rvprop");
 		if (getContent) {
-			values.add("user|comment|timestamp|content");
+			values.add("user|comment|timestamp|content|flags");
 		} else {
-			values.add("user|comment|timestamp");	
+			values.add("user|comment|timestamp|flags");	
 		}
 		keys.add("rvlimit");
 		values.add("" + revisionLimit);
@@ -41,9 +41,9 @@ public class QueryPageRevisions extends APIcommand {
 		values.add(loc.getTitle());
 		keys.add("rvprop");
 		if (getContent) {
-			values.add("user|comment|timestamp|content");
+			values.add("user|comment|timestamp|content|flags");
 		} else {
-			values.add("user|comment|timestamp");	
+			values.add("user|comment|timestamp|flags");	
 		}
 		keys.add("rvlimit");
 		values.add("" + revisionLimit);
