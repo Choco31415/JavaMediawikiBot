@@ -198,9 +198,9 @@ public class GenericBot extends javax.swing.JPanel {
 			
 			//Parse page for info.
 			if (getRevisionContent) {
-				page.setRevisions(getRevisions(returned, "<rev user=", "</rev>", true, page.getTitle()));
+				page.setRevisions(getRevisionsFromXML(returned, "<rev user=", "</rev>", true, page.getTitle()));
 			} else {
-				page.setRevisions(getRevisions(returned, "<rev user=", "\" />", false, page.getTitle()));
+				page.setRevisions(getRevisionsFromXML(returned, "<rev user=", "\" />", false, page.getTitle()));
 			}
 		}
 	}
@@ -211,9 +211,9 @@ public class GenericBot extends javax.swing.JPanel {
 		
 		//Parse page for info.
 		if (getContent) {
-			return getRevisions(returned, "<rev user=", "</rev>", true, loc.getTitle());
+			return getRevisionsFromXML(returned, "<rev user=", "</rev>", true, loc.getTitle());
 		} else {
-			return getRevisions(returned, "<rev user=", "\" />", false, loc.getTitle());
+			return getRevisionsFromXML(returned, "<rev user=", "\" />", false, loc.getTitle());
 		}
 	}
 	
@@ -235,7 +235,7 @@ public class GenericBot extends javax.swing.JPanel {
 			} else {
 				returned = APIcommand(new QueryRecentChanges(language, Math.min(30, APIlimit), rccontinue));
 			}
-			ArrayList<Revision> returnedRevisions = getRevisions(returned, "<rc type=", "\" />", false, null);
+			ArrayList<Revision> returnedRevisions = getRevisionsFromXML(returned, "<rc type=", "\" />", false, null);
 		
 			//Make sure we return the correct amount of items.
 			int numRevisionsNeeded = depth - toReturn.size();
@@ -259,8 +259,10 @@ public class GenericBot extends javax.swing.JPanel {
 	/*
 	 * This is a specialized function and should not be used outside of this class.
 	 */
-	static private ArrayList<Revision> getRevisions(String XMLdata, String openingText, String closingText, boolean includeContent, String forceTitle) {
+	static private ArrayList<Revision> getRevisionsFromXML(String XMLdata, String openingText, String closingText, boolean includeContent, String forceTitle) {
 		//This method takes XML data and parses it for revisions.
+		
+		//Revision related data.
 		ArrayList<Revision> output = new ArrayList<Revision>();
 		String revision;
 		String user;
@@ -269,14 +271,21 @@ public class GenericBot extends javax.swing.JPanel {
 		Date date = null;
 		String content;
 		String title;
+		ArrayList<String> flags;
+		
+		//Iteration variables.
 		int j = 0;
 		int k = -1;
 		while (j != -1) {
 			j = XMLdata.indexOf(openingText, k+1);
 			k = XMLdata.indexOf(closingText, j+1);
 			if (j != -1) {
-				//No errors detected.
+				//No errors detected. Continue parsing.
+				
+				//Get a single revision's text.
 				revision = XMLdata.substring(j, k+closingText.length());
+				
+				//Extract info.
 				user = parseXMLforInfo("user", revision, "\"", 2, 0);
 				tempDate = parseXMLforInfo("timestamp", revision, "\"", 2, 0);
 				date = createDate(tempDate);
@@ -288,15 +297,31 @@ public class GenericBot extends javax.swing.JPanel {
 					comment = parseXMLforInfo("comment", revision, closingText, 2, 0);
 				}
 				
+				//Parse for flags
+				flags = new ArrayList<String>();
+				ArrayList<String> flagsToSearchFor = new ArrayList<String>();
+				flagsToSearchFor.add("minor");
+				flagsToSearchFor.add("new");
+				flagsToSearchFor.add("bot");
+				for (String flag: flagsToSearchFor) {
+					if (revision.contains(flag + "=\"\"")) {
+						//Flag found.
+						flags.add(flag);
+					}
+				}
+				
 				//Generate and store revision
 				Revision rev;
 				if (forceTitle == null) {
 					title = parseXMLforInfo("title", revision, "\"");
-					rev = new Revision(new PageLocation(title, mdm.getLanguageFromURL(baseURL)), user, comment, date);
+					rev = new Revision(new PageLocation(title, mdm.getLanguageFromURL(baseURL)), user, comment, date, flags);
 				} else {
-					rev = new Revision(new PageLocation(forceTitle, mdm.getLanguageFromURL(baseURL)), user, comment, date);
+					rev = new Revision(new PageLocation(forceTitle, mdm.getLanguageFromURL(baseURL)), user, comment, date, flags);
 				}
+				
 				rev.setPageContent(content);
+				
+				//For eventual return.
 				output.add(rev);
 			}
 		}
