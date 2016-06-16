@@ -7,18 +7,18 @@ import WikiBot.ContentRep.PageLocationContainer;
 
 public class APIcommand extends PageLocationContainer {
 	
-	protected boolean requiresPOST = false;
+	protected boolean requiresGET = false;
 	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
 
 	protected ArrayList<String> keys = new ArrayList<String>();
 	protected ArrayList<String> values = new ArrayList<String>();
 
-	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresPOST_) {
+	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_) {
 		super(pl_);
 		keys.addAll(keys_);
 		values.addAll(values_);
-		requiresPOST = requiresPOST_;
+		requiresGET = requiresGET_;
 	}
 	
 	
@@ -28,20 +28,20 @@ public class APIcommand extends PageLocationContainer {
 		values.addAll(values_);
 	}
 	
-	public APIcommand(PageLocation pl_, boolean requiresPOST_) {
+	public APIcommand(PageLocation pl_, boolean requiresGET_) {
 		super(pl_);
-		requiresPOST = requiresPOST_;
+		requiresGET = requiresGET_;
 	}
 	
 	public APIcommand(PageLocation pl_) {
 		super(pl_);
 	}	
 	
-	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresPOST_) {
+	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_) {
 		super(new PageLocation("null", language));
 		keys.addAll(keys_);
 		values.addAll(values_);
-		requiresPOST = requiresPOST_;
+		requiresGET = requiresGET_;
 	}
 	
 	
@@ -51,9 +51,9 @@ public class APIcommand extends PageLocationContainer {
 		values.addAll(values_);
 	}
 	
-	public APIcommand(String language, boolean requiresPOST_) {
+	public APIcommand(String language, boolean requiresGET_) {
 		super(new PageLocation("null", language));
-		requiresPOST = requiresPOST_;
+		requiresGET = requiresGET_;
 	}
 	
 	public APIcommand(String language) {
@@ -111,8 +111,8 @@ public class APIcommand extends PageLocationContainer {
 		return values.get(keys.indexOf(key));
 	}
 	
-	public void setRequiresGET(boolean bool) { requiresPOST = bool; }
-	public boolean requiresGET() { return requiresPOST; }
+	public void setRequiresGET(boolean bool) { requiresGET = bool; }
+	public boolean requiresGET() { return requiresGET; }
 	public void setUnescapeText(boolean bool) { unescapeText = bool; }
 	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }

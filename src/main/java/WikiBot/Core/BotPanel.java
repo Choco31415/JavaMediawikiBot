@@ -71,7 +71,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	/*
 	 * Bot Preferences
 	 */
-    protected String myWikiLanguage = "en";
     protected String family = "";//The wiki family.
     
 	protected String botUsername = "";
