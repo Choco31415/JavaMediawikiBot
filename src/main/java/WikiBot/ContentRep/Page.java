@@ -59,14 +59,24 @@ public class Page extends SimplePage {
 	}
 	
 	//Section methods
+	/**
+	 * Sections start counting at 1.
+	 * @param i The id of the section you want.
+	 * @return A Section object.
+	 */
 	public Section getSectionByNum(int i) {
-		return sections.get(i);
+		return sections.get(i-1);
 	}
 	
 	public String getLastSectionText() {
 		return getSectionText(sections.size());
 	}
 	
+	/**
+	 * Get the section text of a section. 0 is the page headers. Sections start counting at 1.
+	 * @param i The section that you want to get the text of.
+	 * @return The section's text.
+	 */
 	public String getSectionText(int i) {
 		
 		if (i < 0 || i > sections.size()) {
@@ -90,6 +100,11 @@ public class Page extends SimplePage {
 		return rawText.substring(pos1, pos2);
 	}
 	
+	/**
+	 * Find the section that corresponds with this text position.
+	 * @param pos The text position.
+	 * @return A section id.
+	 */
 	public Section getSection(int pos) {
 		
 		if (pos < 0 || pos >= rawText.length()) {
@@ -366,6 +381,7 @@ public class Page extends SimplePage {
 	
 	/*
 	 * All page parsing code goes below!
+	 * Unless you are a developer, you can safely ignore all code below.
 	 */
 	
 	private void parseRawText() {
@@ -384,8 +400,6 @@ public class Page extends SimplePage {
 		parsePageForPageObjects();
 		parsePageForSections();
 	}
-	
-	long performance = 0;
 	
 	private void parsePageForNewLines() {
 		//Only these escape texts impact new lines.

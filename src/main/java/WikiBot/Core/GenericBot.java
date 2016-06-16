@@ -34,6 +34,7 @@ import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Revision;
 import WikiBot.ContentRep.SimplePage;
+import WikiBot.Errors.NetworkError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 
 /**
@@ -67,6 +68,8 @@ public class GenericBot extends javax.swing.JPanel {
 	protected static boolean logAPIresults = true;//Should the bot log API results?
 	public static boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
 	protected static double APIthrottle = 0.5;//The minimum amount of time between API commands.
+	
+	protected static String myWikiLanguage = "en";//The default wiki of a bot.
 	
 	public GenericBot() {
 		//Read in some files.
@@ -906,7 +909,12 @@ public class GenericBot extends javax.swing.JPanel {
 		}
 		
 		try {
-			return compactArray(getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML()), "\n");
+			String[] output = getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML());
+			if (output == null) {
+				throw new NetworkError("Cannot connect to server at: " + baseURL);
+			} else {
+				return compactArray(output, "\n");
+			}
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -966,6 +974,8 @@ public class GenericBot extends javax.swing.JPanel {
 
         try {
 			response = httpclient.execute(httpost, context);
+		} catch (SocketException e) {
+			throw new NetworkError("Cannot connect to server at: " + baseURL);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
