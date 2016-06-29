@@ -33,11 +33,10 @@ public class InterwikiBot extends BotPanel {
 		myWikiLanguage = "en";
 		
 		APIlimit = 30;
-		logAPIresults = false;
 		revisionDepth = 5;
 		
 		APIthrottle = 0.5;//Minimum time between any API commands.
-		waitTimeBetweenEdits = 12;//Minimum time between edits.
+		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
 	}
 	
 	/*

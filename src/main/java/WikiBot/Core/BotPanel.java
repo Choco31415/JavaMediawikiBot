@@ -1,135 +1,239 @@
 package WikiBot.Core;
 
-import java.awt.Button;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Label;
-import java.awt.List;
+import java.awt.Font;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import javax.swing.Box;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.text.AbstractDocument;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.ContentRep.Interwiki;
-import WikiBot.ContentRep.Page;
-import WikiBot.ContentRep.PageLocation;
-import WikiBot.ContentRep.Template;
+import WikiBot.Core.Miscalleneous.DocumentSizeFilter;
 
-public abstract class BotPanel extends GenericBot implements ActionListener, Runnable {
+/**
+ * BotPanel is an extension of GenericBot that gives a GUI to a bot.
+ * 
+ * Some GUI methods may be found in this class.
+ * Most bot methods may be found in GenericBot.
+ * Some logger methods may be found in NetworkingBase.
+ * 
+ * Implementation:
+ * To create a bot with a GUI, make a class that extends BotPanel.
+ * In the class, make a method called code(). This is where your bot code should be.
+ * In BotFrame, make myPanel an instance of your bot class.
+ * 
+ * To make a bot without a GUI, check out GenericBot.
+ * 
+ * @author: ErnieParke/Choco31415
+ */
+public abstract class BotPanel extends GenericBot implements ActionListener {
 
 	protected static final long serialVersionUID = 1L;
 	
+	//Bot and GUI preferences
 	protected String panelName = "Bot Panel";
 	
-	protected final int WIDTH = 600;
-	protected final int HEIGHT = 550;
-	
-	protected Button logInButton;
-	protected Button logInAllButton;
-	protected Button runButton;
-	protected Button pushButton;
-	protected Button exitButton;
-	protected Label consoleBox;
-	protected static Label statusBox;
-	protected Button printLogButton;
-	protected static Label errorBox;
-	protected static Label changesBox;
-	protected JList<String> proposedList;
-	protected ArrayList<APIcommand> proposedEdits = new ArrayList<APIcommand>();
-	protected JList<String> acceptedList;
-	protected ArrayList<APIcommand> acceptedEdits = new ArrayList<APIcommand>();
-	protected Button exportEditsButton;
-	protected Button removeButton;
-	protected Button acceptButton;
-	protected Button acceptAllButton;
-	protected static Label infoBox;
-	protected List interwikiList;
-	
-    Thread clockThread;
-	protected boolean pushingChanges = false;//True if paused or not.
-	protected boolean pausedPushing = false;
-	private int errorCounter = 0;
-	private int errorMessageLifeSpan = 5;
-    
-	SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
-	
-	/*
-	 * Bot Preferences
-	 */
-    protected String family = "";//The wiki family.
-    
+	protected final int WIDTH = 600;//GUI width
+	protected final int HEIGHT = 335;//GUI height
+
 	protected String botUsername = "";
 	protected String botPassword;//Never, never, NEVER store your password in the code.
 	
-    protected int maxProposedEdits = -1;//The largest number of changes proposed per "run". -1 for no max.
-	protected int waitTimeBetweenEdits = 12;
+	protected int maxConsoleLineSize = 50;//The maximum length of the console box.
+    protected int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
+	protected int waitTimeBetweenProposedCommands = 12;//Minimum time between proposed commands.
 	
-	protected double statusUpdateWaitTime = 0.05;//How much time do you want between each GUI refresh?
+	//GUI stuff
+	protected JMenuBar menuBar;
+	protected JButton printLogButton;
+	protected JButton runButton;
+	protected JButton pushButton;
+	protected JButton exitButton;
+	protected JTextArea console;
+	protected JList<String> proposedCommandsList;
+	protected ArrayList<APIcommand> proposedCommands = new ArrayList<APIcommand>();
+	protected JList<String> acceptedCommandsList;
+	protected ArrayList<APIcommand> acceptedCommands = new ArrayList<APIcommand>();
+	protected JButton exportEditsButton;
+	protected JButton removeButton;
+	protected JButton acceptButton;
+	protected JButton acceptAllButton;
+	protected JTable wikiTable;
+	protected JLabel statusLabel;
+	protected JButton logInButton;
+	protected JPopupMenu logInMenu;
+	protected JMenuItem logInHomeButton;
+	protected JMenuItem logInSelectedButton;
+	protected JMenuItem logInAllButton;
+	
+    //More GUI stuff
+	protected boolean pushingCommands = false;//True if paused or not.
+	protected boolean pausedPushing = false;
+    
+	SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
+	
+	boolean firstConsoleMessage = true;//Used by the console.
 	
 	public BotPanel(String family_) {
-		family = family_;
-		
-	    if (clockThread == null) {
-	        clockThread = new Thread(this, "Clock");
-	        clockThread.start();
-	     }
+		super(family_);
 		
 		setSize(WIDTH, HEIGHT);
 		
-	    // Read more data into mdm.
-		mdm.readFamily(family_, 0);
-		
-	    // Construct the button
-		logInButton = new Button("Log In");
-		logInAllButton = new Button("Log In All");
-	    runButton = new Button("Run");
-	    pushButton = new Button("Push Changes");
-	    exitButton = new Button("Exit");
-	    consoleBox = new Label("ConsoleBox");
-	    statusBox = new Label("...");
-	    printLogButton = new Button("Print Log");
-	    errorBox = new Label("...");
-	    changesBox = new Label("Proposed Edits  ||  Accepted Edits");
-
-	    DefaultListModel<String> proposedChanges = new DefaultListModel<>();
-	    proposedList = new JList<String>(proposedChanges);
-	    JScrollPane proposedScroller = new JScrollPane(proposedList);
-	    proposedScroller.setPreferredSize(new Dimension(290, 150));
+	    // Construct the various GUI components
+		printLogButton = createPlainJButton("Export Log");
+	    runButton = createPlainJButton("Run");
+	    pushButton = createPlainJButton("Push Commands");
+	    exitButton = createPlainJButton("Exit");
 	    
-	    DefaultListModel<String> acceptedChanges = new DefaultListModel<>();
-	    acceptedList = new JList<String>(acceptedChanges);
-	    JScrollPane acceptedScroller = new JScrollPane(acceptedList);
-	    acceptedScroller.setPreferredSize(new Dimension(290, 150));
-
-	    exportEditsButton = new Button("Export Edits");
-	    removeButton = new Button("Remove");
-	    acceptButton = new Button("Accept");
-	    acceptAllButton = new Button("Accept All");
-	    infoBox = new Label("The interwikis supported are:");
+	    console = new JTextArea();
+	    AbstractDocument doc = (AbstractDocument) console.getDocument();
+	    doc.setDocumentFilter(new DocumentSizeFilter(maxConsoleLineSize, console));
 	    
-	    interwikiList = new List(5, true);
-	    for (String iw : mdm.getInterwiki()) {
-	    	interwikiList.add(iw); 	
+	    exportEditsButton = createJButton("Export Edits", new Dimension(100, 20));
+	    removeButton = createJButton("Remove", new Dimension(100, 20));
+	    acceptButton = createJButton("Accept", new Dimension(100, 20));
+	    acceptAllButton = createJButton("Accept All", new Dimension(100, 20));
+	    
+	    statusLabel = new JLabel("");
+	    statusLabel.setPreferredSize(new Dimension(500, 20));
+	    statusLabel.setMinimumSize(new Dimension(500, 20));
+	    statusLabel.setMaximumSize(new Dimension(500, 20));
+	    
+	    logInButton = createJButton("Log In", new Dimension(100, 20));
+	    logInButton.setHorizontalTextPosition(SwingConstants.LEFT);
+	    BufferedImage image = readImage("/Images/DropdownArrow.png");
+	    ImageIcon icon = new ImageIcon(image);
+	    logInButton.setIcon(icon);
+	    
+	    logInHomeButton = new JMenuItem("Home");
+		logInSelectedButton = new JMenuItem("Selected");
+		logInAllButton = new JMenuItem("All");
+
+	    DefaultListModel<String> proposedCommands = new DefaultListModel<>();
+	    proposedCommandsList = new JList<String>(proposedCommands);
+	    JScrollPane proposedCommandsPane = new JScrollPane(proposedCommandsList);
+	    proposedCommandsPane.setPreferredSize(new Dimension(300, 150));
+	    
+	    DefaultListModel<String> acceptedCommands = new DefaultListModel<>();
+	    acceptedCommandsList = new JList<String>(acceptedCommands);
+	    JScrollPane acceptedCommandsPane = new JScrollPane(acceptedCommandsList);
+	    acceptedCommandsPane.setPreferredSize(new Dimension(300, 150));
+	    
+	    //Set up the wiki table
+	    Object[] columnHeaders = new Object[]{"Wiki", "Logged In"};
+	    Object[][] rowData = new Object[mdm.getNumWikis()][2];
+	    for (int i = 0; i < mdm.getNumWikis(); i++) {
+	    	String iw = mdm.getInterwiki().get(i);
+	    	rowData[i][0] = iw;
+	    	rowData[i][1] = false;
+	    }
+	    wikiTable = new JTable(rowData, columnHeaders);
+	    
+	    //Set column widths.
+	    TableColumn column = null;
+	    for (int i = 0; i < 2; i++) {
+	    	column = wikiTable.getColumnModel().getColumn(i);
+	    	switch (i) {
+	    		case 0:
+	    			column.setPreferredWidth(140);
+	    			break;
+	    		case 1:
+	    			column.setWidth(50);
+	    			break;
+	    		default:
+	    			throw new Error("Please update the GUI.");
+	    	}
 	    }
 	    
-	    // button should be handled by a new BeepAction object
-	    logInButton.addActionListener(this);
-	    logInAllButton.addActionListener(this);
+	    //Make GUI components scrollable
+	    JScrollPane consolePane = new JScrollPane(console);
+	    consolePane.setPreferredSize(new Dimension(400, 100));
+	    
+	    JScrollPane wikiTablePane = new JScrollPane(wikiTable);
+	    wikiTablePane.setPreferredSize(new Dimension(200, 100));
+	    
+	    //Give headers to various GUI components
+	    JLabel header = new JLabel("Console");//Add a header to the console.
+	    Font font = header.getFont();
+	    header.setFont(font.deriveFont(12f));
+	    header.setOpaque(true);
+	    header.setBackground(new Color(242, 242, 242));
+	    consolePane.setColumnHeaderView(header);
+	    header.setBorder(new EmptyBorder(0, 2, 0, 0));
+	    
+	    header = new JLabel("Proposed Commands");
+	    header.setOpaque(true);
+	    header.setBackground(new Color(242, 242, 242));
+	    header.setFont(font);
+	    header.setBorder(new EmptyBorder(0, 2, 0, 0));
+	    proposedCommandsPane.setColumnHeaderView(header);
+	    
+	    header = new JLabel("Accepted Commands");
+	    header.setOpaque(true);
+	    header.setBackground(new Color(242, 242, 242));
+	    header.setFont(font);
+	    header.setBorder(new EmptyBorder(0, 2, 0, 0));
+	    acceptedCommandsPane.setColumnHeaderView(header);
+	    
+	    //Group buttons into boxes
+	    menuBar = new JMenuBar();
+	    menuBar.add(printLogButton);
+	    menuBar.add(runButton);
+	    menuBar.add(pushButton);
+	    menuBar.add(Box.createHorizontalGlue());
+	    menuBar.add(exitButton);
+	    
+	    Box commandProcessingBar =Box.createHorizontalBox();
+	    commandProcessingBar.add(exportEditsButton);
+	    commandProcessingBar.add(removeButton);
+	    commandProcessingBar.add(acceptButton);
+	    commandProcessingBar.add(acceptAllButton);
+	    commandProcessingBar.add(Box.createHorizontalStrut(200));
+	    
+	    logInMenu = new JPopupMenu("Log In");
+	    logInMenu.setPreferredSize(new Dimension(100, 60));
+	    logInMenu.add(logInHomeButton);
+	    logInMenu.add(logInSelectedButton);
+	    logInMenu.add(logInAllButton);
+	    
+	    Box bottomBar = Box.createHorizontalBox();
+	    bottomBar.add(statusLabel);
+	    bottomBar.add(logInButton);
+	    
+	    //Set up action handlers, so buttons actually work. No one wants a non-functioning button.
 	    runButton.addActionListener(this);
 	    pushButton.addActionListener(this);
 	    printLogButton.addActionListener(this);
@@ -138,42 +242,224 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 	    removeButton.addActionListener(this);
 	    acceptButton.addActionListener(this);
 	    acceptAllButton.addActionListener(this);
+	    logInButton.addActionListener(this);
+	    logInHomeButton.addActionListener(this);
+	    logInSelectedButton.addActionListener(this);
+	    logInAllButton.addActionListener(this);
 
-        setLayout(new FlowLayout());
-
-        add(logInButton);
-        add(logInAllButton);
-	    add(printLogButton);
-        add(runButton);
-        add(pushButton);
-        add(exitButton);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(consoleBox);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(statusBox);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(errorBox);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(changesBox);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(proposedScroller);
-	    add(acceptedScroller);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(exportEditsButton);
-	    add(removeButton);
-	    add(acceptButton);
-	    add(acceptAllButton);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(infoBox);
-	    add(Box.createRigidArea(new Dimension(WIDTH,0)));
-	    add(interwikiList);
+	    //Add the GUI components to the GUI
+	    SpringLayout layout = new SpringLayout();
+        setLayout(layout);
+        
+        add(consolePane);
 	    
+	    add(proposedCommandsPane);
+	    add(acceptedCommandsPane);
+	    
+	    add(commandProcessingBar);
+	    
+	    add(wikiTablePane);
+	    add(bottomBar);
+	    
+	    //Control a few rendering aspects.
+	    this.setComponentZOrder(commandProcessingBar, 1);
+	    this.setComponentZOrder(bottomBar, 0);
+        
+        /*
+         * Constraints n' stuff
+         */
+	    //Top half
+	    layout.putConstraint(SpringLayout.WEST, proposedCommandsPane,
+	    		0,
+	    		SpringLayout.WEST, this);
+	    layout.putConstraint(SpringLayout.NORTH, proposedCommandsPane,
+	    		0,
+	    		SpringLayout.NORTH, this);
+	    
+	    layout.putConstraint(SpringLayout.WEST, acceptedCommandsPane,
+	    		0,
+	    		SpringLayout.EAST, proposedCommandsPane);
+	    layout.putConstraint(SpringLayout.NORTH, acceptedCommandsPane,
+	    		0,
+	    		SpringLayout.NORTH, proposedCommandsPane);
+	    
+	    layout.putConstraint(SpringLayout.EAST, commandProcessingBar,
+	    		0,
+	    		SpringLayout.EAST, this);
+	    layout.putConstraint(SpringLayout.NORTH, commandProcessingBar,
+	    		-1,
+	    		SpringLayout.SOUTH, proposedCommandsPane);
+	    
+	    //Bottom half
+	    layout.putConstraint(SpringLayout.NORTH, consolePane,
+                0,
+                SpringLayout.SOUTH, commandProcessingBar);
+        layout.putConstraint(SpringLayout.WEST, consolePane,
+                0,
+                SpringLayout.WEST, this);
+	    
+        layout.putConstraint(SpringLayout.VERTICAL_CENTER, wikiTablePane,
+                0,
+                SpringLayout.VERTICAL_CENTER, consolePane);
+        layout.putConstraint(SpringLayout.EAST, wikiTablePane,
+                0,
+                SpringLayout.EAST, this);
+        
+        layout.putConstraint(SpringLayout.WEST, bottomBar,
+                0,
+                SpringLayout.WEST, this);
+        layout.putConstraint(SpringLayout.NORTH, bottomBar,
+               -1,
+                SpringLayout.SOUTH, wikiTablePane);
+	    
+	    //Make sure everything renders.
 	    validate();
 	    repaint();
 	}
 	
+	/**
+	 * @param edit The edit being proposed.
+	 * @param displayedAction A very brief description of the edit. For example "Editing Scratch".
+	 */
+	public void proposeCommand(APIcommand edit, String displayedAction) {
+		proposeEdit(edit, displayedAction);
+	}
+	
+	/**
+	 * @param edit The APIcommand that you are proposing.
+	 * @param displayedAction A very short command summary. It should preferably be one or two words at most. It is used in the graphical edit lists. 
+	 */
+	public void proposeEdit(APIcommand edit, String displayedAction) {
+		if (!proposedCommands.contains(edit) && !acceptedCommands.contains(edit) && (proposedCommands.size() < maxProposedEdits || maxProposedEdits <= -1)) {
+			proposedCommands.add(0, edit);
+			DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
+			dm.add(0, displayedAction + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
+			
+			validate();
+			repaint();
+		}
+	}
+	
+	public int getWidth() { return WIDTH; }
+	public int getHeight() { return HEIGHT; }
+	public String getPanelName() { return panelName; }
+	
+	public void writeFile(String text, String location) {
+		PrintWriter writer = null;
+		try {
+			logInfo("Writting file: " + location);
+			writer = new PrintWriter(location, "UTF-8");
+		} catch (FileNotFoundException e) {
+			logError("File not found");
+			return;
+		} catch (UnsupportedEncodingException e) {
+			logError("Unsupported file format");
+			return;
+		}
+		writer.write(text);
+		writer.close();
+	}
+	
+	/**
+	 * Put all bot code in this method.
+	 */
+	public abstract void code();
+	
+	/*
+	 * <notice>
+	 * 
+	 * 
+	 * Below is GUI code. Unless you are an advanced user, you can safely ignore the code below.
+	 * 
+	 * 
+	 * </notice>
+	 */
+	
+	/*
+	 * Status/log methods
+	 */
+	
+	protected void setStatus(String status) {
+		statusLabel.setText(status);
+	}
+	
+	/**
+	 * This method prints messages to the console.
+	 * @param line The message to show.
+	 */
+	protected void printToConsole(String line) {
+		if (firstConsoleMessage) {
+			firstConsoleMessage = false;
+			console.append(line);
+		} else {
+			console.append("\n" + line);
+		}
+	}
+	
+	@Override
+	public boolean log(Level level, String line) {
+		boolean toReturn = super.log(level, line);
+		
+		if (toReturn) {
+			printToConsole(getNewestLoggerLine());
+		}
+		
+		return toReturn;
+	}
+	
+	/*
+	 * GUI methods
+	 */
+	
+	/**
+	 * Set the JFrame's menu bar.
+	 * @param frame The JFrame.
+	 */
+	public void setUpJMenuBar(JFrame frame) {
+		frame.setJMenuBar(menuBar);
+	}
+	
+	/**
+	 * Create a JButton without a border.
+	 * @param text The button's text.
+	 * @return A JButton.
+	 */
+	public JButton createPlainJButton(String text) {
+		JButton toReturn = new JButton(text);
+		
+		toReturn.setBorderPainted(false);
+		
+		Border emptyBorder = new EmptyBorder(4, 8, 4, 8);
+		toReturn.setBorder(emptyBorder);
+		
+		return toReturn;
+	}
+	
+	/**
+	 * Create a JButton.
+	 * @param text The button's text.
+	 * @param size The button's size.
+	 * @return A JButton.
+	 */
+	public JButton createJButton(String text, Dimension size) {
+		JButton toReturn = new JButton(text);
+
+		toReturn.setPreferredSize(size);
+		toReturn.setMinimumSize(size);
+		toReturn.setMaximumSize(size);
+		
+		return toReturn;
+	}
+	
+	/*
+	 * Proposed/accepted commands methods
+	 */
+	
+	/**
+	 * This methods makes a swing worker to run the bot code, so the GUI does not freeze up.
+	 */
 	public void runCode() {
-		if (proposedEdits.size() < maxProposedEdits || maxProposedEdits <= -1) {
+		if (proposedCommands.size() < maxProposedEdits || maxProposedEdits <= -1) {
 			
 		    SwingWorker<Void, Void> runWorker = new SwingWorker<Void, Void>() {
 		        @Override
@@ -190,7 +476,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 
 		        @Override
 		        protected void done() {
-					setConsoleText("Done");
+					logInfo("Done running.");
 					
 					validate();
 		        }
@@ -199,82 +485,58 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    
 		    runWorker.execute();
 		} else {
-			setConsoleText("To continue, review some proposed edits.");
+			logInfo("To continue, review some proposed edits.");
 		}
 	}
-	
+
 	/**
-	 * Put all bot code in this method.
+	 * This method creates a swing worker to push commands, so the GUI does not freeze up.
 	 */
-	public abstract void code();
-	
-	public void run() {
-	      Thread myThread = Thread.currentThread();
-	        while (clockThread == myThread) {
-	        	sleepInSeconds(statusUpdateWaitTime);
-	            updateGUI();
-	        }
-	    }
-	
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
+	public void pushCommands() {		
 		
-		consoleBox.paint(g);
-	}
-	
-	public void updateGUI() {
-		if (log.size() > 0) {
-			statusBox.setText(log.get(log.size()-1) + " (" + log.size() + ")");
-		}
-		
-		errorCounter++;
-		if (errorCounter > 10*errorMessageLifeSpan) {
-			errorBox.setText("Number of Errors: " + numErrors);
-		}
-		
-		validate();
-	}
-	
-	public void pushChanges() {		
-		
-		if (acceptedEdits.size() > 0) {
+		if (acceptedCommands.size() > 0) {
 
 		    pushWorker = new SwingWorker<Void, Void>() {
 		        @Override
 		        public Void doInBackground() {
-				    pushButton.setLabel("Pause Push");
-				    pushingChanges = true;
+				    pushButton.setText("Pause Push");
+				    pushingCommands = true;
 				    pausedPushing = false;
-		        	pushChanges2();
+		        	pushCommandsSwing();
 					
 		        	return null;
 		        }
 
 		        @Override
 		        protected void done() {
-					setConsoleText("Changes pushed.");
-					pushingChanges = false;
-				    pushButton.setLabel("Push Changes");
+		        	logInfo("Done pushing commands.");
+		    		setStatus("Done pushing commands.");
+		    		
+					pushingCommands = false;
+				    pushButton.setText("Push Commands");
 		        }
 		    };
 
 		    pushWorker.execute();
-		    //pushChanges2();
 		} else {
-			setConsoleText("No accepted edits detected.");
+			logInfo("No accepted commands detected.");
 		}
 	}
 	
-	public void pushChanges2() {
-		DefaultListModel<String> dm = (DefaultListModel<String>) acceptedList.getModel();
+	/**
+	 * This method is where commands are actually executed.
+	 */
+	public void pushCommandsSwing() {
+		DefaultListModel<String> dm = (DefaultListModel<String>) acceptedCommandsList.getModel();
 		int waitTime;
 	    
-		int numChanges = acceptedEdits.size();
-		//Push the changes!
-		for (int i = acceptedEdits.size()-1; i >= 0; i--) {
-			//Create the wait message.
-			waitTime = waitTimeBetweenEdits*(i);
+		int numCommands = acceptedCommands.size();
+		logInfo("Pushing " + acceptedCommands.size() + " commands. Please wait.");
+		
+		//Push the commands!
+		for (int i = acceptedCommands.size()-1; i >= 0; i--) {
+			//Create a wait message.
+			waitTime = waitTimeBetweenProposedCommands*(i);
 			String timeMessage = "";
 			if (waitTime >= 3600)
 				timeMessage += waitTime/3600 + " hr, ";
@@ -282,59 +544,118 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 				timeMessage += (waitTime/60)%60 + " min, ";
 			timeMessage += waitTime%60 + " sec";
 			
-			String baseMessage = "Pushing edit: " + (numChanges - i) + "/" + numChanges + " | Time left: " + timeMessage;
+			String baseMessage = "Pushing edit: " + (numCommands - i) + "/" + numCommands + " | Time left: " + timeMessage;
 			
+			//Try pushing a command.
 			try {
-				setConsoleText(baseMessage + " | Pushing.");
-				APIcommand(acceptedEdits.get(i));
-				acceptedEdits.remove(i);
+				logFinest("Pushing edit.");
+				APIcommand(acceptedCommands.get(i));
+				acceptedCommands.remove(i);
 				dm.remove(i);
-				setConsoleText(baseMessage + " | Waiting " + waitTimeBetweenEdits + " sec.");
+
+				//Log info.
+				if (i%10 == 0) {
+					logInfo(baseMessage + " | Waiting " + waitTimeBetweenProposedCommands + " sec.");
+				}
+				
+				setStatus(baseMessage + " | Waiting " + waitTimeBetweenProposedCommands + " sec.");
 			} catch (Error e) {
+				//Fail.
 				e.printStackTrace();
 				logError(e.getClass().getName());
 			}
+			
 			if (i != 0) {
 				//Are we paused?
 				if (!pausedPushing) {
-					for (int time = 0; time < waitTimeBetweenEdits && !pausedPushing; time++) {
+					//Wait a little between each command.
+					for (int time = 0; time < waitTimeBetweenProposedCommands && !pausedPushing; time++) {
 						sleepInSeconds(1);
 					}
 				}
 				
 				if (pausedPushing) {
-					setConsoleText(baseMessage + " | Paused.");
+					//Please wait while we pause.
+					setStatus(baseMessage + " | Paused.");
+					
 					do { 
 						sleepInSeconds(1);
 					} while (pausedPushing);
 				}
 			}
 		}
+		
+		//The push finish code should be in the swing worker.
 	}
 	
-	public void writeLogFiles() {
-		writeFile(concatLog(), "log.txt");
-	}
-	
-	public void writeFile(String text, String location) {
-		PrintWriter writer = null;
-		try {
-			System.out.println("Writting file: " + location);
-			writer = new PrintWriter(location, "UTF-8");
-		} catch (FileNotFoundException e) {
-			System.out.println("Err1 File Not Found");
-			return;
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("Err2 Unsupported file format");
-			return;
+	/**
+	 * Remove the selected proposed and accepted commands.
+	 * 
+	 * This method handles GUI overhead and management.
+	 * 
+	 * @param index The command to remove.
+	 */
+	public void removeSelectedCommands() {
+		int index = proposedCommandsList.getSelectedIndex();
+		DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
+		while (index > -1) {
+			dm.remove(index);
+			proposedCommands.remove(index);
+			index = proposedCommandsList.getSelectedIndex();
 		}
-		writer.write(text);
-		writer.close();
+		
+		index = acceptedCommandsList.getSelectedIndex();
+		dm = (DefaultListModel<String>) acceptedCommandsList.getModel();
+		while (index > -1 ) {
+			dm.remove(index);
+			acceptedCommands.remove(index);
+			index = acceptedCommandsList.getSelectedIndex();
+		}
 	}
+	
+	/**
+	 * Remove an accepted command, as if it were successfully pushed.
+	 * 
+	 * This method handles GUI overhead and management.
+	 * 
+	 * @param index The command to remove.
+	 */
+	public void removeAcceptedCommand(int index) {
+		DefaultListModel<String> dm = (DefaultListModel<String>) acceptedCommandsList.getModel();
+		if (index > -1 && index < dm.size()) {
+			dm.remove(index);
+			acceptedCommands.remove(index);
+		}
+	}
+	
+	/**
+	 * Move a proposed command to the accepted command list.
+	 * 
+	 * This method handles GUI overhead and management.
+	 * 
+	 * @param index The command to accept.
+	 */
+	public void acceptCommand(int index) {
+		DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
+		if (index > -1 && index < dm.size()) {
+			DefaultListModel<String> dm2 = (DefaultListModel<String>) acceptedCommandsList.getModel();
+			dm2.add(0, dm.get(index));
+			acceptedCommands.add(0, proposedCommands.get(index));
+			dm.remove(index);
+			proposedCommands.remove(index);
+		}
+	}
+	
+	/*
+	 * Button methods
+	 */
 
+	/**
+	 * All buttons, when clicked, call this method.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((e.getSource() == logInButton || e.getSource() == logInAllButton) & loggedInAtLanguages.size() == 0) {
+		if ((e.getSource() == logInSelectedButton || e.getSource() == logInAllButton || e.getSource() == logInHomeButton) & botPassword == null) {
 			//Build window.
 		    JPasswordField passwordField = new JPasswordField(24);//24 is the width, in columns, of the password field.
 		    JLabel label = new JLabel("Enter bot password:");
@@ -353,9 +674,14 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 			}
 		}
 		if (e.getSource() == logInButton) {
-			setConsoleText("Attempting login at " + myWikiLanguage);
+			logInMenu.show(logInButton, 0, logInButton.getHeight());
+		} else if (e.getSource() == logInHomeButton) {
 			logInAt(myWikiLanguage);
-			printLog();
+		} else if (e.getSource() == logInSelectedButton) {
+			int[] index = wikiTable.getSelectedRows();
+			for (int i : index) {
+				logInAt(mdm.getInterwiki(i));
+			}
 		} else if (e.getSource() == logInAllButton) {
 		    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 		        @Override
@@ -371,162 +697,111 @@ public abstract class BotPanel extends GenericBot implements ActionListener, Run
 		    };
 
 		    worker.execute();
-		}
-		
-		if (e.getSource() == exitButton){
+		} else if (e.getSource() == exitButton){
 			System.exit(0);
 		} else if (e.getSource() == printLogButton) {
-			writeFile(concatLog(), "Log.txt");
+			String log = exportLog();
+			writeFile(log, "Log.txt");
 		} else if (e.getSource() == exportEditsButton) {
 			String temp = "***Proposed Edits***";
-			for (APIcommand et : proposedEdits) {
+			for (APIcommand et : proposedCommands) {
 				temp += et.getSummary() + "\n";
 			}
 			temp += "\n***Accepted Edits***";
-			for (APIcommand et : acceptedEdits) {
+			for (APIcommand et : acceptedCommands) {
 				temp += et.getSummary() + "\n";
 			}
 			writeFile(temp, "Proposed and Accepted Edits.txt");
-			setConsoleText("Edits exported.");
+			logInfo("Edits exported.");
 		} else if (e.getSource() == removeButton) {
-			if (pushingChanges) {
-				setErrorText("Please wait for edits to finish pushing.");
+			if (pushingCommands) {
+				logError("Please wait for edits to finish pushing.");
 			} else {
-				removeProposedChanges();
+				removeSelectedCommands();
 			}
 		}else if (e.getSource() == acceptButton) {
-			if (!pushingChanges) {
-				int index = proposedList.getSelectedIndex();
+			if (!pushingCommands) {
+				int index = proposedCommandsList.getSelectedIndex();
 				while (index != -1) {
-					acceptChange(index);
-					index = proposedList.getSelectedIndex();
+					acceptCommand(index);
+					index = proposedCommandsList.getSelectedIndex();
 				}
 			} else {
-				setErrorText("Please wait for the current edits to finish.");
+				logError("Please wait for the current edits to finish.");
 			}
 		} else if (e.getSource() == acceptAllButton) {
-			if (!pushingChanges) {
-				DefaultListModel<String> dm = (DefaultListModel<String>) proposedList.getModel();
+			if (!pushingCommands) {
+				DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
 				for (int i = dm.size(); i > -1; i--) {
-					acceptChange(i);
+					acceptCommand(i);
 				}
 			} else {
-				setErrorText("Please wait for the current edits to finish.");
+				logError("Please wait for the current edits to finish.");
 			}
 		} else if (e.getSource() == runButton) {
-			if (pushingChanges) {
-				setErrorText("Please wait for edits to finish pushing.");
+			if (pushingCommands) {
+				logError("Please wait for edits to finish pushing.");
 			} else {
 				runCode();
 			}
 		} else if (e.getSource() == pushButton){
-			if (!pushingChanges) {
+			if (!pushingCommands) {
 				if (loggedInAtLanguages.size() != 0) {
-					pushChanges();
+					pushCommands();
 				} else {
-					setConsoleText("Please log in to push changes.");
+					logWarning("Please log in to push commands.");
 				}
 			} else {
 				pausedPushing = !pausedPushing;
 				if (pausedPushing) {
-					pushButton.setLabel("Resume Push");
+					pushButton.setText("Resume Push");
 				} else {
-					pushButton.setLabel("Pause Push");
+					pushButton.setText("Pause Push");
 				}
 			}
 		}
 	}
 	
+	/*
+	 * Logging in methods
+	 */
+	
 	public void logInEverywhere() {
-		setConsoleText("Attempting login everywhere.");
+		logInfo("Attempting login everywhere.");
 		for (String languageCode : mdm.getInterwiki()) {
 			logInAt(languageCode);
 		}
 	}
 	
 	public void logInAt(String languageCode) {
-		//TODO: Log in at every wiki!!!
-
 		boolean success = logIn(botUsername, botPassword, languageCode);
 		
 		if (success) {
-			setConsoleText("Logged in at: " + languageCode);
+			logInfo("Logged in at: " + languageCode);
+			
+			//Update the GUI
+			TableModel model = wikiTable.getModel();
+			model.setValueAt(true, mdm.getInterwiki().indexOf(languageCode), 1);
 		} else {
-			setConsoleText("Log in failed at: " + languageCode);
-			logError("Log in failed at: " + languageCode);
+			logWarning("Log in failed at: " + languageCode);
 		}
 	}
 	
-	public void removeProposedChanges() {
-		int index = proposedList.getSelectedIndex();
-		DefaultListModel<String> dm = (DefaultListModel<String>) proposedList.getModel();
-		while (index > -1) {
-			dm.remove(index);
-			proposedEdits.remove(index);
-			index = proposedList.getSelectedIndex();
+	/*
+	 * Read in files code
+	 */
+	
+	protected BufferedImage readImage(String path) {
+		BufferedImage toReturn = null;
+		
+		try {
+			toReturn = ImageIO.read(getClass().getResourceAsStream(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Err");
+			e.printStackTrace();
 		}
 		
-		index = acceptedList.getSelectedIndex();
-		dm = (DefaultListModel<String>) acceptedList.getModel();
-		while (index > -1 ) {
-			dm.remove(index);
-			acceptedEdits.remove(index);
-			index = acceptedList.getSelectedIndex();
-		}
+		return toReturn;
 	}
-	
-	public void pushAcceptedChange(int index) {
-		DefaultListModel<String> dm = (DefaultListModel<String>) acceptedList.getModel();
-		if (index > -1 && index < dm.size()) {
-			dm.remove(index);
-			acceptedEdits.remove(index);
-		}
-	}
-	
-	public void acceptChange(int index) {
-		DefaultListModel<String> dm = (DefaultListModel<String>) proposedList.getModel();
-		if (index > -1 && index < dm.size()) {
-			DefaultListModel<String> dm2 = (DefaultListModel<String>) acceptedList.getModel();
-			dm2.add(0, dm.get(index));
-			acceptedEdits.add(0, proposedEdits.get(index));
-			dm.remove(index);
-			proposedEdits.remove(index);
-		}
-	}
-	
-	/**
-	 * @param edit The edit being proposed.
-	 * @param displayedAction A very brief description of the edit. For example "Editing Scratch".
-	 */
-	public void proposeCommand(APIcommand edit, String displayedAction) {
-		proposeEdit(edit, displayedAction);
-	}
-	
-	/**
-	 * @param edit The APIcommand that you are proposing.
-	 * @param displayedAction A very short command summary. It should preferably be one or two words at most. It is used in the graphical edit lists. 
-	 */
-	public void proposeEdit(APIcommand edit, String displayedAction) {
-		if (!proposedEdits.contains(edit) && !acceptedEdits.contains(edit) && (proposedEdits.size() < maxProposedEdits || maxProposedEdits <= -1)) {
-			proposedEdits.add(0, edit);
-			DefaultListModel<String> dm = (DefaultListModel<String>) proposedList.getModel();
-			dm.add(0, displayedAction + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
-			
-			validate();
-			repaint();
-		}
-	}
-	
-	public void setConsoleText(String text) {
-		consoleBox.setText(text);
-	}
-	
-	public void setErrorText(String text) {
-		errorBox.setText(text);
-		errorCounter = 0;
-	}
-	
-	public int getWidth() { return WIDTH; }
-	public int getHeight() { return HEIGHT; }
-	public String getPanelName() { return panelName; }
 }
