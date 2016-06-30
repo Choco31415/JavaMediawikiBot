@@ -107,8 +107,8 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	
 	boolean firstConsoleMessage = true;//Used by the console.
 	
-	public BotPanel(String family_) {
-		super(family_);
+	public BotPanel(String family_, String homeLanguage_) {
+		super(family_, homeLanguage_);
 		
 		setSize(WIDTH, HEIGHT);
 		

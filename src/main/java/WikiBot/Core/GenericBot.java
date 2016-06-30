@@ -60,10 +60,10 @@ public class GenericBot extends NetworkingBase {
 	public boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
 	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
 	
-	protected String homeWikiLanguage = "en";//The default wiki of a bot.
+	protected static String homeWikiLanguage;//The default wiki of a bot.
 	protected String family = "";//The wiki family your bot works in.
 	
-	public GenericBot(String family_) {				
+	public GenericBot(String family_, String homeWikiLanguage_) {				
 		//Read in some files.
 		mdm = new MediawikiDataManager();
 		
@@ -76,6 +76,9 @@ public class GenericBot extends NetworkingBase {
 		} else {
 			throw new ConcurrentModificationException();//There should not be more then one GenericBot!!!
 		}
+		
+		//Set variables
+		homeWikiLanguage = homeWikiLanguage_;
 	}
 	
 	public static GenericBot getInstance() {

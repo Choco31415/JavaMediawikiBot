@@ -24,14 +24,12 @@ public class InterwikiBot extends BotPanel {
 	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public InterwikiBot() {
-		super("Scratch");
+		super("Scratch", "en");
 		
 		//Preferences
 		panelName = "InterwikiBot";
 		
 		botUsername = "InterwikiBot";
-		
-		homeWikiLanguage = "en";
 		
 		APIlimit = 30;
 		revisionDepth = 5;
