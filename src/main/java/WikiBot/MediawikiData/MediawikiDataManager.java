@@ -51,8 +51,20 @@ public class MediawikiDataManager {
 		return Interwiki;
 	}
 	
+	public String getInterwiki(int index) {
+		return Interwiki.get(index);
+	}
+	
 	public ArrayList<String> getInterwikiURL() {
 		return InterwikiURL;
+	}
+	
+	public String getInterwikiURL(int index) {
+		return InterwikiURL.get(index);
+	}
+	
+	public int getNumWikis() {
+		return Interwiki.size();
 	}
 	
 	public ArrayList<String> getTemplateIgnore() {

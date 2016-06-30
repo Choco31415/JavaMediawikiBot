@@ -551,10 +551,11 @@ public class Page extends SimplePage {
 					//Resolve link/template disambiguates
 					//Aka templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
 					//It all depends on if the template is multi-lined or not.
-					if (isLink && GenericBot.parseThurough) {
+					GenericBot bot = GenericBot.getInstance();
+					if (isLink && bot.shouldParseThurough()) {
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
-								SimplePage sp = GenericBot.getWikiSimplePage(new PageLocation(((Template)object).getTemplateName(), lan));
+								SimplePage sp = bot.getWikiSimplePage(new PageLocation(((Template)object).getTemplateName(), lan));
 								if (sp.getRawText().contains("\n") && depth == 0) {
 									//This is parsed as a template.
 									//Add all page objects to the page.
@@ -822,7 +823,8 @@ public class Page extends SimplePage {
 			} while(depth>0 && j != -1);
 		}
 		if (depth != 0 ) {
-			GenericBot.log("Detected possible unclosed parseable item at page: " + getTitle() + " language: " + getLanguage());
+			GenericBot bot = GenericBot.getInstance();
+			bot.logFine("Detected possible unclosed parseable item at page: " + getTitle() + " language: " + getLanguage());
 			return start + open.length();
 		}
 		return k;

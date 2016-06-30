@@ -29,5 +29,4 @@ public abstract class PageTitleContainer {
 	public String getTitleWithoutNameSpace() {
 		return titleObject.getTitleWithoutNameSpace();
 	}
-	
 }
