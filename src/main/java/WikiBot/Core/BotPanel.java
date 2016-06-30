@@ -676,7 +676,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		if (e.getSource() == logInButton) {
 			logInMenu.show(logInButton, 0, logInButton.getHeight());
 		} else if (e.getSource() == logInHomeButton) {
-			logInAt(myWikiLanguage);
+			logInAt(homeWikiLanguage);
 		} else if (e.getSource() == logInSelectedButton) {
 			int[] index = wikiTable.getSelectedRows();
 			for (int i : index) {

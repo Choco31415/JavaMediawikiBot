@@ -60,7 +60,7 @@ public class GenericBot extends NetworkingBase {
 	public boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
 	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
 	
-	protected String myWikiLanguage = "en";//The default wiki of a bot.
+	protected String homeWikiLanguage = "en";//The default wiki of a bot.
 	protected String family = "";//The wiki family your bot works in.
 	
 	public GenericBot(String family_) {				
@@ -1123,4 +1123,5 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	public boolean shouldParseThurough() { return parseThurough; }
+	public String getHomeWikiLanguage() { return homeWikiLanguage; }
 }

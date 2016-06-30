@@ -1,5 +1,7 @@
 package WikiBot.ContentRep;
 
+import WikiBot.Core.GenericBot;
+
 
 public class PageLocation extends PageTitleContainer {
 
@@ -21,6 +23,24 @@ public class PageLocation extends PageTitleContainer {
 	public PageLocation(PageTitle pt, String lan_) {
 		super(pt);
 		lan = lan_;
+	}
+	
+	/**
+	 * The language is assumed to be the home language of the bot.
+	 * @param title_ The title of the page.
+	 */
+	public PageLocation(String title_) {
+		super(title_);
+		lan = GenericBot.getInstance().getHomeWikiLanguage();
+	}
+	
+	/**
+	 * The language is assumed to be the home language of the bot.
+	 * @param pt The Page Title object describing the title of the page.
+	 */
+	public PageLocation(PageTitle pt) {
+		super(pt);
+		lan = GenericBot.getInstance().getHomeWikiLanguage();
 	}
 	
 	public String getLanguage() {

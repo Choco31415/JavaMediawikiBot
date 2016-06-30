@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -30,13 +31,15 @@ public class InterwikiBot extends BotPanel {
 		
 		botUsername = "InterwikiBot";
 		
-		myWikiLanguage = "en";
+		homeWikiLanguage = "en";
 		
 		APIlimit = 30;
 		revisionDepth = 5;
 		
 		APIthrottle = 0.5;//Minimum time between any API commands.
 		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
+		
+		setLoggerLevel(Level.INFO);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
 	}
 	
 	/*
@@ -59,6 +62,6 @@ public class InterwikiBot extends BotPanel {
 		PageLocation loc = new PageLocation("Scratch Cat", "en");
 		Page page = getWikiPage(loc);
 		System.out.println(page);
-		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze", "This page needs an interwiki. ^.^ "), "Interwiki");
+		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ "), "Interwiki");
 	}
 }
