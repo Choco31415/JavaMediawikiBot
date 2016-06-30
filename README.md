@@ -25,19 +25,29 @@ One example bot is included in the project, and it is called `InterwikiBot.java`
 Useful bot methods and bot settings may be found in various places.
 
 `src/WikiBot/core/GenericBot.java`
+
 * For bot methods.
+
 `src/WikiBot/core/BotPanel.java`
+
 * For GUI methods.
+
 `src/WikiBot/core/NetworkingBase.java`
+
 * For logger methods.
 
 JavaMediawikiBot uses several classes to store data. A few classes that store general information include:
 
 `src/WikiBot/ContentRep/Revision.java`
+
 * This class stores information on page revisions.
+
 `src/WikiBot/ContentRep/ImageInfo.java`
+
 * This class stores information on images. This might or might not include: direct url, dimension, size, ect...
+
 `src/WikiBot/ContentRep/PageLocation.java`
+
 * This class stores information on how to find a page. Spefically, it contains the page title and wiki.
 
 ## Tips
