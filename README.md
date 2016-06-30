@@ -12,7 +12,7 @@ To create a Mediawiki bot, create a Java class. It will need to extend either on
 
 `src/WikiBot/core/BotPanel.java`
 
-* Extending from this class gives access to a GUI as well as better control over edits to a wiki. Please note, you will have to update `core/BotFrame.java` for your bot to run.
+* Extending from this class gives access to a GUI as well as better control over edits to a wiki. Please note, you will have to update `core/BotFrame.java` for your bot to run. All bot code should be in the required method named `code()`.
 
 `src/WikiBot/core/GenericBot.java`
 
@@ -20,7 +20,27 @@ To create a Mediawiki bot, create a Java class. It will need to extend either on
 
 One example bot is included in the project, and it is called `InterwikiBot.java`.
 
-Useful bot methods and bot settings may be found in `src/WikiBot/core/GenericBot.java`, and if using the provided GUI, `src/WikiBot/core/BotPanel.java`.
+## Project Tree
+
+Useful bot methods and bot settings may be found in various places.
+
+`src/WikiBot/core/GenericBot.java`
+* For bot methods.
+`src/WikiBot/core/BotPanel.java`
+* For GUI methods.
+`src/WikiBot/core/NetworkingBase.java`
+* For logger methods.
+
+JavaMediawikiBot uses several classes to store data. A few classes that store general information include:
+
+`src/WikiBot/ContentRep/Revision.java`
+* This class stores information on page revisions.
+`src/WikiBot/ContentRep/ImageInfo.java`
+* This class stores information on images. This might or might not include: direct url, dimension, size, ect...
+`src/WikiBot/ContentRep/PageLocation.java`
+* This class stores information on how to find a page. Spefically, it contains the page title and wiki.
+
+## Tips
 
 Coding tips:
 * To propose an edit, use `proposeEdit(APIcommand command, String editSummary)`. This requires the GUI.
