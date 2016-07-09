@@ -13,7 +13,7 @@ To set up JavaMediawikiBot for an IDE, run `./gradlew eclipse` or `./gradlew ide
 A wiki family is a group of wikis that a bot can see and edit. It also
 contains information pertinent to the wikis.
 
-To make a new wiki family, simply run `src/WikiBot/MediawikiData/FamilyGenerator.java'.
+To make a new wiki family, simply run `src/WikiBot/MediawikiData/FamilyGenerator.java`.
 This can be done via your IDE (console required), or through the command line:
 
 `./gradlew run -Pmain=WikiBot.MediawikiData.FamilyGenerator -q`
