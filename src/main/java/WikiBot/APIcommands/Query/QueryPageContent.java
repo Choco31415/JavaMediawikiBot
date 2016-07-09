@@ -7,7 +7,7 @@ import WikiBot.ContentRep.PageLocation;
 
 public class QueryPageContent extends APIcommand {	
 	public QueryPageContent(PageLocation loc) {
-		super(loc);
+		super("Query page", loc);
 		addParameter("format", "json");
 		addParameter("action", "query");
 		addParameter("titles", loc.getTitle());
@@ -20,7 +20,7 @@ public class QueryPageContent extends APIcommand {
 	 * Warning: All pages must be from the same wiki!
 	 */
 	public QueryPageContent(ArrayList<PageLocation> locs) {
-		super(locs.get(0).getLanguage());
+		super("Query pages", locs.get(0).getLanguage());
 		addParameter("format", "json");
 		addParameter("action", "query");
 		addParameter("titles", compactArray(locs, "|"));
@@ -29,7 +29,7 @@ public class QueryPageContent extends APIcommand {
 		unescapeText = true;
 	}
 	
-	static public String compactArray(ArrayList<PageLocation> array, String delimitor) {
+	static private String compactArray(ArrayList<PageLocation> array, String delimitor) {
 		//This takes an array of strings and compacts it into one string.
 		String output = "";
 		

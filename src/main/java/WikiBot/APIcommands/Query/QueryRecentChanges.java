@@ -2,7 +2,7 @@ package WikiBot.APIcommands.Query;
 
 public class QueryRecentChanges extends QueryList {
 	public QueryRecentChanges(String language, int revisionLimit) {
-		super(language, "recentchanges");
+		super("Query rc", language, "recentchanges");
 		keys.add("rcprop");
 		values.add("timestamp|title|user|comment|flags");
 		keys.add("rclimit");
@@ -15,7 +15,7 @@ public class QueryRecentChanges extends QueryList {
 	 * Use this for continuing large queries.
 	 */
 	public QueryRecentChanges(String language, int revisionLimit, String rccontinue) {
-		super(language, "recentchanges");
+		super("Query rc", language, "recentchanges");
 		keys.add("rcprop");
 		values.add("timestamp|title|user|comment|flags");
 		keys.add("rclimit");

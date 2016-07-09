@@ -26,10 +26,7 @@ import javax.swing.SwingWorker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -39,6 +36,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
 
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.Core.Miscalleneous.DocumentSizeFilter;
@@ -66,13 +64,13 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	//Bot and GUI preferences
 	protected String panelName = "Bot Panel";
 	
-	protected final int WIDTH = 600;//GUI width
+	protected final int WIDTH = 700;//GUI width
 	protected final int HEIGHT = 335;//GUI height
 
 	protected String botUsername = "";
 	protected String botPassword;//Never, never, NEVER store your password in the code.
 	
-	protected int maxConsoleLineSize = 50;//The maximum length of the console box.
+	protected int maxConsoleLineSize = 80;//The maximum line length of the console box.
     protected int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
 	protected int waitTimeBetweenProposedCommands = 12;//Minimum time between proposed commands.
 	
@@ -128,9 +126,9 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    acceptAllButton = createJButton("Accept All", new Dimension(100, 20));
 	    
 	    statusLabel = new JLabel("");
-	    statusLabel.setPreferredSize(new Dimension(500, 20));
-	    statusLabel.setMinimumSize(new Dimension(500, 20));
-	    statusLabel.setMaximumSize(new Dimension(500, 20));
+	    statusLabel.setPreferredSize(new Dimension(WIDTH-100, 20));
+	    statusLabel.setMinimumSize(new Dimension(WIDTH-100, 20));
+	    statusLabel.setMaximumSize(new Dimension(WIDTH-100, 20));
 	    
 	    logInButton = createJButton("Log In", new Dimension(100, 20));
 	    logInButton.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -145,18 +143,18 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    DefaultListModel<String> proposedCommands = new DefaultListModel<>();
 	    proposedCommandsList = new JList<String>(proposedCommands);
 	    JScrollPane proposedCommandsPane = new JScrollPane(proposedCommandsList);
-	    proposedCommandsPane.setPreferredSize(new Dimension(300, 150));
+	    proposedCommandsPane.setPreferredSize(new Dimension(WIDTH/2, 150));
 	    
 	    DefaultListModel<String> acceptedCommands = new DefaultListModel<>();
 	    acceptedCommandsList = new JList<String>(acceptedCommands);
 	    JScrollPane acceptedCommandsPane = new JScrollPane(acceptedCommandsList);
-	    acceptedCommandsPane.setPreferredSize(new Dimension(300, 150));
+	    acceptedCommandsPane.setPreferredSize(new Dimension(WIDTH/2, 150));
 	    
 	    //Set up the wiki table
 	    Object[] columnHeaders = new Object[]{"Wiki", "Logged In"};
 	    Object[][] rowData = new Object[mdm.getNumWikis()][2];
 	    for (int i = 0; i < mdm.getNumWikis(); i++) {
-	    	String iw = mdm.getInterwiki().get(i);
+	    	String iw = mdm.getWikiPrefixes().get(i);
 	    	rowData[i][0] = iw;
 	    	rowData[i][1] = false;
 	    }
@@ -168,10 +166,10 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    	column = wikiTable.getColumnModel().getColumn(i);
 	    	switch (i) {
 	    		case 0:
-	    			column.setPreferredWidth(140);
+	    			column.setPreferredWidth(100);
 	    			break;
 	    		case 1:
-	    			column.setWidth(50);
+	    			column.setWidth(40);
 	    			break;
 	    		default:
 	    			throw new Error("Please update the GUI.");
@@ -180,10 +178,10 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    
 	    //Make GUI components scrollable
 	    JScrollPane consolePane = new JScrollPane(console);
-	    consolePane.setPreferredSize(new Dimension(400, 100));
+	    consolePane.setPreferredSize(new Dimension(WIDTH-150, 100));
 	    
 	    JScrollPane wikiTablePane = new JScrollPane(wikiTable);
-	    wikiTablePane.setPreferredSize(new Dimension(200, 100));
+	    wikiTablePane.setPreferredSize(new Dimension(150, 100));
 	    
 	    //Give headers to various GUI components
 	    JLabel header = new JLabel("Console");//Add a header to the console.
@@ -221,7 +219,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    commandProcessingBar.add(removeButton);
 	    commandProcessingBar.add(acceptButton);
 	    commandProcessingBar.add(acceptAllButton);
-	    commandProcessingBar.add(Box.createHorizontalStrut(200));
+	    commandProcessingBar.add(Box.createHorizontalStrut(WIDTH-400));
 	    
 	    logInMenu = new JPopupMenu("Log In");
 	    logInMenu.setPreferredSize(new Dimension(100, 60));
@@ -321,19 +319,19 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	 * @param edit The edit being proposed.
 	 * @param displayedAction A very brief description of the edit. For example "Editing Scratch".
 	 */
-	public void proposeCommand(APIcommand edit, String displayedAction) {
-		proposeEdit(edit, displayedAction);
+	public void proposeCommand(APIcommand edit) {
+		proposeEdit(edit);
 	}
 	
 	/**
 	 * @param edit The APIcommand that you are proposing.
 	 * @param displayedAction A very short command summary. It should preferably be one or two words at most. It is used in the graphical edit lists. 
 	 */
-	public void proposeEdit(APIcommand edit, String displayedAction) {
+	public void proposeEdit(APIcommand edit) {
 		if (!proposedCommands.contains(edit) && !acceptedCommands.contains(edit) && (proposedCommands.size() < maxProposedEdits || maxProposedEdits <= -1)) {
 			proposedCommands.add(0, edit);
 			DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
-			dm.add(0, displayedAction + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
+			dm.add(0, edit.getShortCommandSummary() + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
 			
 			validate();
 			repaint();
@@ -343,22 +341,6 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	public int getWidth() { return WIDTH; }
 	public int getHeight() { return HEIGHT; }
 	public String getPanelName() { return panelName; }
-	
-	public void writeFile(String text, String location) {
-		PrintWriter writer = null;
-		try {
-			logInfo("Writting file: " + location);
-			writer = new PrintWriter(location, "UTF-8");
-		} catch (FileNotFoundException e) {
-			logError("File not found");
-			return;
-		} catch (UnsupportedEncodingException e) {
-			logError("Unsupported file format");
-			return;
-		}
-		writer.write(text);
-		writer.close();
-	}
 	
 	/**
 	 * Put all bot code in this method.
@@ -393,6 +375,15 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 			console.append(line);
 		} else {
 			console.append("\n" + line);
+		}
+		
+		//Move console position.
+		if (console.getLineCount() > 2) {
+			try {
+				console.setCaretPosition(console.getLineEndOffset(console.getLineCount()-2)+1);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -465,6 +456,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		        @Override
 		        public Void doInBackground() {
 		        	try {
+		        		logInfo("Running code.");
 		        		code();
 		        	} catch (Throwable e) {
 		        		logError(e.getMessage());
@@ -680,7 +672,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		} else if (e.getSource() == logInSelectedButton) {
 			int[] index = wikiTable.getSelectedRows();
 			for (int i : index) {
-				logInAt(mdm.getInterwiki(i));
+				logInAt(mdm.getWikiPrefix(i));
 			}
 		} else if (e.getSource() == logInAllButton) {
 		    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -768,7 +760,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	
 	public void logInEverywhere() {
 		logInfo("Attempting login everywhere.");
-		for (String languageCode : mdm.getInterwiki()) {
+		for (String languageCode : mdm.getWikiPrefixes()) {
 			logInAt(languageCode);
 		}
 	}
@@ -781,7 +773,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 			
 			//Update the GUI
 			TableModel model = wikiTable.getModel();
-			model.setValueAt(true, mdm.getInterwiki().indexOf(languageCode), 1);
+			model.setValueAt(true, mdm.getWikiPrefixes().indexOf(languageCode), 1);
 		} else {
 			logWarning("Log in failed at: " + languageCode);
 		}
@@ -797,9 +789,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		try {
 			toReturn = ImageIO.read(getClass().getResourceAsStream(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Err");
-			e.printStackTrace();
+			throw new Error("Could not read imag: " + path);
 		}
 		
 		return toReturn;

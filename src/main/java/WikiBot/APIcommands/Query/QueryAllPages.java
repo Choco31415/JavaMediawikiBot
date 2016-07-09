@@ -6,14 +6,14 @@ package WikiBot.APIcommands.Query;
 
 public class QueryAllPages extends QueryList {
 	public QueryAllPages(String language, int depth) {
-		super(language, "allpages");
+		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
 		unescapeText = true;
 	}
 	
 	public QueryAllPages(String language, int depth, String apcontinue) {
-		super(language, "allpages");
+		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
 		keys.add("apcontinue");
@@ -23,7 +23,7 @@ public class QueryAllPages extends QueryList {
 	}
 
 	public QueryAllPages(String language, int depth, int apnamespace) {
-		super(language, "allpages");
+		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
 		keys.add("apnamespace");
@@ -33,7 +33,7 @@ public class QueryAllPages extends QueryList {
 	}
 	
 	public QueryAllPages(String language, int depth, String apcontinue, int apnamespace) {
-		super(language, "allpages");
+		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
 		keys.add("apcontinue");

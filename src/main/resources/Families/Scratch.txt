@@ -1,8 +1,8 @@
-en: https://wiki.scratch.mit.edu/w
-de: http://scratch-dach.info/w
-id: http://scratch-indo.info/w
-ru: http://scratch-ru.info/w
-ja: http://jp.scratch-wiki.info/w
-hu: http://hu.scratch-wiki.info/w
-nl: http://nl.scratch-wiki.info/w
-test: http://test.scratch-wiki.info/w
+de:1.25.1: http://scratch-dach.info/w
+en:1.22.7: https://wiki.scratch.mit.edu/w
+hu:1.20.8: http://hu.scratch-wiki.info/w
+id:1.19.18: http://scratch-indo.info/w
+ja:1.20.8: http://jp.scratch-wiki.info/w
+nl:1.20.8: http://nl.scratch-wiki.info/w
+ru:1.20.8: http://scratch-ru.info/w
+test:1.25.3: http://test.scratch-wiki.info/w

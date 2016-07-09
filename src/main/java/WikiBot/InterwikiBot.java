@@ -31,8 +31,8 @@ public class InterwikiBot extends BotPanel {
 		
 		botUsername = "InterwikiBot";
 		
-		APIlimit = 30;
-		revisionDepth = 5;
+		APIlimit = 30;//The amount of items to get per query call, if there are multiple items.
+		getRevisions = false;//Don't get page revisions.
 		
 		APIthrottle = 0.5;//Minimum time between any API commands.
 		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
@@ -45,10 +45,6 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		getRevisions = false;//Don't get page revisions.
-		getRevisionContent = false;//Same as above ^^.
-		parseThurough = false;
-
 		/*
 		 * Here is what our example bot will do.
 		 * It will get the page "Scratch Cat" from the "en" wiki.
@@ -60,6 +56,6 @@ public class InterwikiBot extends BotPanel {
 		PageLocation loc = new PageLocation("Scratch Cat", "en");
 		Page page = getWikiPage(loc);
 		System.out.println(page);
-		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ "), "Interwiki");
+		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ "));
 	}
 }

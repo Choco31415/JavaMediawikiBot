@@ -4,61 +4,113 @@ import java.util.ArrayList;
 
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.PageLocationContainer;
+import WikiBot.Errors.UnsupportedError;
+import WikiBot.MediawikiData.MediawikiDataManager;
+import WikiBot.MediawikiData.VersionNumber;
 
+//TODO: Update edit token and family files
 public class APIcommand extends PageLocationContainer {
+	
+	protected String commandSummary;//One or two words to summarize what this edit does.
 	
 	protected boolean requiresGET = false;
 	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
+	
+	protected String oldTokenType = "";//Pre MW 1.24
+	protected String newTokenType = "";//MW 1.24 and above
 
 	protected ArrayList<String> keys = new ArrayList<String>();
 	protected ArrayList<String> values = new ArrayList<String>();
+	
 
-	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 		requiresGET = requiresGET_;
+		oldTokenType = oldTokenType_;
+		newTokenType = newTokenType_;
 	}
 	
 	
-	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 	}
 	
-	public APIcommand(PageLocation pl_, boolean requiresGET_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		requiresGET = requiresGET_;
+		oldTokenType = oldTokenType_;
+		newTokenType = newTokenType_;
 	}
 	
-	public APIcommand(PageLocation pl_) {
+	public APIcommand(String commandSummary_, PageLocation pl_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 	}	
 	
-	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_) {
+	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 		requiresGET = requiresGET_;
+		oldTokenType = oldTokenType_;
+		newTokenType = newTokenType_;
 	}
 	
 	
-	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_) {
+	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 	}
 	
-	public APIcommand(String language, boolean requiresGET_) {
+	public APIcommand(String commandSummary_, String language, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		requiresGET = requiresGET_;
+		oldTokenType = oldTokenType_;
+		newTokenType = newTokenType_;
 	}
 	
-	public APIcommand(String language) {
+	public APIcommand(String commandSummary_, String language) {
 		super(new PageLocation("null", language));
-	}	
+		commandSummary = commandSummary_;
+	}
+	
+	protected void enforceMWVersion(VersionNumber introduced) {
+		enforceMWVersion(introduced, null);
+	}
+	
+	protected void enforceMWVersion(VersionNumber introduced, VersionNumber removed) {
+		VersionNumber myVersion = getMWVersion();
+		
+		if ((myVersion.compareTo(introduced) < 0 || introduced == null) && (myVersion.compareTo(removed) > 0 || removed == null)) {
+			throw new UnsupportedError("The " + getLanguage() + " wiki does not support this API command.");
+		}
+	}
+	
+	public VersionNumber getMWVersion() {
+		MediawikiDataManager mdm = MediawikiDataManager.getInstance();
+		
+		return mdm.getWikiMWVersion(getLanguage());
+	}
+	
+	public String getOldTokenType() {
+		return oldTokenType;
+	}
+	
+	public String getNewTokenType() {
+		return newTokenType;
+	}
 	
 	public void addParameter(String key, String value) {
 		keys.add(key);
@@ -118,13 +170,18 @@ public class APIcommand extends PageLocationContainer {
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	
+	//A simple one or two words to summarize what this edit does.
+	public String getShortCommandSummary() {
+		return commandSummary;
+	}
+	
 	public String getSummary() {
 		String temp;
 		temp = "\n(Edit) Wiki: " + pl.getLanguage();
 		temp += "\nPage name: " + pl.getTitle();
 		temp += "\nEdit type: " + getValue("action");
 		for (String key : keys) {
-			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename"))) {
+			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename") || key.equals("from"))) {
 				temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
 			}
 		}

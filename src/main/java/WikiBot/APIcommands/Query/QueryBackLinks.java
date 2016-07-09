@@ -8,7 +8,7 @@ public class QueryBackLinks extends QueryList {
 	 * Automatically fetches up to 40 backlinks.
 	 */
 	public QueryBackLinks(PageLocation page) {
-		super(page.getLanguage(), "backlinks");
+		super("Query back links", page.getLanguage(), "backlinks");
 		keys.add("bltitle");
 		values.add(page.getTitle());
 		keys.add("bllimit");
@@ -20,7 +20,7 @@ public class QueryBackLinks extends QueryList {
 	 * Use this for continuing large queries.
 	 */
 	public QueryBackLinks(PageLocation page, int depth) {
-		super(page.getLanguage(), "backlinks");
+		super("Query back links", page.getLanguage(), "backlinks");
 		keys.add("bltitle");
 		values.add(page.getTitle());
 		keys.add("bllimit");
@@ -29,7 +29,7 @@ public class QueryBackLinks extends QueryList {
 	}
 	
 	public QueryBackLinks(PageLocation page, int depth, String blcontinue) {
-		super(page.getLanguage(), "backlinks");
+		super("Query back links", page.getLanguage(), "backlinks");
 		keys.add("bltitle");
 		values.add(page.getTitle());
 		keys.add("bllimit");

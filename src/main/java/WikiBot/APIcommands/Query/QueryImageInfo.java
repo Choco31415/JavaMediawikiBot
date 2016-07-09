@@ -7,7 +7,7 @@ import WikiBot.ContentRep.PageLocation;
 
 public class QueryImageInfo extends APIcommand {
 	public QueryImageInfo(PageLocation loc, ArrayList<String> infoTypes) {
-		super(loc);
+		super("Query image info", loc);
 		keys.add("format");
 		values.add("json");
 		keys.add("action");
@@ -30,7 +30,7 @@ public class QueryImageInfo extends APIcommand {
 	}
 	
 	public QueryImageInfo(PageLocation loc) {
-		super(loc);
+		super("Query image info", loc);
 		keys.add("format");
 		values.add("json");
 		keys.add("action");
