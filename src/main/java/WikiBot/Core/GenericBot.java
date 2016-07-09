@@ -21,6 +21,7 @@ import WikiBot.ContentRep.Revision;
 import WikiBot.ContentRep.SimplePage;
 import WikiBot.Errors.NetworkError;
 import WikiBot.MediawikiData.MediawikiDataManager;
+import WikiBot.MediawikiData.VersionNumber;
 
 /**
  * GenericBot is an API used to interface with Mediawiki.
@@ -57,7 +58,7 @@ public class GenericBot extends NetworkingBase {
 	protected boolean getRevisions = false;//When getting a page, should additional API calls be made to fetch revision history?
 	protected boolean getRevisionContent = false;//When getting a page, should revision page content be queried?
 	protected boolean logPageDownloads = true;//Should the bot log page downloads?
-	public boolean parseThurough = true;//Will make additional query calls to resolve page parsing disambiguates.
+	public boolean parseThurough = false;//Will make additional query calls to resolve page parsing disambiguates.
 	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
 	
 	protected final String homeWikiLanguage;//The default wiki of a bot.
@@ -81,9 +82,15 @@ public class GenericBot extends NetworkingBase {
 		homeWikiLanguage = homeWikiLanguage_;
 	}
 	
+	/**
+	 * Get an instance of GenericBot.
+	 * If GenericBot has not been instantiated yet, the
+	 * family and homeWikiLanguage are both set to null.
+	 * @return
+	 */
 	public static GenericBot getInstance() {
 		if (instance == null) {
-			throw new NullPointerException("This is not how GenericBot works.");
+			instance = new GenericBot(null, null);
 		}
 		return instance;
 	}
@@ -122,9 +129,9 @@ public class GenericBot extends NetworkingBase {
 		
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
-		String XMLcode = getWikiPagesXMLCode(locs);
+		String XMLstring = getWikiPagesXMLCode(locs);
 		
-		ArrayList<String> pageXMLstrings = getXMLItems(XMLcode, "pageid", "\"}]}", 0);
+		ArrayList<String> pageXMLstrings = parseTextForItems(XMLstring, "pageid", "\"}]}", 0);
 		for (String st : pageXMLstrings) {
 			pages.add(parseWikiPage(st + "\"}]}"));
 		}
@@ -137,7 +144,7 @@ public class GenericBot extends NetworkingBase {
 		
 		String XMLstring = getWikiPagesXMLCode(locs);
 		
-		ArrayList<String> pageXMLstrings = getXMLItems(XMLstring, "pageid", "\"}]}", 0);
+		ArrayList<String> pageXMLstrings = parseTextForItems(XMLstring, "pageid", "\"}]}", 0);
 		for (String st : pageXMLstrings) {
 			simplePages.add(parseWikiPageSimple(st + "\"}]}"));
 		}
@@ -184,9 +191,9 @@ public class GenericBot extends NetworkingBase {
 		 **/
 		
 		SimplePage newPage = null;
-		String title = parseXMLforInfo("title", XMLcode, "\",", 3, 0);
+		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
 		try {
-			newPage = new SimplePage(title, mdm.getLanguageFromURL(baseURL), Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)));
+			newPage = new SimplePage(title, mdm.getWikiPrefixFromURL(baseURL), Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0)));
 		} catch (NumberFormatException e) {
 			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
@@ -202,11 +209,11 @@ public class GenericBot extends NetworkingBase {
 		 **/
 		
 		Page newPage = null;
-		String title = parseXMLforInfo("title", XMLcode, "\",", 3, 0);
+		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
 		try {
-			newPage = new Page(title, Integer.parseInt(parseXMLforInfo("pageid", XMLcode, ",", 2, 0)), mdm.getLanguageFromURL(baseURL));
+			newPage = new Page(title, Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0)), mdm.getWikiPrefixFromURL(baseURL));
 		} catch (NumberFormatException e) {
-			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
+			throw new NullPointerException("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
 		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\":") + 5, XMLcode.indexOf("\"}]}")));
 		
@@ -275,7 +282,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Try continuing the query.
 			try {
-				rccontinue = parseXMLforInfo("rccontinue", returned, "\"");
+				rccontinue = parseTextForItem(returned, "rccontinue", "\"");
 				
 				logFiner("Next page batch starts at: " + rccontinue);
 			} catch (IndexOutOfBoundsException e) {
@@ -317,7 +324,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Try continuing the query.
 			try {
-				cmcontinue = parseXMLforInfo("cmcontinue", returned, "\"");
+				cmcontinue = parseTextForItem(returned, "cmcontinue", "\"");
 				
 				logFiner("Next page batch starts at: " + cmcontinue);
 			} catch (IndexOutOfBoundsException e) {
@@ -421,7 +428,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Try continuing the query.
 			try {
-				blcontinue = parseXMLforInfo("blcontinue", returned, "\"");
+				blcontinue = parseTextForItem(returned, "blcontinue", "\"");
 			} catch (IndexOutOfBoundsException e) {
 				blcontinue = null;
 			}
@@ -504,7 +511,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Try continuing the query.
 			try {
-				apcontinue = parseXMLforInfo("apcontinue", returned, "\"");
+				apcontinue = parseTextForItem(returned, "apcontinue", "\"");
 				apcontinue = apcontinue.replace("_", " ");
 				
 				logFiner("Next page batch starts at: " + apcontinue);
@@ -546,7 +553,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Try continuing the query.
 			try {
-				psoffset = Integer.parseInt(parseXMLforInfo("psoffset", returned, "\""));
+				psoffset = Integer.parseInt(parseTextForItem(returned, "psoffset", "\""));
 			} catch (IndexOutOfBoundsException e) {
 				psoffset = null;
 			}
@@ -587,7 +594,7 @@ public class GenericBot extends NetworkingBase {
 				propertyNames.add("width");
 				propertyNames.add("height");
 			} else {
-				value = parseXMLforInfo( name + "\"", xmlString, ",", 1, 0);
+				value = parseTextForItem(xmlString, name + "\"", ",", 1, 0);
 				
 				//Any value surrounded with "" is a String, and the "" should be removed.
 				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
@@ -660,7 +667,7 @@ public class GenericBot extends NetworkingBase {
 				logFinest("login xml: " + xmlString);
 
 				if (j == 0) {
-					token = parseXMLforInfo("token", xmlString, "\"");
+					token = parseTextForItem(xmlString, "token", "\"");
 					
 					logFinest("Login token: " + token);
 				}
@@ -670,7 +677,7 @@ public class GenericBot extends NetworkingBase {
         }
         
         boolean success = xmlString.contains("Success");
-		logInfo("Login status at " + language + ": " + success);
+		logFiner("Login status at " + language + ": " + success);
         
 		if (success) {
 			loggedInAtLanguages.add(language);
@@ -688,7 +695,7 @@ public class GenericBot extends NetworkingBase {
 		
 		String textReturned;
 		if (command.requiresGET()) {
-			textReturned = APIcommandGET(command);
+			textReturned = APIcommandPOST(command);
 		} else {
 			textReturned = APIcommandHTTP(command);
 		}
@@ -696,7 +703,7 @@ public class GenericBot extends NetworkingBase {
 
 		//Handle mediawiki output.
 		if (textReturned != null) {
-			if (textReturned.contains("<!DOCTYPE HTML>") || textReturned.contains("<!DOCTYPE html>")) {
+			if (textReturned.contains("<!DOCTYPE HTML") || textReturned.contains("<!DOCTYPE html")) {
 				//We are handling HTML output.
 				//We will parse it for any errors/warnings.
 				
@@ -707,9 +714,9 @@ public class GenericBot extends NetworkingBase {
 					//You got the Mediawiki API documentation sent back.
 					logFinest("MediawikiAPI documentation page returned.");
 					
-					String error = parseXMLforInfo("error code", textReturned, "\"");
+					String error = parseTextForItem(textReturned, "error code", "\"");
 					if (textReturned.contains("info=")) {
-						error += ":" + parseXMLforInfo("info", textReturned, "\"");
+						error += ":" + parseTextForItem(textReturned, "info", "\"");
 					}
 					logError(error);
 					throw new Error(error);
@@ -735,7 +742,7 @@ public class GenericBot extends NetworkingBase {
 						
 						if (errorMessage != null) {
 							//Errors/warnings detected.
-							String xmlSnippet = parseXMLforInfo(errorMessage, textReturned, "}");
+							String xmlSnippet = parseTextForItem(textReturned, errorMessage, "}");
 							String error = "";
 							
 							for (int i = 0, prevI = 0; i != -1; prevI = i, i = xmlSnippet.indexOf("\n", i+1)) {
@@ -770,9 +777,9 @@ public class GenericBot extends NetworkingBase {
 					//Ugh, the Mediawiki API documentation was returned.
 					logFinest("Mediawiki API documentation page returned.");
 					
-					String error = "||" + parseXMLforInfo("code", textReturned, "\",", 3, 0);
+					String error = "||" + parseTextForItem(textReturned, "code", "\",", 3, 0);
 					if (textReturned.contains("info")) {
-						error += ":" + parseXMLforInfo("info", textReturned, "\",", 3, 0);
+						error += ":" + parseTextForItem(textReturned, "info", "\",", 3, 0);
 					}
 					logError(error);
 					throw new Error(error);
@@ -787,7 +794,7 @@ public class GenericBot extends NetworkingBase {
 					
 					//Look for errors/warnings.
 					if (textReturned.contains("\"error\"")) {
-						logError(parseXMLforInfo("\"info\"", textReturned, "\","));
+						logError(parseTextForItem(textReturned, "\"info\"", "\","));
 					} else if (textReturned.contains("Internal Server Error")){
 						logError("Internal Server Error");
 						logFinest(textReturned);
@@ -829,10 +836,10 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 
-	private String APIcommandGET(APIcommand command) {
+	private String APIcommandPOST(APIcommand command) {
 		HttpEntity entity;
 		
-		String token = getEditToken();
+		String token = getToken(command);
 		
 		String[] editKeys;
 		String[] editValues;
@@ -850,8 +857,8 @@ public class GenericBot extends NetworkingBase {
 		}
 		
 		//Add a few more parameters
-		keys[keys.length-1] = "token";
-		values[keys.length-1] = "" + token;
+		keys[keys.length - 1] = "token";
+		values[keys.length - 1] = "" + token;
 
 		//Send the command!
         entity = getPOST(baseURL + "/api.php?", keys, values);
@@ -866,10 +873,43 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
-	protected String getEditToken() {
-		String[] keys = new String[]{"action", "type", "format"};
+	/**
+	 * Some MW actions require a token to execute. This is for security purposes.
+	 * @param command The command that requires the token.
+	 * @return A token.
+	 */
+	protected String getToken(APIcommand command) {
+		String[] keys = null;
 		String[] values = null;
-		values = new String[]{"tokens", "edit", "xml"};
+		
+		VersionNumber MWVersion = command.getMWVersion();
+		String tokenType;
+		
+		//Token getting changes a bit between MW versions 1.20 and 1.24.
+		if (MWVersion.compareTo("1.24") >= 0) {
+			tokenType = command.getNewTokenType();
+		} else {
+			tokenType = command.getOldTokenType();
+		}
+		
+		//Build the API call
+		//Handle special cases first.
+		if (tokenType.equals("rollback") && MWVersion.compareTo("1.24") < 0) {
+			keys = new String[]{"action", "prop", "rvtoken", "titles", "user", "format"};
+			values = new String[]{"query", "revisions", "rollback", command.getTitle(), command.getValue("user"), "xml"};
+		} else {
+			//General cases
+			if (MWVersion.compareTo("1.24") >= 0) {
+				keys = new String[]{"action", "meta", "type", "format"};
+				values = new String[]{"query", "tokens", tokenType, "xml"};
+			} else if (MWVersion.compareTo("1.20") >= 0) {
+				keys = new String[]{"action", "type", "format"};
+				values = new String[]{"tokens", tokenType, "xml"};
+			} else {
+				keys = new String[]{"action", "prop", "intoken", "titles", "format"};
+				values = new String[]{"query", "info", tokenType, command.getTitle(), "xml"};
+			}
+		}
         
         HttpEntity entity = getPOST(baseURL + "/api.php?", keys, values);
         
@@ -877,62 +917,19 @@ public class GenericBot extends NetworkingBase {
 		String token = "";
 		try {
 			xmlString = EntityUtils.toString(entity);
-			token = parseXMLforInfo("edittoken", xmlString, "\"");
+
+			//Get the token
+			try {
+				token = parseTextForItem(xmlString, tokenType + "token", "\"");
+			} catch (Throwable e) {
+				throw new Error("Something failed with your API command. Make sure that you are logged in, aren't moving a page to an existing page, ect...");
+			}
 		} catch (org.apache.http.ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return token;
-	}
-	
-	/**
-	 * Read in a text file.
-	 * @param location The location of the file.
-	 * @param commentBufferLineCount How many lines to ignore at the beginning of the file.
-	 * @param hasComments If true, a line that starts with # is considered a comment, and hence is ignored.
-	 * @param ignoreBlankLines If true, blank lines are ignored.
-	 * @return The text file.
-	 */
-	public ArrayList<String> readFileAsList(String location, int commentBufferLineCount, boolean hasComments, boolean ignoreBlankLines) {
-		try {
-			// Read in the file!
-			InputStream in = getClass().getResourceAsStream(location);
-			BufferedReader br = new BufferedReader(
-						new InputStreamReader(in)
-					);
-			
-			// Ignore the comment
-			for (int i = 0; i < commentBufferLineCount; i++) {
-				br.readLine();
-			}
-			
-			// Gather array size
-			ArrayList<String> lines = new ArrayList<String>();
-			
-			// Parse file array into java int array
-			String line;
-			line = br.readLine();
-			do {
-				if (hasComments && (line.length() > 0 && line.substring(0,1).equals("#"))) {
-					//We have a comment. Ignore it.
-				} else if (ignoreBlankLines && line.length() == 0) {
-					//We have an empty line.
-				} else {
-					lines.add(line);
-				}
-				line = br.readLine();
-			} while (line != null);
-			
-			in.close();
-			br.close();
-			
-			return lines;
-			
-		} catch (IOException e) {
-			logError("Error reading in list at: " + location);
-		}
-		return null;
 	}
 	
 	/*
@@ -961,7 +958,7 @@ public class GenericBot extends NetworkingBase {
 			if (j != -1) {
 				//No errors detected.
 				temp = XMLdata.substring(j, k+6);
-				output.add(parseXMLforInfo("title", temp, "\""));
+				output.add(parseTextForItem(temp, "title", "\""));
 			}
 		} while(j != -1);
 		return output;
@@ -997,15 +994,15 @@ public class GenericBot extends NetworkingBase {
 				revision = XMLdata.substring(j, k+closingText.length());
 				
 				//Extract info.
-				user = parseXMLforInfo("user", revision, "\"", 2, 0);
-				tempDate = parseXMLforInfo("timestamp", revision, "\"", 2, 0);
+				user = parseTextForItem(revision, "user", "\"", 2, 0);
+				tempDate = parseTextForItem(revision, "timestamp", "\"", 2, 0);
 				date = createDate(tempDate);
 				content = null;
 				if (includeContent) {
-					comment = parseXMLforInfo("comment", revision, "\" contentformat", 2, 0);
-					content = parseXMLforInfo("xml:space=\"preserve\"", revision, "</rev>", 1, 0);
+					comment = parseTextForItem(revision, "comment", "\" contentformat", 2, 0);
+					content = parseTextForItem(revision, "xml:space=\"preserve\"", "</rev>", 1, 0);
 				} else {
-					comment = parseXMLforInfo("comment", revision, closingText, 2, 0);
+					comment = parseTextForItem(revision, "comment", closingText, 2, 0);
 				}
 				
 				//Parse for flags
@@ -1024,10 +1021,10 @@ public class GenericBot extends NetworkingBase {
 				//Generate and store revision
 				Revision rev;
 				if (forceTitle == null) {
-					title = parseXMLforInfo("title", revision, "\"");
-					rev = new Revision(new PageLocation(title, mdm.getLanguageFromURL(baseURL)), user, comment, date, flags);
+					title = parseTextForItem(revision, "title", "\"");
+					rev = new Revision(new PageLocation(title, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
 				} else {
-					rev = new Revision(new PageLocation(forceTitle, mdm.getLanguageFromURL(baseURL)), user, comment, date, flags);
+					rev = new Revision(new PageLocation(forceTitle, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
 				}
 				
 				rev.setPageContent(content);
@@ -1037,47 +1034,6 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		return output;
-	}
-	
-	protected ArrayList<String> getXMLItems(String XMLdata, String openingText, String closingText, int botBuffer) {
-		//This method takes XMLdata and parses it for page names.
-		ArrayList<String> output = new ArrayList<String>();
-		int j = 0;
-		int k = -1;
-
-		//Parse page for info.
-		do {
-			j = XMLdata.indexOf(openingText, k+1);
-			k = XMLdata.indexOf(closingText, j+1);
-			if (j != -1) {
-				//No errors detected.
-				output.add(XMLdata.substring(j+botBuffer, k));
-			}
-		} while(j != -1);
-		return output;
-	}
-	
-	protected String parseXMLforInfo(String info, String XMLcode, String ending) {
-		//This method aids in XML parsing.
-		int i = XMLcode.indexOf(info);
-		if (i == -1) {
-			throw new IndexOutOfBoundsException();
-		}
-		i += info.length() + 2;
-		int j = XMLcode.indexOf(ending, i+1);
-		if (j != -1) {
-			return XMLcode.substring(i,  j);
-		} else {
-			return null;
-		}
-	}
-	
-	protected String parseXMLforInfo(String info, String XMLcode, String ending, int bufferBot, int bufferTop) {
-		//This method aids in XML parsing.
-		int i = 0;
-		i = XMLcode.indexOf(info);
-		i += info.length() + bufferBot;
-		return XMLcode.substring(i, XMLcode.indexOf(ending, i) - bufferTop);
 	}
 	
 	/**

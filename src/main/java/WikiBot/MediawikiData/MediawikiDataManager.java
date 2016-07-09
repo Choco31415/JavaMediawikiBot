@@ -11,12 +11,15 @@ import java.util.ArrayList;
  * To allow access from any class, its contents are static and public.
  */
 public class MediawikiDataManager {
+	
+	public static MediawikiDataManager instance;
 
-	public static ArrayList<String> Interwiki = new ArrayList<String>();
-	public static ArrayList<String> InterwikiURL = new ArrayList<String>();
-	public static ArrayList<String> TemplateIgnore = new ArrayList<String>();
-	public static ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
-	public static ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
+	public ArrayList<String> WikiPrefix = new ArrayList<String>();
+	public ArrayList<VersionNumber> WikiMWVersion = new ArrayList<VersionNumber>();
+	public ArrayList<String> WikiURL = new ArrayList<String>();
+	public ArrayList<String> TemplateIgnore = new ArrayList<String>();
+	public ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
+	public ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
 	
 	public MediawikiDataManager() {
 		ArrayList<String> temp = readFileAsList("/MWEscapeTexts.txt", 0, "#", true, true);
@@ -29,42 +32,74 @@ public class MediawikiDataManager {
 		for (int i = 0; i < temp.size(); i += 1) {
 			TemplateIgnore.add(temp.get(i));
 		}
+		
+		if (instance == null) {
+			instance = this;
+		}
+	}
+	
+	public static MediawikiDataManager getInstance() {
+		if (instance == null) {
+			instance = new MediawikiDataManager();
+		}
+		
+		return instance;
 	}
 	
 	public void readFamily(String family, int commentBufferLineCount) {
 		ArrayList<String> lines = readFileAsList("/Families/" + family + ".txt", commentBufferLineCount, false, true);
 		
 		// Gather array size
-		Interwiki = new ArrayList<String>();
-		InterwikiURL = new ArrayList<String>();
+		WikiPrefix = new ArrayList<String>();
+		WikiURL = new ArrayList<String>();
 		
 		for (String line : lines) {
 			if (!line.equals("")) {
 				int index = line.indexOf(":");
-				Interwiki.add(line.substring(0, index).trim());
-				InterwikiURL.add(line.substring(index+1).trim());
+				int index2 = line.indexOf(":", index+1);
+				WikiPrefix.add(line.substring(0, index).trim());
+				WikiMWVersion.add(new VersionNumber(line.substring(index+1, index2).trim()));
+				WikiURL.add(line.substring(index2+1).trim());
 			}
 		}
 	}
 	
-	public ArrayList<String> getInterwiki() {
-		return Interwiki;
+	public ArrayList<String> getWikiPrefixes() {
+		return WikiPrefix;
 	}
 	
-	public String getInterwiki(int index) {
-		return Interwiki.get(index);
+	public String getWikiPrefix(int index) {
+		return WikiPrefix.get(index);
 	}
 	
-	public ArrayList<String> getInterwikiURL() {
-		return InterwikiURL;
+	public ArrayList<VersionNumber> getWikiMWVersions() {
+		return WikiMWVersion;
 	}
 	
-	public String getInterwikiURL(int index) {
-		return InterwikiURL.get(index);
+	public VersionNumber getWikiMWVersion(int index) {
+		return WikiMWVersion.get(index);
+	}
+	
+	public VersionNumber getWikiMWVersion(String wikiPrefix) {
+		int index = WikiPrefix.indexOf(wikiPrefix);
+		return WikiMWVersion.get(index);
+	}
+	
+	public ArrayList<String> getWikiURLs() {
+		return WikiURL;
+	}
+	
+	public String getWikiURL(int index) {
+		return WikiURL.get(index);
+	}
+	
+	public String getWikiURL(String wikiPrefix) {
+		int index = WikiPrefix.indexOf(wikiPrefix);
+		return WikiURL.get(index);
 	}
 	
 	public int getNumWikis() {
-		return Interwiki.size();
+		return WikiPrefix.size();
 	}
 	
 	public ArrayList<String> getTemplateIgnore() {
@@ -79,21 +114,10 @@ public class MediawikiDataManager {
 		return MWEscapeCloseText;
 	}
 	
-	public String getWikiURL(String wikiPrefix) {
-		wikiPrefix = wikiPrefix.replace(":", "");
-
-		for (int i = 0; i < Interwiki.size(); i++) {
-			if (Interwiki.get(i).equalsIgnoreCase(wikiPrefix) || Interwiki.get(i).equalsIgnoreCase(wikiPrefix + ":")) {
-				return InterwikiURL.get(i);
-			}
-		}
-		throw new Error();
-	}
-	
-	public String getLanguageFromURL(String url) {
-		for (int i = 0; i < InterwikiURL.size(); i++) {
-			if (InterwikiURL.get(i).equalsIgnoreCase(url)) {
-				return Interwiki.get(i);
+	public String getWikiPrefixFromURL(String url) {
+		for (int i = 0; i < WikiURL.size(); i++) {
+			if (WikiURL.get(i).equalsIgnoreCase(url)) {
+				return WikiPrefix.get(i);
 			}
 		}
 		throw new Error();

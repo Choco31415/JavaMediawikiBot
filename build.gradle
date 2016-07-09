@@ -2,6 +2,18 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'application'
+
+if (hasProperty("main")) {
+	mainClassName = "${main}"
+} else {
+	System.out.println("Could not set the main class. If you are building something to be run, please specify a main class with -Pmain=com.example.package.ClassName")
+	mainClassName = "com.example.ClassThatDoesNotExist"
+}
+
+run {
+ standardInput = System.in
+}
 
 group = 'com.github.choco31415'
 

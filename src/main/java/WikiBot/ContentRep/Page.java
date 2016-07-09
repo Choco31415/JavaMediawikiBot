@@ -17,6 +17,9 @@ import WikiBot.MediawikiData.MediawikiDataManager;
  */
 public class Page extends SimplePage {
 	
+	//MW Data Manager
+	private MediawikiDataManager mdm;
+	
 	//Page data
 	private ArrayList<Integer> linePositions = new ArrayList<Integer>();
 	private ArrayList<Section> sections = new ArrayList<Section>();
@@ -27,6 +30,8 @@ public class Page extends SimplePage {
 	
 	public Page(String title_, int pageID_, String lan_) {
 		super(title_, lan_, pageID_);
+		
+		mdm = MediawikiDataManager.getInstance();
 	}
 	
 	//Modify variables.
@@ -482,7 +487,7 @@ public class Page extends SimplePage {
 					if (objectID == 0) {
 						//{{
 						//Check that we have a valid template.
-						for (String ignore : MediawikiDataManager.TemplateIgnore) {
+						for (String ignore : mdm.getTemplateIgnore()) {
 							if (header.length() >= ignore.length() && header.substring(0, ignore.length()).equalsIgnoreCase(ignore)) {
 								openIndex += ignore.length();
 								break objectParse;
@@ -513,7 +518,7 @@ public class Page extends SimplePage {
 							break objectParse;
 						} else {
 							//Check for interwiki
-							for (String iw: MediawikiDataManager.Interwiki) {
+							for (String iw: mdm.getWikiPrefixes()) {
 								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
 									interwikis.add(new Interwiki(header.substring(iw.length()+1).trim(), iw, openIndex+pos, outerCloseIndex+pos));
 									
@@ -698,8 +703,8 @@ public class Page extends SimplePage {
 	 * @return Is this position parsed as Mediawiki, or not?
 	 */
 	public boolean isPositionParsedAsMediawiki(int pos) {
-		ArrayList<String> MWEscapeOpenText = MediawikiDataManager.MWEscapeOpenText;
-		ArrayList<String> MWEscapeCloseText = MediawikiDataManager.MWEscapeCloseText;
+		ArrayList<String> MWEscapeOpenText = mdm.getMWEscapeOpenText();
+		ArrayList<String> MWEscapeCloseText = mdm.getMWEscapeCloseText();
 		return isPositionParsedAsMediawiki(pos, MWEscapeOpenText, MWEscapeCloseText);
 	}
 	

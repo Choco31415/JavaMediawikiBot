@@ -4,12 +4,11 @@ import WikiBot.ContentRep.PageLocation;
 
 /**
  * This action requires the "delete" right.
- * 
  */
 public class DeletePage extends APIcommand {
 	
 	public DeletePage(PageLocation pl_, String editSummary_) {
-		super(pl_, true);
+		super(pl_, true, "delete", "csrf");
 		keys.add("action");
 		values.add("delete");
 		keys.add("title");

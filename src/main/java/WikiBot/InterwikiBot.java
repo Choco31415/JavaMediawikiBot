@@ -14,6 +14,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import WikiBot.APIcommands.*;
 import WikiBot.ContentRep.*;
 import WikiBot.Core.BotPanel;
+import WikiBot.MediawikiData.VersionNumber;
 
 @SuppressWarnings("unused")
 public class InterwikiBot extends BotPanel {
@@ -24,7 +25,7 @@ public class InterwikiBot extends BotPanel {
 	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public InterwikiBot() {
-		super("Scratch", "en");
+		super("Test", "en");
 		
 		//Preferences
 		panelName = "InterwikiBot";
@@ -45,21 +46,7 @@ public class InterwikiBot extends BotPanel {
 	 */
 	@Override
 	public void code() {
-		getRevisions = false;//Don't get page revisions.
-		getRevisionContent = false;//Same as above ^^.
-		parseThurough = false;
-
-		/*
-		 * Here is what our example bot will do.
-		 * It will get the page "Scratch Cat" from the "en" wiki.
-		 * It will print it out because I like printing out data.
-		 * It will append an interwiki to the page.
-		 * The edit summary will be "This page needs an interwiki. ^.^ "
-		 * The bot GUI will show an edit summary of "Interwiki"
-		 */
-		PageLocation loc = new PageLocation("Scratch Cat", "en");
-		Page page = getWikiPage(loc);
-		System.out.println(page);
-		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ "), "Interwiki");
+		proposeEdit(new Rollback(new PageLocation("bleh", "homeEn"), "ErnieParke", "Catching the vandal. Finally!"));
+		
 	}
 }

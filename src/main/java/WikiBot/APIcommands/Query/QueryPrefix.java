@@ -1,5 +1,7 @@
 package WikiBot.APIcommands.Query;
 
+import WikiBot.MediawikiData.VersionNumber;
+
 /**
  * This requires MW version 1.23 and above.
  */
@@ -14,6 +16,8 @@ public class QueryPrefix extends QueryList {
 		values.add(prefix);
 		unescapeText = true;
 		unescapeHTML = false;
+		
+		enforceMWVersion(new VersionNumber("1.23"));
 	}
 	
 	public QueryPrefix(String language, String prefix, int psoffset) {
@@ -28,5 +32,7 @@ public class QueryPrefix extends QueryList {
 		values.add("" + psoffset);//Get psoffset items and up.
 		unescapeText = true;
 		unescapeHTML = false;
+		
+		enforceMWVersion(new VersionNumber("1.23"));
 	}
 }

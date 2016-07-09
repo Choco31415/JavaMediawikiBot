@@ -29,7 +29,7 @@ public class QueryPageContent extends APIcommand {
 		unescapeText = true;
 	}
 	
-	static public String compactArray(ArrayList<PageLocation> array, String delimitor) {
+	static private String compactArray(ArrayList<PageLocation> array, String delimitor) {
 		//This takes an array of strings and compacts it into one string.
 		String output = "";
 		

@@ -1,22 +1,41 @@
 ## Description
 
-JavaMediawikiBot (JMB) is a bot designed to interface with MediaWiki (MW). It commuicates with MediaWiki through the web API. JMB also optionally parses MW pages into its various core components.
+JavaMediawikiBot (JMB) is a bot designed to interface with MediaWiki (MW).
+It communicates with MediaWiki through the web API. JMB also optionally parses
+MW pages into its various core components.
 
 ## Set Up
 
 To set up JavaMediawikiBot for an IDE, run `./gradlew eclipse` or `./gradlew idea`.
 
-## Making a Bot
+### Making a Wiki Family
 
-To create a Mediawiki bot, create a Java class. It will need to extend either one of these two classes:
+A wiki family is a group of wikis that a bot can see and edit. It also
+contains information pertinent to the wikis.
+
+To make a new wiki family, simply run `src/WikiBot/MediawikiData/FamilyGenerator.java'.
+This can be done via your IDE (console required), or through the command line:
+
+`./gradlew run -Pmain=WikiBot.MediawikiData.FamilyGenerator -q`
+
+### Making a Bot
+
+To create a Mediawiki bot, create a Java class. It will need to extend either one of
+these two classes:
 
 `src/WikiBot/core/BotPanel.java`
 
-* Extending from this class gives access to a GUI as well as better control over edits to a wiki. Please note, you will have to update `core/BotFrame.java` for your bot to run. All bot code should be in the required method named `code()`.
+* Extending from this class gives access to a GUI as well as better control over edits
+to a wiki. Please note, you will have to update `core/BotFrame.java` for your bot to run.
+Your bot's main method will also be in `core/BotFrame.java`. All bot code should be
+in the bot class under the required method named `code()`.
 
 `src/WikiBot/core/GenericBot.java`
 
-* Extending this class does not give a GUI. You will have to create a main method to run code.
+* Extending this class does not give a GUI. You will have to create
+a main method to run bot code.
+
+### Examples
 
 One example bot is included in the project, and it is called `InterwikiBot.java`.
 
