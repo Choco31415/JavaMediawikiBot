@@ -332,7 +332,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	}
 	
 	/**
-	 * Check if the url exists.
+	 * Get the http response for a page.
 	 * @param url
 	 * @return
 	 */
