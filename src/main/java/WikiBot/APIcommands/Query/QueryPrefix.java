@@ -7,7 +7,7 @@ import WikiBot.MediawikiData.VersionNumber;
  */
 public class QueryPrefix extends QueryList {
 	public QueryPrefix(String language, String prefix) {
-		super(language, "prefixsearch");
+		super("Query prefix", language, "prefixsearch");
 		keys.add("format");
 		values.add("xml");
 		keys.add("action");
@@ -17,11 +17,11 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.23"));
+		enforceMWVersion(new VersionNumber("1.22"));
 	}
 	
 	public QueryPrefix(String language, String prefix, int psoffset) {
-		super(language, "prefixsearch");
+		super("Query prefix", language, "prefixsearch");
 		keys.add("format");
 		values.add("xml");
 		keys.add("action");
@@ -33,6 +33,6 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.23"));
+		enforceMWVersion(new VersionNumber("1.22"));
 	}
 }

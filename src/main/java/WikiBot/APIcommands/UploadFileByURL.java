@@ -11,7 +11,7 @@ import WikiBot.ContentRep.PageLocation;
 public class UploadFileByURL extends APIcommand {
 
 	public UploadFileByURL(PageLocation pl_, String URL_, String pageText_, String uploadComment_) {
-		super(pl_, true, "edit", "csrf");
+		super("Upload file", pl_, true, "edit", "csrf");
 		keys.add("action");
 		values.add("upload");
 		keys.add("filename");

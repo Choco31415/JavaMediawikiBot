@@ -8,7 +8,7 @@ import WikiBot.ContentRep.PageLocation;
 public class MovePage extends APIcommand {
 
 	public MovePage(PageLocation from_, PageLocation to_, String editSummary_, boolean moveTalk_, boolean moveSubpages_, boolean leaveRedirect_) {
-		super(from_, true, "move", "csrf");
+		super("Move", from_, true, "move", "csrf");
 		keys.add("action");
 		values.add("move");
 		keys.add("from");
@@ -37,7 +37,7 @@ public class MovePage extends APIcommand {
 	 * The standard move operation. The talk page is not moved, and a redirect is left behind.
 	 */
 	public MovePage(PageLocation from_, PageLocation to_, String editSummary_) {
-		super(from_, true, "move", "csrf");
+		super("Move", from_, true, "move", "csrf");
 		keys.add("action");
 		values.add("move");
 		keys.add("from");

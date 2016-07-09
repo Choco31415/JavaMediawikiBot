@@ -4,7 +4,7 @@ import WikiBot.ContentRep.PageLocation;
 
 public class AppendText extends APIcommand {
 	public AppendText(PageLocation pl_, String appendText_, String editSummary_) {
-		super(pl_, true, "edit", "csrf");
+		super("Append text", pl_, true, "edit", "csrf");
 		keys.add("action");
 		values.add("edit");
 		keys.add("title");

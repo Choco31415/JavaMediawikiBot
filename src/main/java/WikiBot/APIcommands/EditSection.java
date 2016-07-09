@@ -5,7 +5,7 @@ import WikiBot.ContentRep.PageLocation;
 public class EditSection extends APIcommand {
 	
 	public EditSection(PageLocation pl_, int sectionID_, String text_, String editSummary_) {
-		super(pl_, true, "edit", "csrf");
+		super("Edit section", pl_, true, "edit", "csrf");
 		keys.add("action");
 		values.add("edit");
 		keys.add("title");

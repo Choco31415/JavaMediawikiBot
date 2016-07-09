@@ -11,6 +11,8 @@ import WikiBot.MediawikiData.VersionNumber;
 //TODO: Update edit token and family files
 public class APIcommand extends PageLocationContainer {
 	
+	protected String commandSummary;//One or two words to summarize what this edit does.
+	
 	protected boolean requiresGET = false;
 	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
@@ -20,9 +22,11 @@ public class APIcommand extends PageLocationContainer {
 
 	protected ArrayList<String> keys = new ArrayList<String>();
 	protected ArrayList<String> values = new ArrayList<String>();
+	
 
-	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 		requiresGET = requiresGET_;
@@ -31,25 +35,29 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	
-	public APIcommand(PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 	}
 	
-	public APIcommand(PageLocation pl_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandSummary_, PageLocation pl_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 		requiresGET = requiresGET_;
 		oldTokenType = oldTokenType_;
 		newTokenType = newTokenType_;
 	}
 	
-	public APIcommand(PageLocation pl_) {
+	public APIcommand(String commandSummary_, PageLocation pl_) {
 		super(pl_);
+		commandSummary = commandSummary_;
 	}	
 	
-	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 		requiresGET = requiresGET_;
@@ -58,21 +66,24 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	
-	public APIcommand(String language, ArrayList<String> keys_, ArrayList<String> values_) {
+	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		keys.addAll(keys_);
 		values.addAll(values_);
 	}
 	
-	public APIcommand(String language, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandSummary_, String language, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 		requiresGET = requiresGET_;
 		oldTokenType = oldTokenType_;
 		newTokenType = newTokenType_;
 	}
 	
-	public APIcommand(String language) {
+	public APIcommand(String commandSummary_, String language) {
 		super(new PageLocation("null", language));
+		commandSummary = commandSummary_;
 	}
 	
 	protected void enforceMWVersion(VersionNumber introduced) {
@@ -158,6 +169,11 @@ public class APIcommand extends PageLocationContainer {
 	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
+	
+	//A simple one or two words to summarize what this edit does.
+	public String getShortCommandSummary() {
+		return commandSummary;
+	}
 	
 	public String getSummary() {
 		String temp;

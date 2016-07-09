@@ -15,7 +15,7 @@ public class Rollback extends APIcommand {
 	 * @param summary_
 	 */
 	public Rollback(PageLocation pl_, String userName_, String summary_) {
-		super(pl_, true, "rollback", "rollback");
+		super("Rollback", pl_, true, "rollback", "rollback");
 		keys.add("action");
 		values.add("rollback");
 		keys.add("title");

@@ -8,7 +8,7 @@ import WikiBot.ContentRep.PageLocation;
 public class DeletePage extends APIcommand {
 	
 	public DeletePage(PageLocation pl_, String editSummary_) {
-		super(pl_, true, "delete", "csrf");
+		super("Delete", pl_, true, "delete", "csrf");
 		keys.add("action");
 		values.add("delete");
 		keys.add("title");
