@@ -17,7 +17,7 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.22"));
+		enforceMWVersion(new VersionNumber("1.23"));
 	}
 	
 	public QueryPrefix(String language, String prefix, int psoffset) {
@@ -33,6 +33,6 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.22"));
+		enforceMWVersion(new VersionNumber("1.23"));
 	}
 }
