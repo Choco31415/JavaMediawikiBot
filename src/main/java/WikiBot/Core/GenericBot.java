@@ -97,22 +97,22 @@ public class GenericBot extends NetworkingBase {
 	
 	public Page getWikiPage(PageLocation loc) {
 		//This method fetches a Wiki page.
-		String XMLcode = getWikiPageXMLCode(loc);
+		String serverOutput = getWikiPageXMLCode(loc);
 		
-		return parseWikiPage(XMLcode);
+		return parseWikiPage(serverOutput);
 	}
 	
 	public SimplePage getWikiSimplePage(PageLocation loc) {
 		//This method fetches a Wiki page.
-		String XMLcode = getWikiPageXMLCode(loc);
+		String serverOutput = getWikiPageXMLCode(loc);
 		
-		return parseWikiPageSimple(XMLcode);
+		return parseWikiPageSimple(serverOutput);
 	}
 	
 	public boolean doesPageExist(PageLocation loc) {
-		String XMLcode = getWikiPageXMLCode(loc);
+		String serverOutput = getWikiPageXMLCode(loc);
 		
-		return !XMLcode.contains("\"pages\":{\"-1\"");
+		return !serverOutput.contains("\"pages\":{\"-1\"");
 	}
 	
 	private String getWikiPageXMLCode(PageLocation loc) {		
@@ -129,10 +129,10 @@ public class GenericBot extends NetworkingBase {
 		
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
-		String XMLstring = getWikiPagesXMLCode(locs);
+		String serverOutput = getWikiPagesXMLCode(locs);
 		
-		ArrayList<String> pageXMLstrings = parseTextForItems(XMLstring, "pageid", "\"}]}", 0);
-		for (String st : pageXMLstrings) {
+		ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
+		for (String st : pageStrings) {
 			pages.add(parseWikiPage(st + "\"}]}"));
 		}
 		
@@ -142,10 +142,10 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
-		String XMLstring = getWikiPagesXMLCode(locs);
+		String serverOutput = getWikiPagesXMLCode(locs);
 		
-		ArrayList<String> pageXMLstrings = parseTextForItems(XMLstring, "pageid", "\"}]}", 0);
-		for (String st : pageXMLstrings) {
+		ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
+		for (String st : pageStrings) {
 			simplePages.add(parseWikiPageSimple(st + "\"}]}"));
 		}
 		
@@ -157,7 +157,7 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		
-		String XMLstring = APIcommand(new QueryPageContent(locs));
+		String serverOutput = APIcommand(new QueryPageContent(locs));
 		
 		//Log stuff
         if (logPageDownloads) {
@@ -181,7 +181,7 @@ public class GenericBot extends NetworkingBase {
         	}
         }
         
-        return XMLstring;
+        return serverOutput;
 	}
 
 	protected SimplePage parseWikiPageSimple(String XMLcode) {
@@ -574,9 +574,9 @@ public class GenericBot extends NetworkingBase {
 		logFine("Getting file info for: " + loc.getTitle());
 		logFiner("Getting properties: " + compactArray(propertyNames, ", "));
 		
-		String xmlString = APIcommand(new QueryImageInfo(loc, propertyNames));
+		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
 		
-		if (xmlString.contains("\"missing\":\"\"")) {
+		if (serverOutput.contains("\"missing\":\"\"")) {
 			logError(loc.getTitle() + " does not exist.");
 			return null;
 		}
@@ -594,7 +594,7 @@ public class GenericBot extends NetworkingBase {
 				propertyNames.add("width");
 				propertyNames.add("height");
 			} else {
-				value = parseTextForItem(xmlString, name + "\"", ",", 1, 0);
+				value = parseTextForItem(serverOutput, name + "\"", ",", 1, 0);
 				
 				//Any value surrounded with "" is a String, and the "" should be removed.
 				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
@@ -647,7 +647,7 @@ public class GenericBot extends NetworkingBase {
 
         //LOG IN
         String token = null;
-        String xmlString = "";
+        String serverOutput = "";
         for (int j = 0; j < 2; j++) {
     		//Check throttle.
     		throttleAction();
@@ -662,12 +662,12 @@ public class GenericBot extends NetworkingBase {
 	        logCookies();
 	        
 	        try {
-				xmlString = EntityUtils.toString(entity);
+				serverOutput = EntityUtils.toString(entity);
 				
-				logFinest("login xml: " + xmlString);
+				logFinest("server output: " + serverOutput);
 
 				if (j == 0) {
-					token = parseTextForItem(xmlString, "token", "\"");
+					token = parseTextForItem(serverOutput, "token", "\"");
 					
 					logFinest("Login token: " + token);
 				}
@@ -676,7 +676,7 @@ public class GenericBot extends NetworkingBase {
 			}
         }
         
-        boolean success = xmlString.contains("Success");
+        boolean success = serverOutput.contains("Success");
 		logFiner("Login status at " + language + ": " + success);
         
 		if (success) {
@@ -742,12 +742,12 @@ public class GenericBot extends NetworkingBase {
 						
 						if (errorMessage != null) {
 							//Errors/warnings detected.
-							String xmlSnippet = parseTextForItem(textReturned, errorMessage, "}");
+							String errorSnippet = parseTextForItem(textReturned, errorMessage, "}");
 							String error = "";
 							
-							for (int i = 0, prevI = 0; i != -1; prevI = i, i = xmlSnippet.indexOf("\n", i+1)) {
+							for (int i = 0, prevI = 0; i != -1; prevI = i, i = errorSnippet.indexOf("\n", i+1)) {
 								if (prevI != 0) {
-									String temp = xmlSnippet.substring(prevI, i);
+									String temp = errorSnippet.substring(prevI, i);
 									temp = temp.replace("\n", "");
 									temp = temp.trim();
 									error += temp + " | ";
@@ -863,9 +863,9 @@ public class GenericBot extends NetworkingBase {
 		//Send the command!
         entity = getPOST(baseURL + "/api.php?", keys, values);
         try {
-			String xmlString = EntityUtils.toString(entity);
+			String serverOutput = EntityUtils.toString(entity);
 			
-			return xmlString;
+			return serverOutput;
 		} catch (org.apache.http.ParseException | IOException e) {
 			e.printStackTrace();
 			
@@ -913,14 +913,14 @@ public class GenericBot extends NetworkingBase {
         
         HttpEntity entity = getPOST(baseURL + "/api.php?", keys, values);
         
-		String xmlString = "";
+		String serverOutput = "";
 		String token = "";
 		try {
-			xmlString = EntityUtils.toString(entity);
+			serverOutput = EntityUtils.toString(entity);
 
 			//Get the token
 			try {
-				token = parseTextForItem(xmlString, tokenType + "token", "\"");
+				token = parseTextForItem(serverOutput, tokenType + "token", "\"");
 			} catch (Throwable e) {
 				throw new Error("Something failed with your API command. Make sure that you are logged in, aren't moving a page to an existing page, ect...");
 			}
