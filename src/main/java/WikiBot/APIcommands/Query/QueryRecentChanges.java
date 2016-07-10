@@ -1,5 +1,14 @@
 package WikiBot.APIcommands.Query;
 
+/**
+ * This command gets a list of recent changes.
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * 1.9+
+ */
 public class QueryRecentChanges extends QueryList {
 	public QueryRecentChanges(String language, int revisionLimit) {
 		super("Query rc", language, "recentchanges");
@@ -9,6 +18,8 @@ public class QueryRecentChanges extends QueryList {
 		values.add("" + revisionLimit);
 		unescapeText = true;
 		unescapeHTML = true;
+		
+		enforceMWVersion("1.9");
 	}
 	
 	/*
@@ -24,5 +35,7 @@ public class QueryRecentChanges extends QueryList {
 		values.add(rccontinue);
 		unescapeText = true;
 		unescapeHTML = true;
+		
+		enforceMWVersion("1.9");
 	}
 }

@@ -331,7 +331,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		if (!proposedCommands.contains(edit) && !acceptedCommands.contains(edit) && (proposedCommands.size() < maxProposedEdits || maxProposedEdits <= -1)) {
 			proposedCommands.add(0, edit);
 			DefaultListModel<String> dm = (DefaultListModel<String>) proposedCommandsList.getModel();
-			dm.add(0, edit.getShortCommandSummary() + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
+			dm.add(0, edit.getCommandName() + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle());
 			
 			validate();
 			repaint();

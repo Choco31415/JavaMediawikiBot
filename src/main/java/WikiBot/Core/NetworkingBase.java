@@ -178,7 +178,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * <notice>
 	 * 
 	 * 
-	 * Networking code is below. Unless you are an advanced user, you can safely ignore the code below.
+	 * Class code is below. Unless you are an advanced user, you can safely ignore the code below.
 	 * 
 	 * 
 	 * </notice>

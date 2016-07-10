@@ -1,9 +1,13 @@
 package WikiBot.APIcommands.Query;
 
-import WikiBot.MediawikiData.VersionNumber;
-
 /**
- * This requires MW version 1.23 and above.
+ * This command gets pages with a certain prefix.
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * 1.23+
  */
 public class QueryPrefix extends QueryList {
 	public QueryPrefix(String language, String prefix) {
@@ -17,7 +21,7 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.23"));
+		enforceMWVersion("1.23");
 	}
 	
 	public QueryPrefix(String language, String prefix, int psoffset) {
@@ -33,6 +37,6 @@ public class QueryPrefix extends QueryList {
 		unescapeText = true;
 		unescapeHTML = false;
 		
-		enforceMWVersion(new VersionNumber("1.23"));
+		enforceMWVersion("1.23");
 	}
 }

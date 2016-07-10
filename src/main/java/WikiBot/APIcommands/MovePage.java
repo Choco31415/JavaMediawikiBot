@@ -3,7 +3,16 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
- * To move a page and leave no redirect behind, the suppressredirect right is needed. By default, this is only given to bots and sysops.
+ * This command moves a page.
+ * 
+ * Rights required:
+ * move
+ * movefile (To move files.)
+ * move-subpages (To move subpages.)
+ * suppressredirect (To move a page and leave no redirect behind.)
+ * 
+ * MW version required:
+ * 1.12+
  */
 public class MovePage extends APIcommand {
 
@@ -31,6 +40,8 @@ public class MovePage extends APIcommand {
 			keys.add("noredirect");
 			values.add(null);
 		}
+		
+		enforceMWVersion("1.12");
 	}
 	
 	/**
@@ -48,5 +59,7 @@ public class MovePage extends APIcommand {
 		values.add(editSummary_);
 		keys.add("format");
 		values.add("xml");
+		
+		enforceMWVersion("1.12");
 	}
 }

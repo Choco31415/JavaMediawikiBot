@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.ContentRep.PageLocation;
 
+/**
+ * This command gets the contents of a page.
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * all
+ */
 public class QueryPageContent extends APIcommand {	
 	public QueryPageContent(PageLocation loc) {
 		super("Query page", loc);
@@ -23,23 +32,9 @@ public class QueryPageContent extends APIcommand {
 		super("Query pages", locs.get(0).getLanguage());
 		addParameter("format", "json");
 		addParameter("action", "query");
-		addParameter("titles", compactArray(locs, "|"));
+		addParameter("titles", compactPLArray(locs, "|"));
 		addParameter("prop", "revisions");
 		addParameter("rvprop", "content");
 		unescapeText = true;
-	}
-	
-	static private String compactArray(ArrayList<PageLocation> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (int i = 0; i < array.size(); i++) {
-			output+= array.get(i).getTitle();
-			if (i != array.size()-1) {
-				output += delimitor;
-			}
-		}
-		
-		return output;
 	}
 }

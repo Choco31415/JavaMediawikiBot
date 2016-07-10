@@ -19,7 +19,10 @@ import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Revision;
 import WikiBot.ContentRep.SimplePage;
+import WikiBot.ContentRep.User;
+import WikiBot.ContentRep.UserInfo;
 import WikiBot.Errors.NetworkError;
+import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
 
@@ -566,6 +569,10 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Imageinfo
+	 * 
+	 * This method does not support getting metadata, commonmetadata, or extmetadata.
+	 * In fact, doing so will throw an error.
+	 * 
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return A ImageInfo class containing
@@ -583,29 +590,54 @@ public class GenericBot extends NetworkingBase {
 		
 		ImageInfo toReturn = new ImageInfo(loc);
 		
-		int i = 0;
+		int property = 0;
 		do {
-			String name = propertyNames.get(i);
+			String name = propertyNames.get(property);
 			String value = "";
 			
-			//Get the parameter's value from the MediaWiki output.
+			//Handle special cases
 			if (name.equalsIgnoreCase("dimensions")) {
-				//Dimension returns two numbers.
+				name = "size";//Alias
+			}
+			if (name.equalsIgnoreCase("size")) {
+				//Size returns size, width, and height
 				propertyNames.add("width");
 				propertyNames.add("height");
-			} else {
-				value = parseTextForItem(serverOutput, name + "\"", ",", 1, 0);
-				
-				//Any value surrounded with "" is a String, and the "" should be removed.
-				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
-					value = value.substring(1, value.length()-1);
-				}
-				
-				toReturn.addProperty(name, value);
+			}
+			if (name.equalsIgnoreCase("UploadWarning")) {
+				//UploadWarning returns html
+				name = "html";
+			}
+			if (name.equals("metadata")) {
+				throw new UnsupportedError();
+				//TODO: Support metadata getting
+			}
+			if (name.equals("commonmetadata")) {
+				throw new UnsupportedError();
+				//TODO: Support metadata getting
+			}
+			if (name.equals("extmetadata")) {
+				throw new UnsupportedError();
+				//TODO: Support metadata getting
 			}
 			
-			i += 1;
-		} while (i < propertyNames.size());
+			//Get value
+			try {
+				value = parseTextForItem(serverOutput, name + "\"", ",", 1, 0);
+			} catch (IndexOutOfBoundsException e) {
+				//Assume end of line.
+				value = parseTextForItem(serverOutput, name + "\"", "}", 1, 0);
+			}
+			
+			//Any value surrounded with "" is a String, and the "" should be removed.
+			if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
+				value = value.substring(1, value.length()-1);
+			}
+			
+			toReturn.addProperty(name, value);
+			
+			property++;
+		} while (property < propertyNames.size());
 		
 		return toReturn;
 	}
@@ -613,12 +645,11 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * 
 	 * @param loc The pageLocation of the file.
-	 * @return The url, dimensions, and media type of the image.
+	 * @return The url, dimensions, and byte size of the image.
 	 */
 	protected ImageInfo getImageInfo(PageLocation loc) {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
-		properties.add("dimensions");
 		properties.add("size");
 		return getImageInfo(loc, properties);
 	}
@@ -631,7 +662,105 @@ public class GenericBot extends NetworkingBase {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
 		ImageInfo info = getImageInfo(loc, properties);
-		return info.getProperty("url");
+		return info.getValue("url");
+	}
+	
+	/**
+	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
+	 * 
+	 * This method does not support getting the properties group, implicitgroup, rights, centralid, or cancreate.
+	 * In fact, doing so will throw an error.
+	 * 
+	 * Also, banned and invalid user will be returned as null.
+	 * @param loc The pageLocation of the file.
+	 * @param propertyNames The list of properties you are querying for.
+	 * @return An ArrayList of ImageInfo
+	 */
+	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
+		logFine("Getting user info for: " + compactArray(userNames, ", "));
+		logFiner("Getting properties: " + compactArray(propertyNames, ", "));
+		
+		String serverOutput = APIcommand(new QueryUserInfo(language, userNames, propertyNames));
+		System.out.println(serverOutput);
+		String users = serverOutput.substring(serverOutput.indexOf("users"));
+		ArrayList<String> userJSONitems = parseTextForItems(users, "{", "}", 0);
+		
+		if (propertyNames.contains("group")) {
+			throw new UnsupportedError();
+		}
+		if (propertyNames.contains("implicitgroup")) {
+			throw new UnsupportedError();
+		}
+		if (propertyNames.contains("rights")) {
+			throw new UnsupportedError();
+		}
+		if (propertyNames.contains("centralid")) {
+			throw new UnsupportedError();
+		}
+		if (propertyNames.contains("cancreate")) {
+			throw new UnsupportedError();
+		}
+		
+		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
+		int user = 0;
+		do {
+			UserInfo info = new UserInfo(new User(language, userNames.get(user)));
+			
+			String userJSON = userJSONitems.get(user);
+			System.out.println(userJSON);
+			
+			if (userJSON.contains("invalid") || userJSON.contains("missing")) {
+				toReturn.add(null);
+				continue;
+			}
+			
+			int property = 0;
+			do {
+				String name = propertyNames.get(property);
+				System.out.println(name);
+				String value = "";
+				
+				//Get value
+				try {
+					value = parseTextForItem(userJSON, name + "\"", ",", 1, 0);
+				} catch (IndexOutOfBoundsException e) {
+					//Assume end of line.
+					userJSON += "|";
+					value = parseTextForItem(userJSON, name + "\"", "|", 1, 0);
+				}
+				
+				//Any value surrounded with "" is a String, and the "" should be removed.
+				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
+					value = value.substring(1, value.length()-1);
+				}
+				
+				info.addProperty(name, value);
+				
+				property++;
+			} while (property < propertyNames.size());
+			toReturn.add(info);
+			
+			user++;
+		} while (user < userNames.size());
+		
+		return toReturn;
+	}
+	
+	/**
+	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
+	 * 
+	 * This method does not support getting the properties group, implicitgroup, rights, centralid, or cancreate.
+	 * In fact, doing so will throw an error.
+	 * 
+	 * Also, banned and invalid user will be returned as null.
+	 * @param loc The pageLocation of the file.
+	 * @param propertyNames The list of properties you are querying for.
+	 * @return An ArrayList of ImageInfo
+	 */
+	protected UserInfo getUserInfo(String language, String userName, ArrayList<String> propertyNames) {
+		ArrayList<String> userNames = new ArrayList<String>();
+		userNames.add(userName);
+		return getUserInfo(language, userNames, propertyNames).get(0);
 	}
 	
 	public boolean logIn(String username, String password, String language) {
@@ -694,7 +823,7 @@ public class GenericBot extends NetworkingBase {
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
 		String textReturned;
-		if (command.requiresGET()) {
+		if (command.requiresPOST()) {
 			textReturned = APIcommandPOST(command);
 		} else {
 			textReturned = APIcommandHTTP(command);

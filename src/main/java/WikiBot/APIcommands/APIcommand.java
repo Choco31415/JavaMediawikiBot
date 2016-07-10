@@ -8,12 +8,16 @@ import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
 
-//TODO: Update edit token and family files
+/**
+ * This class is a base for making APIcommands.
+ * 
+ * APIcommands are commands to a wiki's API.
+ */
 public class APIcommand extends PageLocationContainer {
 	
-	protected String commandSummary;//One or two words to summarize what this edit does.
+	protected String commandName;//One or two words to summarize what this edit does.
 	
-	protected boolean requiresGET = false;
+	protected boolean requiresPOST = false;
 	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
 	
@@ -23,78 +27,41 @@ public class APIcommand extends PageLocationContainer {
 	protected ArrayList<String> keys = new ArrayList<String>();
 	protected ArrayList<String> values = new ArrayList<String>();
 	
-
-	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandName_, PageLocation pl_, boolean requiresPOST_, String oldTokenType_, String newTokenType_) {
 		super(pl_);
-		commandSummary = commandSummary_;
-		keys.addAll(keys_);
-		values.addAll(values_);
-		requiresGET = requiresGET_;
+		commandName = commandName_;
+		requiresPOST = requiresPOST_;
 		oldTokenType = oldTokenType_;
 		newTokenType = newTokenType_;
 	}
 	
-	
-	public APIcommand(String commandSummary_, PageLocation pl_, ArrayList<String> keys_, ArrayList<String> values_) {
+	public APIcommand(String commandName_, PageLocation pl_) {
 		super(pl_);
-		commandSummary = commandSummary_;
-		keys.addAll(keys_);
-		values.addAll(values_);
+		commandName = commandName_;
 	}
 	
-	public APIcommand(String commandSummary_, PageLocation pl_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
-		super(pl_);
-		commandSummary = commandSummary_;
-		requiresGET = requiresGET_;
+	public APIcommand(String commandName_, String language, boolean requiresPOST_, String oldTokenType_, String newTokenType_) {
+		super(new PageLocation("null", language));
+		commandName = commandName_;
+		requiresPOST = requiresPOST_;
 		oldTokenType = oldTokenType_;
 		newTokenType = newTokenType_;
 	}
 	
-	public APIcommand(String commandSummary_, PageLocation pl_) {
-		super(pl_);
-		commandSummary = commandSummary_;
-	}	
-	
-	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
+	public APIcommand(String commandName_, String language) {
 		super(new PageLocation("null", language));
-		commandSummary = commandSummary_;
-		keys.addAll(keys_);
-		values.addAll(values_);
-		requiresGET = requiresGET_;
-		oldTokenType = oldTokenType_;
-		newTokenType = newTokenType_;
+		commandName = commandName_;
 	}
 	
-	
-	public APIcommand(String commandSummary_, String language, ArrayList<String> keys_, ArrayList<String> values_) {
-		super(new PageLocation("null", language));
-		commandSummary = commandSummary_;
-		keys.addAll(keys_);
-		values.addAll(values_);
-	}
-	
-	public APIcommand(String commandSummary_, String language, boolean requiresGET_, String oldTokenType_, String newTokenType_) {
-		super(new PageLocation("null", language));
-		commandSummary = commandSummary_;
-		requiresGET = requiresGET_;
-		oldTokenType = oldTokenType_;
-		newTokenType = newTokenType_;
-	}
-	
-	public APIcommand(String commandSummary_, String language) {
-		super(new PageLocation("null", language));
-		commandSummary = commandSummary_;
-	}
-	
-	protected void enforceMWVersion(VersionNumber introduced) {
+	protected void enforceMWVersion(String introduced) {
 		enforceMWVersion(introduced, null);
 	}
 	
-	protected void enforceMWVersion(VersionNumber introduced, VersionNumber removed) {
+	protected void enforceMWVersion(String introduced, String removed) {
 		VersionNumber myVersion = getMWVersion();
 		
 		if ((myVersion.compareTo(introduced) < 0 || introduced == null) && (myVersion.compareTo(removed) > 0 || removed == null)) {
-			throw new UnsupportedError("The " + getLanguage() + " wiki does not support this API command.");
+			throw new UnsupportedError("The " + getLanguage() + " wiki does not support this API command. (command name: " + commandName + ")");
 		}
 	}
 	
@@ -115,6 +82,16 @@ public class APIcommand extends PageLocationContainer {
 	public void addParameter(String key, String value) {
 		keys.add(key);
 		values.add(value);
+	}
+	
+	public boolean setParameter(String key, String value) {
+		if (keys.contains(key)) {
+			values.set(keys.indexOf(key), value);
+			return true;
+		} else {
+			addParameter(key, value);
+			return false;
+		}
 	}
 	
 	public boolean removeParameter(String key) {
@@ -163,16 +140,16 @@ public class APIcommand extends PageLocationContainer {
 		return values.get(keys.indexOf(key));
 	}
 	
-	public void setRequiresGET(boolean bool) { requiresGET = bool; }
-	public boolean requiresGET() { return requiresGET; }
+	public void setRequiresPOST(boolean bool) { requiresPOST = bool; }
+	public boolean requiresPOST() { return requiresPOST; }
 	public void setUnescapeText(boolean bool) { unescapeText = bool; }
 	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	
 	//A simple one or two words to summarize what this edit does.
-	public String getShortCommandSummary() {
-		return commandSummary;
+	public String getCommandName() {
+		return commandName;
 	}
 	
 	public String getSummary() {
@@ -189,6 +166,34 @@ public class APIcommand extends PageLocationContainer {
 			temp += "\nText: \n" + getValue("text");
 		}
 		return temp;
+	}
+	
+	static protected String compactPLArray(ArrayList<PageLocation> array, String delimitor) {
+		//This takes an array of strings and compacts it into one string.
+		String output = "";
+		
+		for (int i = 0; i < array.size(); i++) {
+			output += array.get(i).getTitle();
+			if (i != array.size()-1) {
+				output += delimitor;
+			}
+		}
+		
+		return output;
+	}
+	
+	static protected String compactArray(ArrayList<String> array, String delimitor) {
+		//This takes an array of strings and compacts it into one string.
+		String output = "";
+		
+		for (int i = 0; i < array.size(); i++) {
+			output += array.get(i);
+			if (i != array.size()-1) {
+				output += delimitor;
+			}
+		}
+		
+		return output;
 	}
 
 	@Override

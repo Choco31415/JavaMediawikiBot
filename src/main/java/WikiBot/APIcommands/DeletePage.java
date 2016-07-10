@@ -3,7 +3,13 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
- * This action requires the "delete" right.
+ * This command deletes a page.
+ * 
+ * Rights required:
+ * delete
+ * 
+ * MW version required:
+ * 1.12+
  */
 public class DeletePage extends APIcommand {
 	
@@ -15,5 +21,7 @@ public class DeletePage extends APIcommand {
 		values.add(getTitle());
 		keys.add("reason");
 		values.add(editSummary_);
+		
+		enforceMWVersion("1.12");
 	}
 }

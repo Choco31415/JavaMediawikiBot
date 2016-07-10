@@ -1,10 +1,15 @@
 package WikiBot.APIcommands;
 
 import WikiBot.ContentRep.PageLocation;
-import WikiBot.MediawikiData.VersionNumber;
 
 /**
- * This command requires the rollback right.
+ * This command rolls back a user's edits on a page.
+ * 
+ * Rights required:
+ * Rollback
+ * 
+ * MW version required:
+ * 1.12+
  */
 public class Rollback extends APIcommand {
 
@@ -25,7 +30,7 @@ public class Rollback extends APIcommand {
 		keys.add("summary");
 		values.add(summary_);
 		
-		enforceMWVersion(new VersionNumber("1.12"));
+		enforceMWVersion("1.12");
 	}
 	
 }
