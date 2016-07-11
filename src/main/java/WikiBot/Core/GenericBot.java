@@ -832,8 +832,8 @@ public class GenericBot extends NetworkingBase {
 
 		//Handle mediawiki output.
 		if (textReturned != null) {
-			if (textReturned.contains("<!DOCTYPE HTML") || textReturned.contains("<!DOCTYPE html")) {
-				//We are handling HTML output.
+			if (!command.doesKeyExist("format") || command.getValue("format").equalsIgnoreCase("html")) {
+				//We are handling HTML output. It is the default output format.
 				//We will parse it for any errors/warnings.
 				
 				//Unescape html
@@ -889,7 +889,7 @@ public class GenericBot extends NetworkingBase {
 						}
 					}
 				}
-			} else if (textReturned.contains("<?xml version")) {
+			} else if (command.getValue("format").equalsIgnoreCase("xml")) {
 				//We are handling XML output. We do not do anything.
 				logFinest("XML recieved.");
 				if (textReturned.length() < 1000) {
@@ -897,7 +897,15 @@ public class GenericBot extends NetworkingBase {
 				} else {
 					logFinest("XML: " + textReturned.substring(0, 1000));	
 				}
-			} else {
+			} else if (command.getValue("format").equalsIgnoreCase("php")) {
+				//We are handling PHP output. We do not do anything.
+				logFinest("PHP recieved.");
+				if (textReturned.length() < 1000) {
+					logFinest("PHP: " + textReturned);
+				} else {
+					logFinest("PHP: " + textReturned.substring(0, 1000));	
+				}
+			} else if (command.getValue("format").equalsIgnoreCase("json")){
 				//We are handling JSON output.
 				//We will look for errors/warnings.
 				
