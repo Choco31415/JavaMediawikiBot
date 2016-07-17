@@ -4,15 +4,16 @@ import WikiBot.APIcommands.APIcommand;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command gets the revisions for a page.
  * 
  * See this page for revision API info:
  * https://www.mediawiki.org/wiki/API:Revisions
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * all
  */
 public class QueryPageRevisions extends APIcommand {

@@ -3,12 +3,13 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command deletes a page.
  * 
- * Rights required:
+ * @RequiredRights
  * delete
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.12+
  */
 public class DeletePage extends APIcommand {

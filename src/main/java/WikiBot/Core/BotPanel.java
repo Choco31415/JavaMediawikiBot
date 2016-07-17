@@ -647,7 +647,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((e.getSource() == logInSelectedButton || e.getSource() == logInAllButton || e.getSource() == logInHomeButton) & botPassword == null) {
+		if (e.getSource() == logInSelectedButton || e.getSource() == logInAllButton || e.getSource() == logInHomeButton) {
 			//Build window.
 		    JPasswordField passwordField = new JPasswordField(24);//24 is the width, in columns, of the password field.
 		    JLabel label = new JLabel("Enter bot password:");

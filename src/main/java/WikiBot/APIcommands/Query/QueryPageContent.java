@@ -6,12 +6,13 @@ import WikiBot.APIcommands.APIcommand;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command gets the contents of a page.
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * all
  */
 public class QueryPageContent extends APIcommand {	

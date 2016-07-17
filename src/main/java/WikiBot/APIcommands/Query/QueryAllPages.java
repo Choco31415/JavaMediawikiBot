@@ -1,12 +1,13 @@
 package WikiBot.APIcommands.Query;
 
 /**
+ * @Description
  * This command gets a list of all pages on the wiki.
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * all
  */
 public class QueryAllPages extends QueryList {

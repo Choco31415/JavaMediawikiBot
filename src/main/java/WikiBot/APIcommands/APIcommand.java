@@ -10,6 +10,7 @@ import WikiBot.MediawikiData.VersionNumber;
 import WikiBot.Utils.ArrayUtils;
 
 /**
+ * @Description
  * This class is a base for making APIcommands.
  * 
  * APIcommands are commands to a wiki's API.
@@ -61,7 +62,7 @@ public class APIcommand extends PageLocationContainer {
 	protected void enforceMWVersion(String introduced, String removed) {
 		VersionNumber myVersion = getMWVersion();
 		
-		if ((myVersion.compareTo(introduced) < 0 || introduced == null) && (myVersion.compareTo(removed) > 0 || removed == null)) {
+		if ((introduced == null || myVersion.compareTo(introduced) < 0) && (removed == null || myVersion.compareTo(removed) > 0)) {
 			throw new UnsupportedError("The " + getLanguage() + " wiki does not support this API command. (command name: " + commandName + ")");
 		}
 	}
@@ -83,16 +84,6 @@ public class APIcommand extends PageLocationContainer {
 	public void addParameter(String key, String value) {
 		keys.add(key);
 		values.add(value);
-	}
-	
-	public boolean setParameter(String key, String value) {
-		if (keys.contains(key)) {
-			values.set(keys.indexOf(key), value);
-			return true;
-		} else {
-			addParameter(key, value);
-			return false;
-		}
 	}
 	
 	public boolean removeParameter(String key) {
@@ -159,8 +150,12 @@ public class APIcommand extends PageLocationContainer {
 		temp += "\nPage name: " + pl.getTitle();
 		temp += "\nEdit type: " + getValue("action");
 		for (String key : keys) {
-			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename") || key.equals("from"))) {
-				temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
+			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename") || key.equals("from") || key.equals("format"))) {
+				if (getValue(key) == null) {
+					 temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1);
+				} else {
+					 temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
+				}
 			}
 		}
 		if (doesKeyExist("text")) {

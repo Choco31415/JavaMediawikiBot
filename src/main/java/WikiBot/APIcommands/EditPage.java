@@ -3,13 +3,14 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command edits a page, or creates one if the
  * page location does not exist.
  * 
- * Rights required:
+ * @RequiredRights
  * edit
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.13+
  */
 public class EditPage extends APIcommand {

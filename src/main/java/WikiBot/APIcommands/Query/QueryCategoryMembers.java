@@ -1,12 +1,13 @@
 package WikiBot.APIcommands.Query;
 
 /**
+ * @Description
  * This command gets the members of a category.
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.11+
  */
 public class QueryCategoryMembers extends QueryList {
