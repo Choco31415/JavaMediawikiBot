@@ -21,14 +21,11 @@ class InfoContainer {
 	}
 	
 	/**
-	 * This method returns an property's value.
-	 * It will return null if the requested property is not found.
-	 * 
-	 * @param propertyName The name of the property you want.
+	 * @param propertyName A property name.
+	 * @return Does this object contain this property?
 	 */
-	public String getValue(String propertyName) {
-		int index = propertyNames.indexOf(propertyName);
-		return propertyValues.get(index);
+	public boolean hasProperty(String propertyName) {
+		return propertyNames.contains(propertyName);
 	}
 	
 	/**
@@ -36,6 +33,17 @@ class InfoContainer {
 	 */
 	public ArrayList<String> getPropertyNames() {
 		return propertyNames;
+	}
+	
+	/**
+	 * This method returns a property's value.
+	 * It will return null if the requested property is not found.
+	 * 
+	 * @param propertyName The name of the property you want.
+	 */
+	public String getValue(String propertyName) {
+		int index = propertyNames.indexOf(propertyName);
+		return propertyValues.get(index);
 	}
 	
 	public void addProperty(String name, String value) {

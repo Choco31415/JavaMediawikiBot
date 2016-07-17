@@ -7,6 +7,7 @@ import WikiBot.ContentRep.PageLocationContainer;
 import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
+import WikiBot.Utils.ArrayUtils;
 
 /**
  * This class is a base for making APIcommands.
@@ -168,7 +169,7 @@ public class APIcommand extends PageLocationContainer {
 		return temp;
 	}
 	
-	static protected String compactPLArray(ArrayList<PageLocation> array, String delimitor) {
+	protected String compactPLArray(ArrayList<PageLocation> array, String delimitor) {
 		//This takes an array of strings and compacts it into one string.
 		String output = "";
 		
@@ -182,18 +183,9 @@ public class APIcommand extends PageLocationContainer {
 		return output;
 	}
 	
-	static protected String compactArray(ArrayList<String> array, String delimitor) {
+	protected String compactArray(ArrayList<String> array, String delimitor) {
 		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (int i = 0; i < array.size(); i++) {
-			output += array.get(i);
-			if (i != array.size()-1) {
-				output += delimitor;
-			}
-		}
-		
-		return output;
+		return ArrayUtils.compactArray(array, delimitor);
 	}
 
 	@Override

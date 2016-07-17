@@ -13,7 +13,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,9 +26,9 @@ import WikiBot.ContentRep.SimplePage;
 import WikiBot.ContentRep.User;
 import WikiBot.ContentRep.UserInfo;
 import WikiBot.Errors.NetworkError;
-import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
+import WikiBot.Utils.ArrayUtils;
 
 /**
  * GenericBot is an API used to interface with Mediawiki.
@@ -576,8 +575,9 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Imageinfo
 	 * 
-	 * This method does not support getting metadata, commonmetadata, or extmetadata.
-	 * In fact, doing so will throw an error.
+	 * Getting metadata, commonmetadata, or extmetadata will return a JSON string.
+	 * 
+	 * Getting size also returns width and height.
 	 * 
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
@@ -585,9 +585,10 @@ public class GenericBot extends NetworkingBase {
 	 */
 	protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
 		logFine("Getting file info for: " + loc.getTitle());
-		logFiner("Getting properties: " + compactArray(propertyNames, ", "));
+		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
 		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
+		
 		// Read in the JSON!!!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
@@ -645,6 +646,7 @@ public class GenericBot extends NetworkingBase {
 				value = rootNode.findValue(name).asText();
 			}
 			
+			//Store value
 			toReturn.addProperty(name, value);
 			
 			property++;
@@ -662,7 +664,6 @@ public class GenericBot extends NetworkingBase {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
 		properties.add("size");
-		properties.add("extmetadata");
 		return getImageInfo(loc, properties);
 	}
 	
@@ -680,81 +681,123 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
 	 * 
-	 * This method does not support getting the properties group, implicitgroup, rights, centralid, or cancreate.
-	 * In fact, doing so will throw an error.
+	 * Getting centralids also returns attachedlocal.
+	 * While Centralids is supported, it is currently experimental in MW.
 	 * 
-	 * Also, banned and invalid user will be returned as null.
+	 * All non-existent users will be returned as null.
+	 * 
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return An ArrayList of ImageInfo
 	 */
 	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
-		logFine("Getting user info for: " + compactArray(userNames, ", "));
-		logFiner("Getting properties: " + compactArray(propertyNames, ", "));
+		//TODO: In future MW versions, check up on the cancreate property
+		
+		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
+		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
 		String serverOutput = APIcommand(new QueryUserInfo(language, userNames, propertyNames));
-		System.out.println(serverOutput);
-		String users = serverOutput.substring(serverOutput.indexOf("users"));
-		ArrayList<String> userJSONitems = parseTextForItems(users, "{", "}", 0);
 		
-		if (propertyNames.contains("group")) {
-			throw new UnsupportedError();
-			//TODO: All this and below.
-		}
-		if (propertyNames.contains("implicitgroup")) {
-			throw new UnsupportedError();
-		}
-		if (propertyNames.contains("rights")) {
-			throw new UnsupportedError();
-		}
-		if (propertyNames.contains("centralid")) {
-			throw new UnsupportedError();
-		}
-		if (propertyNames.contains("cancreate")) {
-			throw new UnsupportedError();
+		// Read in the JSON!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting JSON, but did not recieve JSON from server.");
+			return null;
 		}
 		
 		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
-		int user = 0;
-		do {
-			UserInfo info = new UserInfo(new User(language, userNames.get(user)));
+		
+		boolean firstUser = true;
+		for (JsonNode user : rootNode.findValue("users")) {
+			UserInfo userInfo = new UserInfo(new User(language, user.findValue("name").asText()));
 			
-			String userJSON = userJSONitems.get(user);
-			System.out.println(userJSON);
-			
-			if (userJSON.contains("invalid") || userJSON.contains("missing")) {
-				toReturn.add(null);
+			//Check that the user exists.
+			if (user.findParent("missing") != null || user.findParent("invalid") != null) {
+				userInfo = null;
 				continue;
 			}
 			
 			int property = 0;
 			do {
-				String name = propertyNames.get(property);
-				System.out.println(name);
+				String name = propertyNames.get(property).toLowerCase();
 				String value = "";
 				
-				//Get value
-				try {
-					value = parseTextForItem(userJSON, name + "\"", ",", 1, 0);
-				} catch (IndexOutOfBoundsException e) {
-					//Assume end of line.
-					userJSON += "|";
-					value = parseTextForItem(userJSON, name + "\"", "|", 1, 0);
+				//Handle special cases, while avoiding duplicates
+				if (firstUser) {
+					if (name.equalsIgnoreCase("centralids")) {
+						propertyNames.add("attachedlocal");
+					}
 				}
 				
-				//Any value surrounded with "" is a String, and the "" should be removed.
-				if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
-					value = value.substring(1, value.length()-1);
+				//Get and store values
+				if (name.equals("blockinfo")) {
+					//This is a doozie to handle. Twitch a twitch.
+					if (user.findValue("blockid") == null) {
+						userInfo.setAsNotBlocked();
+					} else {
+						//This user is blocked.
+						int blockID = user.findValue("blockid").asInt();
+						String blockedBy = user.findValue("blockedby").asText();
+						String blockReason = user.findValue("blockreason").asText();
+						String blockExpiration = user.findValue("blockexpiry").asText();
+						
+						userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
+					}
+				} else {
+					if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
+						//Mediawiki returns JSON array for these parameters.
+						ArrayList<String> temp = new ArrayList<String>();
+						
+						for (JsonNode node : user.findValue(name)) {
+							temp.add(node.asText());
+						}
+						
+						switch (name) {
+							case "groups":
+								userInfo.setGroups(temp);
+								break;
+							case "implicitgroups":
+								userInfo.setImplicitGroups(temp);
+								break;
+							case "rights":
+								userInfo.setRights(temp);
+								break;
+							default:
+								//Required.
+								break;
+						}
+					} else {
+						if (name.equals("centralid") || name.equals("attachedlocal")) {
+							//Mediawiki returns JSON for these parameters.
+							try {
+								value = mapper.writeValueAsString(rootNode.findValue(name));
+							} catch (JsonProcessingException e) {
+								logError("JSON Processing Error: " + e.getLocalizedMessage());
+								e.printStackTrace();
+							}
+						} else {
+							//Mediawiki returns String for these parameters
+							value = rootNode.findValue(name).asText();
+						}
+						
+						if (name.equals("emailable")) {
+							value = user.findValue("emailable") != null ? "true" : "false";
+						}
+						
+						userInfo.addProperty(name, value);
+					}
 				}
-				
-				info.addProperty(name, value);
 				
 				property++;
 			} while (property < propertyNames.size());
-			toReturn.add(info);
 			
-			user++;
-		} while (user < userNames.size());
+			toReturn.add(userInfo);	
+			
+			firstUser = false;
+		}
 		
 		return toReturn;
 	}
@@ -770,10 +813,10 @@ public class GenericBot extends NetworkingBase {
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return An ArrayList of ImageInfo
 	 */
-	protected UserInfo getUserInfo(String language, String userName, ArrayList<String> propertyNames) {
+	protected UserInfo getUserInfo(User user, ArrayList<String> propertyNames) {
 		ArrayList<String> userNames = new ArrayList<String>();
-		userNames.add(userName);
-		return getUserInfo(language, userNames, propertyNames).get(0);
+		userNames.add(user.getUserName());
+		return getUserInfo(user.getLanguage(), userNames, propertyNames).get(0);
 	}
 	
 	public boolean logIn(String username, String password, String language) {
@@ -979,7 +1022,7 @@ public class GenericBot extends NetworkingBase {
 			if (output == null) {
 				throw new NetworkError("Cannot connect to server at: " + baseURL);
 			} else {
-				return compactArray(output, "\n");
+				return ArrayUtils.compactArray(output, "\n");
 			}
 		} catch (IOException e) {
 			throw new Error(e);

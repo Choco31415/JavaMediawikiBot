@@ -5,8 +5,6 @@ import java.util.ArrayList;
 /**
  * This class stores image information, like it's direct url, ect...
  * The Image class, meanwhile, is a representation of how an image is used on a page.
- * 
- * Unfortunately, this class recreates 
  */
 public class ImageInfo extends InfoContainer {
 	
@@ -25,6 +23,18 @@ public class ImageInfo extends InfoContainer {
 	//Language methods
 	public PageLocation getPageLocation() {
 		return pl;
+	}
+	
+	/**
+	 * This method returns a property's value.
+	 * It will return null if the requested property is not found.
+	 * 
+	 * All metadata values are stored as JSON text.
+	 * 
+	 * @param propertyName The name of the property you want.
+	 */
+	public String getValue(String propertyName) {
+		return super.getValue(propertyName);
 	}
 	
 	@Override

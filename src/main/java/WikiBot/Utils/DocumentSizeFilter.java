@@ -1,10 +1,13 @@
-package WikiBot.Core.Miscalleneous;
+package WikiBot.Utils;
 
 import javax.swing.JTextArea;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
+/**
+ * Specifically tailored for the Core/BotPanel.
+ */
 public class DocumentSizeFilter extends DocumentFilter {
 	int maxLines;
 	JTextArea area;

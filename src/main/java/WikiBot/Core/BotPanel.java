@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,7 +25,6 @@ import javax.swing.SwingWorker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -39,7 +37,8 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
 import WikiBot.APIcommands.APIcommand;
-import WikiBot.Core.Miscalleneous.DocumentSizeFilter;
+import WikiBot.Utils.DocumentSizeFilter;
+import WikiBot.Utils.FileUtils;
 
 /**
  * BotPanel is an extension of GenericBot that gives a GUI to a bot.
@@ -132,7 +131,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	    
 	    logInButton = createJButton("Log In", new Dimension(100, 20));
 	    logInButton.setHorizontalTextPosition(SwingConstants.LEFT);
-	    BufferedImage image = readImage("/Images/DropdownArrow.png");
+	    BufferedImage image = FileUtils.readImage("/Images/DropdownArrow.png");
 	    ImageIcon icon = new ImageIcon(image);
 	    logInButton.setIcon(icon);
 	    
@@ -693,7 +692,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 			System.exit(0);
 		} else if (e.getSource() == printLogButton) {
 			String log = exportLog();
-			writeFile(log, "Log.txt");
+			FileUtils.writeFile(log, "Log.txt");
 		} else if (e.getSource() == exportEditsButton) {
 			String temp = "***Proposed Edits***";
 			for (APIcommand et : proposedCommands) {
@@ -703,7 +702,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 			for (APIcommand et : acceptedCommands) {
 				temp += et.getSummary() + "\n";
 			}
-			writeFile(temp, "Proposed and Accepted Edits.txt");
+			FileUtils.writeFile(temp, "Proposed and Accepted Edits.txt");
 			logInfo("Edits exported.");
 		} else if (e.getSource() == removeButton) {
 			if (pushingCommands) {
@@ -777,21 +776,5 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		} else {
 			logWarning("Log in failed at: " + languageCode);
 		}
-	}
-	
-	/*
-	 * Read in files code
-	 */
-	
-	protected BufferedImage readImage(String path) {
-		BufferedImage toReturn = null;
-		
-		try {
-			toReturn = ImageIO.read(getClass().getResourceAsStream(path));
-		} catch (IOException e) {
-			throw new Error("Could not read imag: " + path);
-		}
-		
-		return toReturn;
 	}
 }
