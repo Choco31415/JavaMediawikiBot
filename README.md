@@ -72,5 +72,5 @@ JavaMediawikiBot uses several classes to store data. A few classes that store ge
 ## Tips
 
 Coding tips:
-* To propose an edit, use `proposeEdit(APIcommand command, String editSummary)`. This requires the GUI.
+* To queue a command for review, use `proposeEdit(APIcommand command)` or `proposeCommand(APIcommand command)`. This requires the GUI.
 * To automatically push a command, use `APIcommand(APIcommand command)`.
