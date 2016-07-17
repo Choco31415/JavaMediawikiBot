@@ -85,16 +85,6 @@ public class APIcommand extends PageLocationContainer {
 		values.add(value);
 	}
 	
-	public boolean setParameter(String key, String value) {
-		if (keys.contains(key)) {
-			values.set(keys.indexOf(key), value);
-			return true;
-		} else {
-			addParameter(key, value);
-			return false;
-		}
-	}
-	
 	public boolean removeParameter(String key) {
 		if (keys.contains(key)) {
 			values.remove(keys.indexOf(key));
