@@ -12,12 +12,14 @@ public class ImageInfo extends InfoContainer {
 	
 	protected PageLocation pl;
 	
-	public ImageInfo(PageLocation loc, ArrayList<String> propertyNames_, ArrayList<String> propertyValues_) {
+	public ImageInfo(PageLocation loc_, ArrayList<String> propertyNames_, ArrayList<String> propertyValues_) {
 		super(propertyNames_, propertyValues_);
+		pl = loc_;
 	}
 	
-	public ImageInfo(PageLocation loc) {
+	public ImageInfo(PageLocation loc_) {
 		super();
+		pl = loc_;
 	}
 	
 	//Language methods
@@ -32,7 +34,7 @@ public class ImageInfo extends InfoContainer {
 		output += "Image info for: " + pl.getTitle();
 		for (int i = 0; i < propertyNames.size(); i++) {
 			output += "\n" + propertyNames.get(i);
-			output += ":" + propertyValues.get(i);
+			output += ": " + propertyValues.get(i);
 		}
 		
 		return output;

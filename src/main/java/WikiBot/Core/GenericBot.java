@@ -12,6 +12,11 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
 import WikiBot.ContentRep.ImageInfo;
@@ -95,6 +100,7 @@ public class GenericBot extends NetworkingBase {
 		if (instance == null) {
 			instance = new GenericBot(null, null);
 		}
+		
 		return instance;
 	}
 	
@@ -582,17 +588,33 @@ public class GenericBot extends NetworkingBase {
 		logFiner("Getting properties: " + compactArray(propertyNames, ", "));
 		
 		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
-		
-		if (serverOutput.contains("\"missing\":\"\"")) {
-			logError(loc.getTitle() + " does not exist.");
+		// Read in the JSON!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting JSON, but did not recieve JSON from server.");
 			return null;
 		}
 		
+		//Check for not found or redirect
+		if (rootNode.findParent("-1") != null) {
+			logWarning(loc.getTitle() + " does not exist.");
+			return null;
+		}
+		if (rootNode.findValue("imagerepository").asText().equals("")) {
+			logWarning(loc.getTitle() + " is a redirect, not a file.");
+			return null;
+		}
+		
+		//Set up ImageInfo class
 		ImageInfo toReturn = new ImageInfo(loc);
 		
+		//Get info
 		int property = 0;
 		do {
-			String name = propertyNames.get(property);
+			String name = propertyNames.get(property).toLowerCase();
 			String value = "";
 			
 			//Handle special cases
@@ -608,30 +630,19 @@ public class GenericBot extends NetworkingBase {
 				//UploadWarning returns html
 				name = "html";
 			}
-			if (name.equals("metadata")) {
-				throw new UnsupportedError();
-				//TODO: Support metadata getting
-			}
-			if (name.equals("commonmetadata")) {
-				throw new UnsupportedError();
-				//TODO: Support metadata getting
-			}
-			if (name.equals("extmetadata")) {
-				throw new UnsupportedError();
-				//TODO: Support metadata getting
-			}
 			
 			//Get value
-			try {
-				value = parseTextForItem(serverOutput, name + "\"", ",", 1, 0);
-			} catch (IndexOutOfBoundsException e) {
-				//Assume end of line.
-				value = parseTextForItem(serverOutput, name + "\"", "}", 1, 0);
-			}
-			
-			//Any value surrounded with "" is a String, and the "" should be removed.
-			if (value.substring(0, 1).equals("\"") && value.substring(value.length()-1, value.length()).equals("\"")) {
-				value = value.substring(1, value.length()-1);
+			if (name.equals("metadata") || name.equals("commonmetadata") || name.equals("extmetadata")) {
+				//Mediawiki returns JSON for these parameters.
+				try {
+					value = mapper.writeValueAsString(rootNode.findValue(name));
+				} catch (JsonProcessingException e) {
+					logError("JSON Processing Error: " + e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+			} else {
+				//Mediawiki returns String for these parameters
+				value = rootNode.findValue(name).asText();
 			}
 			
 			toReturn.addProperty(name, value);
@@ -651,6 +662,7 @@ public class GenericBot extends NetworkingBase {
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("url");
 		properties.add("size");
+		properties.add("extmetadata");
 		return getImageInfo(loc, properties);
 	}
 	
@@ -687,6 +699,7 @@ public class GenericBot extends NetworkingBase {
 		
 		if (propertyNames.contains("group")) {
 			throw new UnsupportedError();
+			//TODO: All this and below.
 		}
 		if (propertyNames.contains("implicitgroup")) {
 			throw new UnsupportedError();
