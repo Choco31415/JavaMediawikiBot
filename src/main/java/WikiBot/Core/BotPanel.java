@@ -37,6 +37,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
 import WikiBot.APIcommands.APIcommand;
+import WikiBot.ContentRep.User;
 import WikiBot.Utils.DocumentSizeFilter;
 import WikiBot.Utils.FileUtils;
 
@@ -67,7 +68,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	protected final int HEIGHT = 335;//GUI height
 
 	protected String botUsername = "";
-	protected String botPassword;//Never, never, NEVER store your password in the code.
+	private String botPassword;//Never, never, NEVER store your password in the code.
 	
 	protected int maxConsoleLineSize = 80;//The maximum line length of the console box.
     protected int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
@@ -100,9 +101,9 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	protected boolean pushingCommands = false;//True if paused or not.
 	protected boolean pausedPushing = false;
     
-	SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
+	protected SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
-	boolean firstConsoleMessage = true;//Used by the console.
+	protected boolean firstConsoleMessage = true;//Used by the console.
 	
 	public BotPanel(String family_, String homeLanguage_) {
 		super(family_, homeLanguage_);
@@ -764,8 +765,8 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		}
 	}
 	
-	public void logInAt(String languageCode) {
-		boolean success = logIn(botUsername, botPassword, languageCode);
+	private void logInAt(String languageCode) {
+		boolean success = logIn(new User(botUsername, languageCode), botPassword);
 		
 		if (success) {
 			logInfo("Logged in at: " + languageCode);

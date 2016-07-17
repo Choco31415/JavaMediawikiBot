@@ -713,87 +713,92 @@ public class GenericBot extends NetworkingBase {
 		boolean firstUser = true;
 		for (JsonNode user : rootNode.findValue("users")) {
 			UserInfo userInfo = new UserInfo(new User(language, user.findValue("name").asText()));
+			boolean userExists = true;
 			
 			//Check that the user exists.
 			if (user.findParent("missing") != null || user.findParent("invalid") != null) {
 				userInfo = null;
-				continue;
+				userExists = false;
 			}
 			
-			int property = 0;
-			do {
-				String name = propertyNames.get(property).toLowerCase();
-				String value = "";
-				
-				//Handle special cases, while avoiding duplicates
-				if (firstUser) {
-					if (name.equalsIgnoreCase("centralids")) {
-						propertyNames.add("attachedlocal");
-					}
-				}
-				
-				//Get and store values
-				if (name.equals("blockinfo")) {
-					//This is a doozie to handle. Twitch a twitch.
-					if (user.findValue("blockid") == null) {
-						userInfo.setAsNotBlocked();
-					} else {
-						//This user is blocked.
-						int blockID = user.findValue("blockid").asInt();
-						String blockedBy = user.findValue("blockedby").asText();
-						String blockReason = user.findValue("blockreason").asText();
-						String blockExpiration = user.findValue("blockexpiry").asText();
-						
-						userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
-					}
-				} else {
-					if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
-						//Mediawiki returns JSON array for these parameters.
-						ArrayList<String> temp = new ArrayList<String>();
-						
-						for (JsonNode node : user.findValue(name)) {
-							temp.add(node.asText());
+			if (userExists) {
+				//Parse for queried properties one at a time
+				int property = 0;
+				do {
+					String name = propertyNames.get(property).toLowerCase();
+					String value = "";
+					
+					//Handle special cases, while avoiding duplicates
+					if (firstUser) {
+						if (name.equalsIgnoreCase("centralids")) {
+							propertyNames.add("attachedlocal");
 						}
-						
-						switch (name) {
-							case "groups":
-								userInfo.setGroups(temp);
-								break;
-							case "implicitgroups":
-								userInfo.setImplicitGroups(temp);
-								break;
-							case "rights":
-								userInfo.setRights(temp);
-								break;
-							default:
-								//Required.
-								break;
+					}
+					
+					//Get and store values
+					if (name.equals("blockinfo")) {
+						//This is a doozie to handle. Twitch a twitch.
+						if (user.findValue("blockid") == null) {
+							userInfo.setAsNotBlocked();
+						} else {
+							//This user is blocked.
+							int blockID = user.findValue("blockid").asInt();
+							String blockedBy = user.findValue("blockedby").asText();
+							String blockReason = user.findValue("blockreason").asText();
+							String blockExpiration = user.findValue("blockexpiry").asText();
+							
+							userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
 						}
 					} else {
-						if (name.equals("centralid") || name.equals("attachedlocal")) {
-							//Mediawiki returns JSON for these parameters.
-							try {
-								value = mapper.writeValueAsString(rootNode.findValue(name));
-							} catch (JsonProcessingException e) {
-								logError("JSON Processing Error: " + e.getLocalizedMessage());
-								e.printStackTrace();
+						if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
+							//Mediawiki returns JSON array for these parameters.
+							ArrayList<String> temp = new ArrayList<String>();
+							
+							for (JsonNode node : user.findValue(name)) {
+								temp.add(node.asText());
+							}
+							
+							switch (name) {
+								case "groups":
+									userInfo.setGroups(temp);
+									break;
+								case "implicitgroups":
+									userInfo.setImplicitGroups(temp);
+									break;
+								case "rights":
+									userInfo.setRights(temp);
+									break;
+								default:
+									//Required.
+									break;
 							}
 						} else {
-							//Mediawiki returns String for these parameters
-							value = rootNode.findValue(name).asText();
+							if (name.equals("centralid") || name.equals("attachedlocal")) {
+								//Mediawiki returns JSON for these parameters.
+								try {
+									value = mapper.writeValueAsString(rootNode.findValue(name));
+								} catch (JsonProcessingException e) {
+									logError("JSON Processing Error: " + e.getLocalizedMessage());
+									e.printStackTrace();
+								}
+							} else {
+								//Mediawiki returns String for these parameters
+								value = rootNode.findValue(name).asText();
+							}
+							
+							if (name.equals("emailable")) {
+								value = user.findValue("emailable") != null ? "true" : "false";
+							}
+							
+							userInfo.addProperty(name, value);
 						}
-						
-						if (name.equals("emailable")) {
-							value = user.findValue("emailable") != null ? "true" : "false";
-						}
-						
-						userInfo.addProperty(name, value);
 					}
-				}
-				
-				property++;
-			} while (property < propertyNames.size());
+					
+					property++;
+				} while (property < propertyNames.size());
+			}
 			
+			//Store the user's info
 			toReturn.add(userInfo);	
 			
 			firstUser = false;
@@ -819,10 +824,19 @@ public class GenericBot extends NetworkingBase {
 		return getUserInfo(user.getLanguage(), userNames, propertyNames).get(0);
 	}
 	
-	public boolean logIn(String username, String password, String language) {
+	/**
+	 * 
+	 * @param user
+	 * @return
+	 */
+	protected boolean doesUserExist(User user) {
+		return getUserInfo(user, new ArrayList<String>()) != null;
+	}
+	
+	public boolean logIn(User user, String password) {
         HttpEntity entity = null;
         
-        baseURL = mdm.getWikiURL(language);
+        baseURL = mdm.getWikiURL(user.getLanguage());
         
         try {
         	logCookies();
@@ -839,9 +853,9 @@ public class GenericBot extends NetworkingBase {
     		
     		//Send POST request.
         	if (token == null) {
-        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword"}, new String[]{username, password});
+        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword"}, new String[]{user.getUserName(), password});
         	} else {
-        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword", "lgtoken"}, new String[]{username, password, token});
+        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword", "lgtoken"}, new String[]{user.getUserName(), password, token});
         	}
         	
 	        logCookies();
@@ -862,10 +876,10 @@ public class GenericBot extends NetworkingBase {
         }
         
         boolean success = serverOutput.contains("Success");
-		logFiner("Login status at " + language + ": " + success);
+		logFiner("Login status at " + user.getLanguage() + ": " + success);
         
 		if (success) {
-			loggedInAtLanguages.add(language);
+			loggedInAtLanguages.add(user.getLanguage());
 		}
 		
         return success;

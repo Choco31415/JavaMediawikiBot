@@ -5,6 +5,8 @@ import java.util.ArrayList;
 /**
  * This class stores image information, like it's direct url, ect...
  * The Image class, meanwhile, is a representation of how an image is used on a page.
+ * 
+ * All metadata values are stored as JSON text.
  */
 public class ImageInfo extends InfoContainer {
 	

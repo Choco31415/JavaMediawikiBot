@@ -22,7 +22,7 @@ class InfoContainer {
 	
 	/**
 	 * @param propertyName A property name.
-	 * @return Does this object contain this property?
+	 * @return Does this object have information for this property?
 	 */
 	public boolean hasProperty(String propertyName) {
 		return propertyNames.contains(propertyName);
