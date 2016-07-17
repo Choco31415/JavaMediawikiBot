@@ -3,6 +3,7 @@ package WikiBot.APIcommands.Query;
 import WikiBot.APIcommands.APIcommand;
 
 /**
+ * @Description
  * This class is used to format other APIcommands.
  * Unless you plan on making an APIcommand,
  * you can ignore this class.

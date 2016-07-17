@@ -3,12 +3,13 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command rolls back a user's edits on a page.
  * 
- * Rights required:
+ * @RequiredRights
  * Rollback
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.12+
  */
 public class Rollback extends APIcommand {

@@ -71,6 +71,8 @@ public class GenericBot extends NetworkingBase {
 	protected final String homeWikiLanguage;//The default wiki of a bot.
 	protected String family = "";//The wiki family your bot works in.
 	
+	protected int interruptedConnectionWait = 5;//If a network issues occurs, wait this amount of seconds and retry. 0 = fail completely
+	
 	public GenericBot(String family_, String homeWikiLanguage_) {				
 		//Read in some files.
 		mdm = new MediawikiDataManager();
@@ -532,12 +534,25 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Query the wiki for a list of pages with this prefix. Search in the main namespace.
 	 * Warning: Only supported in MW v.1.23 and above!
 	 * @param language The language of the wiki.
 	 * @param prefix The prefix that you are searching for.
 	 * @return A list of pages with the given prefix.
 	 */
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix) {
+		return getPagesByPrefix(language, prefix, 0);
+	}
+	
+	/**
+	 * Query the wiki for a list of pages with this prefix. Search in the given namespace.
+	 * Warning: Only supported in MW v.1.23 and above!
+	 * @param language The language of the wiki.
+	 * @param prefix The prefix that you are searching for.
+	 * @param psnamespace The namespace to search in.
+	 * @return A list of pages with the given prefix.
+	 */
+	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		Integer psoffset = null;
 		
@@ -545,9 +560,9 @@ public class GenericBot extends NetworkingBase {
 			//Make query call.
 			String returned;
 			if (psoffset == null) {
-				returned = APIcommand(new QueryPrefix(language, prefix));
+				returned = APIcommand(new QueryPrefix(language, prefix, 0, psnamespace));
 			} else {
-				returned = APIcommand(new QueryPrefix(language, prefix, psoffset));
+				returned = APIcommand(new QueryPrefix(language, prefix, psoffset, psnamespace));
 			}
 			
 			//Parse text returned.
@@ -691,8 +706,6 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of ImageInfo
 	 */
 	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
-		//TODO: In future MW versions, check up on the cancreate property
-		
 		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
 		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
@@ -870,7 +883,7 @@ public class GenericBot extends NetworkingBase {
 					
 					logFinest("Login token: " + token);
 				}
-			} catch (org.apache.http.ParseException | IOException e) {
+			} catch (org.apache.http.ParseException | IOException | IndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
         }
@@ -892,12 +905,37 @@ public class GenericBot extends NetworkingBase {
 		//Do the command!
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
-		String textReturned;
-		if (command.requiresPOST()) {
-			textReturned = APIcommandPOST(command);
-		} else {
-			textReturned = APIcommandHTTP(command);
-		}
+		//Do the command!
+		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
+		
+		String textReturned = "";
+		boolean networkError;
+		do {
+			networkError = false;//No bugs have occurred yet...
+			
+			//Look out for network issues. Attempt the command.
+			try {
+				if (command.requiresPOST()) {
+					textReturned = APIcommandPOST(command);
+				} else {
+					textReturned = APIcommandHTTP(command);
+				}
+			} catch (Error e) {
+				//Network issues encountered. Handle them.
+				networkError = true;
+				if (interruptedConnectionWait > 0) {
+					logInfo("Network issue encountered. Waiting " + interruptedConnectionWait + " seconds.");
+					try {
+						Thread.sleep(interruptedConnectionWait*1000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					throw e;
+				}
+			}
+		} while (networkError);
+		
 		logFinest("API results obtained.");
 
 		//Handle mediawiki output.

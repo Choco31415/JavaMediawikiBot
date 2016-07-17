@@ -3,12 +3,13 @@ package WikiBot.APIcommands.Query;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command gets all the pages that link to this page.
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.9+
  */
 public class QueryBackLinks extends QueryList {
