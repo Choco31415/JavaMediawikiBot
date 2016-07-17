@@ -1,5 +1,14 @@
 package WikiBot.APIcommands.Query;
 
+/**
+ * This command gets the members of a category.
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * 1.11+
+ */
 public class QueryCategoryMembers extends QueryList {
 	public QueryCategoryMembers(String language, String categoryName, int depth) {
 		super("Query category", language, "categorymembers");
@@ -9,6 +18,8 @@ public class QueryCategoryMembers extends QueryList {
 		values.add("" + depth);
 		unescapeText = true;
 		unescapeHTML = false;
+		
+		enforceMWVersion("1.11");
 	}
 	
 	/*
@@ -24,6 +35,8 @@ public class QueryCategoryMembers extends QueryList {
 		values.add(cmcontinue);
 		unescapeText = true;
 		unescapeHTML = false;
+		
+		enforceMWVersion("1.11");
 	}
 	
 	/**
@@ -37,5 +50,7 @@ public class QueryCategoryMembers extends QueryList {
 		values.add("" + 40);
 		unescapeText = true;
 		unescapeHTML = false;
+		
+		enforceMWVersion("1.11");
 	}
 }

@@ -1,10 +1,20 @@
 package WikiBot.APIcommands.Query;
 
-/*
- * APnamespace - The id associated with a namespace in a wiki.
+/**
+ * This command gets a list of all pages on the wiki.
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * all
  */
-
 public class QueryAllPages extends QueryList {
+	/**
+	 * This constructor assumes the main namespace.
+	 * @param language The wiki language.
+	 * @param depth How many pages to get.
+	 */
 	public QueryAllPages(String language, int depth) {
 		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
@@ -12,6 +22,9 @@ public class QueryAllPages extends QueryList {
 		unescapeText = true;
 	}
 	
+	/*
+	 * Use for continuing large queries.
+	 */
 	public QueryAllPages(String language, int depth, String apcontinue) {
 		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
@@ -22,6 +35,12 @@ public class QueryAllPages extends QueryList {
 		unescapeHTML = false;
 	}
 
+	/**
+	 * 
+	 * @param language The wiki language.
+	 * @param depth How many pages to get.
+	 * @param apcontinue The namespace id to query.
+	 */
 	public QueryAllPages(String language, int depth, int apnamespace) {
 		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
@@ -32,6 +51,9 @@ public class QueryAllPages extends QueryList {
 		unescapeHTML = false;
 	}
 	
+	/*
+	 * Use for continuing large queries.
+	 */
 	public QueryAllPages(String language, int depth, String apcontinue, int apnamespace) {
 		super("Query all pages", language, "allpages");
 		keys.add("aplimit");

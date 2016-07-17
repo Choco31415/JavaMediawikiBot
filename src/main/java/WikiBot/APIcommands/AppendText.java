@@ -2,6 +2,15 @@ package WikiBot.APIcommands;
 
 import WikiBot.ContentRep.PageLocation;
 
+/**
+ * This command appends text to a page.
+ * 
+ * Rights required:
+ * edit
+ * 
+ * MW version required:
+ * 1.13+
+ */
 public class AppendText extends APIcommand {
 	public AppendText(PageLocation pl_, String appendText_, String editSummary_) {
 		super("Append text", pl_, true, "edit", "csrf");
@@ -15,5 +24,7 @@ public class AppendText extends APIcommand {
 		values.add(editSummary_);
 		keys.add("bot");
 		values.add("true");
+		
+		enforceMWVersion("1.13");
 	}
 }

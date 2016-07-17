@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import WikiBot.Core.NetworkingBase;
+import WikiBot.Utils.ArrayUtils;
+import WikiBot.Utils.FileUtils;
 
 public class FamilyGenerator extends NetworkingBase {
 
@@ -171,7 +173,7 @@ public class FamilyGenerator extends NetworkingBase {
 			System.out.println("If any wikis are included by mistake, update "
 					+ "Families/Miscalleneous/DefaultInterwikis.txt and contact "
 					+ "JMB's owner Choco31415.");
-			toExclude = readFileAsList("/Families/Miscalleneous/DefaultInterwikis.txt", 0, true, true);
+			toExclude = FileUtils.readFileAsList("/Families/Miscalleneous/DefaultInterwikis.txt", 0, true, true);
 		}
 		
 		//Ask for a wiki url, so we can get all wikis in the wiki group.
@@ -190,7 +192,7 @@ public class FamilyGenerator extends NetworkingBase {
 			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=xml";
 		}
 		
-		String serverOutput = compactArray(getURL(url, false, true));
+		String serverOutput = ArrayUtils.compactArray(getURL(url, false, true));
 		ArrayList<String> lines = parseTextForItems(serverOutput, "<iw prefix", "/>", 0);
 		
 		System.out.print("Detected wikis: ");
@@ -351,7 +353,7 @@ public class FamilyGenerator extends NetworkingBase {
 	}
 	
 	private String getMWversion(String URLapi) throws IOException {
-		String serverOutput = compactArray(getURL(URLapi + "/api.php?action=query&meta=siteinfo&format=xml", false, true));
+		String serverOutput = ArrayUtils.compactArray(getURL(URLapi + "/api.php?action=query&meta=siteinfo&format=xml", false, true));
 		String generator = parseTextForItem(serverOutput, "generator", "\"");
 		String version = generator.substring(generator.indexOf(" ")).trim();
 		
@@ -371,7 +373,7 @@ public class FamilyGenerator extends NetworkingBase {
 				toWrite += ": " + wikiURLs.get(i);
 			}
 			
-			writeFile(toWrite, RESOURCES_PATH + "/Families/" + familyName + ".txt");
+			FileUtils.writeFile(toWrite, RESOURCES_PATH + "/Families/" + familyName + ".txt");
 		}
 	}
 	

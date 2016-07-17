@@ -3,10 +3,18 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
- * This requires $wgAllowCopyUploads = true in
- * the wiki's local settings, and an account with
- * the upload_by_url user right.
+ * This command uploads a file to the wiki, given a url to the file.
  * This is done synchronously.
+ * 
+ * Rights required:
+ * upload_by_url
+ * 
+ * Other requirements:
+ * In LocalSettings.php, the following is required:
+ * $wgAllowCopyUploads = true;
+ * 
+ * MW version required:
+ * 1.16+
  */
 public class UploadFileByURL extends APIcommand {
 
@@ -22,5 +30,7 @@ public class UploadFileByURL extends APIcommand {
 		values.add(pageText_);
 		keys.add("comment");
 		values.add(uploadComment_);
+		
+		enforceMWVersion("1.16");
 	}
 }

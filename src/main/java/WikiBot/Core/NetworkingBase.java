@@ -3,11 +3,8 @@ package WikiBot.Core;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -17,9 +14,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -38,6 +33,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
 import WikiBot.Errors.NetworkError;
+import WikiBot.Utils.Logger;
 
 /**
  * NetworkingBases handles all networking and logging for a bot.
@@ -58,7 +54,7 @@ import WikiBot.Errors.NetworkError;
 public class NetworkingBase extends javax.swing.JPanel {
 	
 	//Log variables.
-	private ArrayList<String> logger = new ArrayList<String>();
+	private Logger logger = Logger.getInstance();
 	public Level logLevel = Level.INFO;
 	
 	//These variables are used for networking purposes (GET and POST requests).
@@ -133,7 +129,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	
 	public boolean log(Level level, String line) {
 		if (level.intValue() >= logLevel.intValue()) {
-			logger.add("[" + getTimeStamp() + "]: " + line);
+			logger.log(level, line);
 			
 			return true;
 		}
@@ -155,11 +151,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @return
 	 */
 	public String getNewestLoggerLine() {
-		if (logger.size() == 0) {
-			return "";
-		} else {
-			return logger.get(logger.size()-1);
-		}
+		return logger.getNewestLoggerLine();
 	}
 	
 	/**
@@ -167,97 +159,18 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @return
 	 */
 	public String exportLog() {
-		String toReturn = null;
-
-		toReturn = compactArray(logger, "\n");
-
-		return toReturn;
+		return logger.exportLog();
 	}
 	
 	/*
 	 * <notice>
 	 * 
 	 * 
-	 * Networking code is below. Unless you are an advanced user, you can safely ignore the code below.
+	 * Class code is below. Unless you are an advanced user, you can safely ignore the code below.
 	 * 
 	 * 
 	 * </notice>
 	 */
-	
-	/*
-	 * File I/O code is below.
-	 */
-	
-	/**
-	 * Read in a text file.
-	 * @param location The location of the file.
-	 * @param commentBufferLineCount How many lines to ignore at the beginning of the file.
-	 * @param hasComments If true, a line that starts with # is considered a comment, and hence is ignored.
-	 * @param ignoreBlankLines If true, blank lines are ignored.
-	 * @return The text file.
-	 */
-	public ArrayList<String> readFileAsList(String location, int commentBufferLineCount, boolean hasComments, boolean ignoreBlankLines) {
-		try {
-			// Read in the file!
-			InputStream in = getClass().getResourceAsStream(location);
-			BufferedReader br = new BufferedReader(
-						new InputStreamReader(in)
-					);
-			
-			// Ignore the comment
-			for (int i = 0; i < commentBufferLineCount; i++) {
-				br.readLine();
-			}
-			
-			// Gather array size
-			ArrayList<String> lines = new ArrayList<String>();
-			
-			// Parse file array into java int array
-			String line;
-			line = br.readLine();
-			do {
-				if (hasComments && (line.length() > 0 && line.substring(0,1).equals("#"))) {
-					//We have a comment. Ignore it.
-				} else if (ignoreBlankLines && line.length() == 0) {
-					//We have an empty line.
-				} else {
-					lines.add(line);
-				}
-				line = br.readLine();
-			} while (line != null);
-			
-			in.close();
-			br.close();
-			
-			return lines;
-			
-		} catch (IOException e) {
-			logError("Error reading in list at: " + location);
-		}
-		return null;
-	}
-	
-	/**
-	 * Write a txt file.
-	 * @param text The file text.
-	 * @param location The file location.
-	 */
-	public void writeFile(String text, String location) {
-		PrintWriter writer = null;
-		
-		try {
-			logInfo("Writting file: " + location);
-			writer = new PrintWriter(location, "UTF-8");
-		} catch (FileNotFoundException e) {
-			logError("File not found");
-			return;
-		} catch (UnsupportedEncodingException e) {
-			logError("Unsupported file format");
-			return;
-		}
-		writer.write(text);
-		writer.close();
-	}
 	
 	/*
 	 * Networking code is below.
@@ -433,69 +346,5 @@ public class NetworkingBase extends javax.swing.JPanel {
 		}
 		i += opening.length() + bufferBot;
 		return text.substring(i, text.indexOf(ending, i) - bufferTop);
-	}
-	
-	/*
-	 * General utility code is below.
-	 */
-	
-	public String compactArray(ArrayList<String> array) {
-		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (String item: array) {
-			output+=item;
-		}
-		
-		return output;
-	}
-	
-	public String compactArray(String[] array) {
-		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (String item: array) {
-			output+=item;
-		}
-		
-		return output;
-	}
-	
-	public String compactArray(ArrayList<String> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (int i = 0; i < array.size(); i++) {
-			output+= array.get(i);
-			if (i != array.size()-1) {
-				output += delimitor;
-			}
-		}
-		
-		return output;
-	}
-	
-	public String compactArray(String[] array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
-		String output = "";
-		
-		for (int i = 0; i < array.length; i++) {
-			output+= array[i];
-			if (i != array.length-1) {
-				output += delimitor;
-			}
-		}
-		
-		return output;
-	}
-	
-	/**
-	 * This method gets a String timestamp in the format h:mm:ss.
-	 * @return A String.
-	 */
-	public String getTimeStamp() {
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("h:mm:ss a");
-		return sdf.format(date);
 	}
 }

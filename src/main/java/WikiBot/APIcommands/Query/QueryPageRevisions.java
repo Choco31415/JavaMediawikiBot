@@ -3,10 +3,19 @@ package WikiBot.APIcommands.Query;
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.ContentRep.PageLocation;
 
+/**
+ * This command gets the revisions for a page.
+ * 
+ * See this page for revision API info:
+ * https://www.mediawiki.org/wiki/API:Revisions
+ * 
+ * Rights required:
+ * none
+ * 
+ * MW version required:
+ * all
+ */
 public class QueryPageRevisions extends APIcommand {
-	/*
-	 * See this page for revision API info: https://www.mediawiki.org/wiki/API:Revisions
-	 */
 	public QueryPageRevisions(PageLocation loc, int pageID, int revisionLimit, boolean getContent) {
 		super("Query revisions", loc);
 		keys.add("format");

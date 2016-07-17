@@ -3,58 +3,50 @@ package WikiBot.ContentRep;
 import java.util.ArrayList;
 
 /**
- * This class stores information on an image, like it's direct url, ect...
+ * This class stores image information, like it's direct url, ect...
  * The Image class, meanwhile, is a representation of how an image is used on a page.
- *
+ * 
+ * All metadata values are stored as JSON text.
  */
-public class ImageInfo extends PageLocationContainer {
+public class ImageInfo extends InfoContainer {
 	
-	ArrayList<String> propertyNames;
-	ArrayList<String> propertyValues;
+	protected PageLocation pl;
 	
-	public ImageInfo(PageLocation loc, ArrayList<String> propertyNames_, ArrayList<String> propertyValues_) {
-		super(loc);
-		propertyNames = propertyNames_;
-		propertyValues = propertyValues_;
+	public ImageInfo(PageLocation loc_, ArrayList<String> propertyNames_, ArrayList<String> propertyValues_) {
+		super(propertyNames_, propertyValues_);
+		pl = loc_;
 	}
 	
-	public ImageInfo(PageLocation loc) {
-		super(loc);
-		propertyNames = new ArrayList<String>();
-		propertyValues = new ArrayList<String>();
+	public ImageInfo(PageLocation loc_) {
+		super();
+		pl = loc_;
+	}
+	
+	//Language methods
+	public PageLocation getPageLocation() {
+		return pl;
 	}
 	
 	/**
-	 * This method returns an image property.
+	 * This method returns a property's value.
 	 * It will return null if the requested property is not found.
 	 * 
-	 * @param name The name of the property you want.
+	 * All metadata values are stored as JSON text.
+	 * 
+	 * @param propertyName The name of the property you want.
 	 */
-	public String getProperty(String name) {
-		int index = propertyNames.indexOf(name);
-		return propertyValues.get(index);
-	}
-	
-	/**
-	 * @return The list of properties that this class has information on.
-	 */
-	public ArrayList<String> getPropertyNames() {
-		return propertyNames;
-	}
-	
-	public void addProperty(String name, String value) {
-		propertyNames.add(name);
-		propertyValues.add(value);
+	public String getValue(String propertyName) {
+		return super.getValue(propertyName);
 	}
 	
 	@Override
 	public String toString() {
 		String output = "";
 		
-		output += "Image info for: " + getTitle();
+		output += "Image info for: " + pl.getTitle();
 		for (int i = 0; i < propertyNames.size(); i++) {
 			output += "\n" + propertyNames.get(i);
-			output += ":" + propertyValues.get(i);
+			output += ": " + propertyValues.get(i);
 		}
 		
 		return output;
