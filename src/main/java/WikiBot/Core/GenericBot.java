@@ -71,6 +71,8 @@ public class GenericBot extends NetworkingBase {
 	protected final String homeWikiLanguage;//The default wiki of a bot.
 	protected String family = "";//The wiki family your bot works in.
 	
+	protected int interruptedConnectionWait = 5;//If a network issues occurs, wait this amount of seconds and retry. 0 = fail completely
+	
 	public GenericBot(String family_, String homeWikiLanguage_) {				
 		//Read in some files.
 		mdm = new MediawikiDataManager();
@@ -892,12 +894,35 @@ public class GenericBot extends NetworkingBase {
 		//Do the command!
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
-		String textReturned;
-		if (command.requiresPOST()) {
-			textReturned = APIcommandPOST(command);
-		} else {
-			textReturned = APIcommandHTTP(command);
-		}
+		//Do the command!
+		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
+		
+		String textReturned = "";
+		boolean networkError = false;
+		do {
+			//Look out for network issues. Attempt the command.
+			try {
+				if (command.requiresPOST()) {
+					textReturned = APIcommandPOST(command);
+				} else {
+					textReturned = APIcommandHTTP(command);
+				}
+			} catch (Error e) {
+				//Network issues encountered. Handle them.
+				networkError = true;
+				if (interruptedConnectionWait > 0) {
+					logInfo("Network issue encountered. Waiting " + interruptedConnectionWait + " seconds.");
+					try {
+						Thread.sleep(interruptedConnectionWait*1000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					throw e;
+				}
+			}
+		} while (networkError);
+		
 		logFinest("API results obtained.");
 
 		//Handle mediawiki output.

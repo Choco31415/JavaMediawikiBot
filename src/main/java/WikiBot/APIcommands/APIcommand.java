@@ -149,8 +149,12 @@ public class APIcommand extends PageLocationContainer {
 		temp += "\nPage name: " + pl.getTitle();
 		temp += "\nEdit type: " + getValue("action");
 		for (String key : keys) {
-			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename") || key.equals("from"))) {
-				temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
+			if (!(key.equals("action") || key.equals("title") || key.contains("text") || key.equals("filename") || key.equals("from") || key.equals("format"))) {
+				if (getValue(key) == null) {
+					 temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1);
+				} else {
+					 temp += "\n"  + key.substring(0,1).toUpperCase() + key.substring(1) + ": " + getValue(key);
+				}
 			}
 		}
 		if (doesKeyExist("text")) {
