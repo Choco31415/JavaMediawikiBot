@@ -128,12 +128,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	}
 	
 	public boolean log(Level level, String line) {
-		if (level.intValue() >= logLevel.intValue()) {
-			logger.log(level, line);
-			
-			return true;
-		}
-		return false;
+		return logger.log(level, line);
 	}
 	
 	/**
@@ -143,7 +138,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @param level The fineness level.
 	 */
 	public void setLoggerLevel(Level level) {
-		logLevel = level;
+		logger.setLoggerLevel(level);
 	}
 	
 	/**
@@ -306,7 +301,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	    } else {
 	        for (int i = 0; i < cookies.size(); i++) {
 	            logFinest("- " + cookies.get(i).toString());
-	           }
+	        }
 	    }
 	}
 	

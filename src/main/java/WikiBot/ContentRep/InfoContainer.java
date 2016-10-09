@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * This class stores information on about an object.
  */
-class InfoContainer {
+public class InfoContainer {
 	
 	protected ArrayList<String> propertyNames;
 	protected ArrayList<String> propertyValues;

@@ -912,7 +912,7 @@ public class GenericBot extends NetworkingBase {
 		boolean networkError;
 		do {
 			networkError = false;//No bugs have occurred yet this loop...
-
+			
 			//Look out for network issues. Attempt the command.
 			try {
 				if (command.requiresPOST()) {

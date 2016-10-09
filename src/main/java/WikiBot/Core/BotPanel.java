@@ -377,10 +377,18 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 			console.append("\n" + line);
 		}
 		
-		//Move console position.
+		//Move console caret position.
 		if (console.getLineCount() > 2) {
 			try {
-				console.setCaretPosition(console.getLineEndOffset(console.getLineCount()-2)+1);
+				int lineOffset = console.getLineEndOffset(console.getLineCount()-2) + 1;
+				
+				//Move the caret.
+				try {
+					console.setCaretPosition(lineOffset);
+				} catch (IllegalArgumentException e) {
+					//If console complains about bad caret position, go somewhere we know 100% is valid.
+					console.setCaretPosition(console.getLineEndOffset(console.getLineCount() - 1));
+				}
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
@@ -668,27 +676,11 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 		if (e.getSource() == logInButton) {
 			logInMenu.show(logInButton, 0, logInButton.getHeight());
 		} else if (e.getSource() == logInHomeButton) {
-			logInAt(homeWikiLanguage);
+			logInAtHome();
 		} else if (e.getSource() == logInSelectedButton) {
-			int[] index = wikiTable.getSelectedRows();
-			for (int i : index) {
-				logInAt(mdm.getWikiPrefix(i));
-			}
+			logInAtSelected();
 		} else if (e.getSource() == logInAllButton) {
-		    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-		        @Override
-		        public Void doInBackground() {
-		        	logInEverywhere();
-					
-		        	return null;
-		        }
-
-		        @Override
-		        protected void done() {
-		        }
-		    };
-
-		    worker.execute();
+			logInEverywhere();
 		} else if (e.getSource() == exitButton){
 			System.exit(0);
 		} else if (e.getSource() == printLogButton) {
@@ -755,18 +747,51 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	}
 	
 	/*
-	 * Logging in methods
+	 * Logging in methods for GUI only.
 	 */
+	
+	public void logInAtHome() {
+		ArrayList<String> languageCodes = new ArrayList<String>();
+		languageCodes.add(homeWikiLanguage);
+		logInAt(languageCodes);
+	}
+	
+	public void logInAtSelected() {
+		ArrayList<String> languageCodes = new ArrayList<String>();
+		int[] index = wikiTable.getSelectedRows();
+		for (int i : index) {
+			languageCodes.add(mdm.getWikiPrefix(i));
+		}
+		logInAt(languageCodes);
+	}
 	
 	public void logInEverywhere() {
 		logInfo("Attempting login everywhere.");
-		for (String languageCode : mdm.getWikiPrefixes()) {
-			logInAt(languageCode);
-		}
+		logInAt(mdm.getWikiPrefixes());
+	}
+	
+	private void logInAt(final ArrayList<String> languageCodes) {
+	    pushWorker = new SwingWorker<Void, Void>() {
+	        @Override
+	        public Void doInBackground() {
+			    for (String languageCode : languageCodes) {
+			    	logInAt(languageCode);
+			    }
+			    
+			    return null;
+	        }
+
+	        @Override
+	        protected void done() {
+
+	        }
+	    };
+
+	    pushWorker.execute();
 	}
 	
 	private void logInAt(String languageCode) {
-		boolean success = logIn(new User(botUsername, languageCode), botPassword);
+		boolean success = logIn(new User(languageCode, botUsername), botPassword);
 		
 		if (success) {
 			logInfo("Logged in at: " + languageCode);
