@@ -534,6 +534,7 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Query the wiki for a list of pages with this prefix. Search in the main namespace.
 	 * Warning: Only supported in MW v.1.23 and above!
 	 * @param language The language of the wiki.
 	 * @param prefix The prefix that you are searching for.
@@ -544,6 +545,7 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Query the wiki for a list of pages with this prefix. Search in the given namespace.
 	 * Warning: Only supported in MW v.1.23 and above!
 	 * @param language The language of the wiki.
 	 * @param prefix The prefix that you are searching for.

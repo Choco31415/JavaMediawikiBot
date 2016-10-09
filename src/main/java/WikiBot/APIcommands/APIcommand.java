@@ -62,7 +62,7 @@ public class APIcommand extends PageLocationContainer {
 	protected void enforceMWVersion(String introduced, String removed) {
 		VersionNumber myVersion = getMWVersion();
 		
-		if ((myVersion.compareTo(introduced) < 0 || introduced == null) && (myVersion.compareTo(removed) > 0 || removed == null)) {
+		if ((introduced == null || myVersion.compareTo(introduced) < 0) && (removed == null || myVersion.compareTo(removed) > 0)) {
 			throw new UnsupportedError("The " + getLanguage() + " wiki does not support this API command. (command name: " + commandName + ")");
 		}
 	}

@@ -16,7 +16,8 @@ import WikiBot.ContentRep.PageLocation;
  * none
  * 
  * @MediawikiSupport
- * Minimum: 1.12+
+ * Minimum:
+ * 1.12+
  * 
  * Specifics:
  * Support for certain properties was only introduced in later versions of mediawiki.
