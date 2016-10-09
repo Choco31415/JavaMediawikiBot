@@ -19,8 +19,6 @@ public class QueryPrefix extends QueryList {
 		values.add("query");
 		keys.add("pssearch");
 		values.add(prefix);
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.23");
 	}
@@ -37,8 +35,6 @@ public class QueryPrefix extends QueryList {
 		values.add("" + psnamespace);//Namespace
 		keys.add("psoffset");
 		values.add("" + psoffset);//Get psoffset items and up.
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.23");
 	}

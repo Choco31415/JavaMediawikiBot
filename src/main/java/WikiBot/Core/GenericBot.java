@@ -883,7 +883,7 @@ public class GenericBot extends NetworkingBase {
 					
 					logFinest("Login token: " + token);
 				}
-			} catch (org.apache.http.ParseException | IOException e) {
+			} catch (org.apache.http.ParseException | IOException | IndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
         }
@@ -909,8 +909,10 @@ public class GenericBot extends NetworkingBase {
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
 		String textReturned = "";
-		boolean networkError = false;
+		boolean networkError;
 		do {
+			networkError = false;//No bugs have occurred yet...
+			
 			//Look out for network issues. Attempt the command.
 			try {
 				if (command.requiresPOST()) {
