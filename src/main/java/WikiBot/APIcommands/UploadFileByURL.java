@@ -3,17 +3,18 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command uploads a file to the wiki, given a url to the file.
  * This is done synchronously.
  * 
- * Rights required:
+ * @RequiredRights
  * upload_by_url
  * 
- * Other requirements:
+ * @ReqiuredOther
  * In LocalSettings.php, the following is required:
  * $wgAllowCopyUploads = true;
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.16+
  */
 public class UploadFileByURL extends APIcommand {

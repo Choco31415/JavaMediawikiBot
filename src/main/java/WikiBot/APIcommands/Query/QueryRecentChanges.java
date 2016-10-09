@@ -1,12 +1,13 @@
 package WikiBot.APIcommands.Query;
 
 /**
+ * @Description
  * This command gets a list of recent changes.
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.9+
  */
 public class QueryRecentChanges extends QueryList {

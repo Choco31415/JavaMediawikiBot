@@ -10,6 +10,7 @@ import WikiBot.MediawikiData.VersionNumber;
 import WikiBot.Utils.ArrayUtils;
 
 /**
+ * @Description
  * This class is a base for making APIcommands.
  * 
  * APIcommands are commands to a wiki's API.

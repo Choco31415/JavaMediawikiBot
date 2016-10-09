@@ -6,16 +6,33 @@ import WikiBot.APIcommands.APIcommand;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command gets info about an image.
  * 
  * All query-able properties can be found here:
  * https://www.mediawiki.org/wiki/API:Imageinfo
  * 
- * Rights required:
+ * @RequiredRights
  * none
  * 
- * MW version required:
- * 1.12+
+ * @MediawikiSupport
+ * Minimum: 1.12+
+ * 
+ * Specifics:
+ * Support for certain properties was only introduced in later versions of mediawiki.
+ * The support table is:
+ * userid: 1.17+
+ * parseDocument: 1.17+
+ * canonicalTitle: 1.23+
+ * dimensions: 1.16+
+ * mime: 1.13+
+ * thumbmime: 1.17+
+ * mediatype: 1.18+
+ * metadata: 1.12+
+ * commonmetadata: 1.23+
+ * extmetadata: 1.23+
+ * archivename: 1.13+
+ * bitdepth: 1.14+
  */
 public class QueryImageInfo extends APIcommand {
 	/**

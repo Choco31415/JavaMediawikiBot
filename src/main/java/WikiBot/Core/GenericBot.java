@@ -540,6 +540,17 @@ public class GenericBot extends NetworkingBase {
 	 * @return A list of pages with the given prefix.
 	 */
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix) {
+		return getPagesByPrefix(language, prefix, 0);
+	}
+	
+	/**
+	 * Warning: Only supported in MW v.1.23 and above!
+	 * @param language The language of the wiki.
+	 * @param prefix The prefix that you are searching for.
+	 * @param psnamespace The namespace to search in.
+	 * @return A list of pages with the given prefix.
+	 */
+	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		Integer psoffset = null;
 		
@@ -547,9 +558,9 @@ public class GenericBot extends NetworkingBase {
 			//Make query call.
 			String returned;
 			if (psoffset == null) {
-				returned = APIcommand(new QueryPrefix(language, prefix));
+				returned = APIcommand(new QueryPrefix(language, prefix, 0, psnamespace));
 			} else {
-				returned = APIcommand(new QueryPrefix(language, prefix, psoffset));
+				returned = APIcommand(new QueryPrefix(language, prefix, psoffset, psnamespace));
 			}
 			
 			//Parse text returned.
@@ -693,8 +704,6 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of ImageInfo
 	 */
 	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
-		//TODO: In future MW versions, check up on the cancreate property
-		
 		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
 		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		

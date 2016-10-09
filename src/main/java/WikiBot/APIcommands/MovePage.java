@@ -3,15 +3,16 @@ package WikiBot.APIcommands;
 import WikiBot.ContentRep.PageLocation;
 
 /**
+ * @Description
  * This command moves a page.
  * 
- * Rights required:
+ * @RequiredRights
  * move
  * movefile (To move files.)
  * move-subpages (To move subpages.)
  * suppressredirect (To move a page and leave no redirect behind.)
  * 
- * MW version required:
+ * @MediawikiSupport
  * 1.12+
  */
 public class MovePage extends APIcommand {
