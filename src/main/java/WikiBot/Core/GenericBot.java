@@ -201,12 +201,19 @@ public class GenericBot extends NetworkingBase {
 		 **/
 		
 		SimplePage newPage = null;
+		
+		//Parse out page information
 		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
+		int pageid = -1;
 		try {
-			newPage = new SimplePage(title, mdm.getWikiPrefixFromURL(baseURL), Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0)));
-		} catch (NumberFormatException e) {
-			throw new Error("Incorrect page name: " + title + " BaseURL: " + baseURL);
+			pageid = Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0));
+		} catch (NumberFormatException | IndexOutOfBoundsException e) {
+			throw new NullPointerException("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
+		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
+		
+		//Initialize the SimplePage object with this info.
+		newPage = new SimplePage(title, wikiPrefix, pageid);
 		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\"") + 5, XMLcode.indexOf("\"}]}")));
 		
 		return newPage;
@@ -219,14 +226,22 @@ public class GenericBot extends NetworkingBase {
 		 **/
 		
 		Page newPage = null;
+		
+		//Parse out page information
 		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
+		int pageid = -1;
 		try {
-			newPage = new Page(title, Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0)), mdm.getWikiPrefixFromURL(baseURL));
-		} catch (NumberFormatException e) {
+			pageid = Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0));
+		} catch (NumberFormatException | IndexOutOfBoundsException e) {
 			throw new NullPointerException("Incorrect page name: " + title + " BaseURL: " + baseURL);
 		}
+		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
+		
+		//Initialize the SimplePage object with this info.
+		newPage = new Page(title, pageid, wikiPrefix);
 		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\":") + 5, XMLcode.indexOf("\"}]}")));
 		
+		//Get revisions, if needed.
 		getPastRevisions(newPage);
 		return newPage;
 	}
@@ -1045,7 +1060,7 @@ public class GenericBot extends NetworkingBase {
 						logFinest(textReturned);
 						throw new Error("Internal Server Error");
 					} else {
-				        logFinest("Down with page " + command.getPageLocation().getTitle() + ".");
+				        logFinest("Downloaded page " + command.getPageLocation().getTitle() + ".");
 					}
 				}
 			}

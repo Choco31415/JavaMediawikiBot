@@ -18,6 +18,8 @@ public class MediawikiDataManager {
 	public ArrayList<String> TemplateIgnore = new ArrayList<String>();
 	public ArrayList<String> MWEscapeOpenText = new ArrayList<String>();
 	public ArrayList<String> MWEscapeCloseText = new ArrayList<String>();
+	public ArrayList<String> HTMLCommentOpenText = new ArrayList<String>();
+	public ArrayList<String> HTMLCommentCloseText = new ArrayList<String>();
 	
 	public MediawikiDataManager() {
 		ArrayList<String> temp = FileUtils.readFileAsList("/MWEscapeTexts.txt", 0, true, "#", true);
@@ -29,6 +31,14 @@ public class MediawikiDataManager {
 		temp = FileUtils.readFileAsList("/TemplateIgnore.txt", 0, true, "//", true);
 		for (int i = 0; i < temp.size(); i += 1) {
 			TemplateIgnore.add(temp.get(i));
+		}
+		
+		temp = FileUtils.readFileAsList("/HTMLComments.txt", 0, true, "#", true);
+		for (int i = 0; i < temp.size(); i += 2) {
+			HTMLCommentOpenText.add(temp.get(i));
+			MWEscapeOpenText.add(temp.get(i));
+			HTMLCommentCloseText.add(temp.get(i + 1));
+			MWEscapeCloseText.add(temp.get(i + 1));
 		}
 		
 		if (instance == null) {
@@ -111,6 +121,14 @@ public class MediawikiDataManager {
 	
 	public ArrayList<String> getMWEscapeCloseText() {
 		return MWEscapeCloseText;
+	}
+	
+	public ArrayList<String> getHTMLCommentOpenText() {
+		return HTMLCommentOpenText;
+	}
+	
+	public ArrayList<String> getHTMLCommentCloseText() {
+		return HTMLCommentCloseText;
 	}
 	
 	public String getWikiPrefixFromURL(String url) {

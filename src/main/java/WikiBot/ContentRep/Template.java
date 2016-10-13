@@ -21,7 +21,7 @@ public class Template extends PageObjectAdvanced {
 			templateName = pageTitle_ + rawTemplateText_;
 		} else if (header.length() >= 1 && header.substring(0,1).equals(":")) {
 			templateName = rawTemplateText_.substring(1);
-		} else if (header.length() >= 9 && header.substring(0,9).equalsIgnoreCase("Template")) {
+		} else if (header.length() >= 9 && header.substring(0,9).equalsIgnoreCase("Template:")) {
 			templateName = rawTemplateText_;
 		} else {
 			templateName = "Template:" + header;
