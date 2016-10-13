@@ -1,0 +1,9 @@
+#This page contains opening and closing codes for html comments.
+<!--
+-->
+<!--
+--!>
+<--
+--!>
+<--!
+-->

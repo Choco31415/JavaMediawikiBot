@@ -3,8 +3,7 @@
 #The first link will be parsed.
 #The second will not.
 
-<!--
--->
+# Tags
 <pre>
 </pre>
 <scratchblocks>

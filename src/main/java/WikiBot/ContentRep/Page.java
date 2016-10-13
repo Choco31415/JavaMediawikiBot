@@ -408,10 +408,8 @@ public class Page extends SimplePage {
 	
 	private void parsePageForNewLines() {
 		//Only these escape texts impact new lines.
-		ArrayList<String> escapeOpenText = new ArrayList<String>();
-		ArrayList<String> escapeCloseText = new ArrayList<String>();
-		escapeOpenText.add("<!--");
-		escapeCloseText.add("-->");
+		ArrayList<String> escapeOpenText = mdm.getHTMLCommentOpenText();
+		ArrayList<String> escapeCloseText = mdm.getHTMLCommentCloseText();
 
 		for (int i = 0; i != -1; i = rawText.indexOf('\n', i+1)) {
 			if (isPositionParsedAsMediawiki(i, escapeOpenText, escapeCloseText)) {
@@ -719,11 +717,12 @@ public class Page extends SimplePage {
 			
 			//Find the lowest MW escaped text.
 			lowest = -1;
-			int markupTextID = -1;
+			int lowestEscapeTextID = -1;
+			end = -1;
 			
-			for (int i = 0; i < escapeOpenText.size(); i++) {
+			for (int escapeTextID = 0; escapeTextID < escapeOpenText.size(); escapeTextID++) {
 				int index;//The location where this markup occurs.
-				String markupOpening = escapeOpenText.get(i);
+				String markupOpening = escapeOpenText.get(escapeTextID);
 				
 				//Find the lowest location of this markup, if it exists.
 				//Any markup that is an HTML tag requires some leeway.
@@ -763,8 +762,18 @@ public class Page extends SimplePage {
 				if (index != -1) {
 					//Record which markup tag is the lowest.
 					if (lowest == -1 || index < lowest) {
-						lowest = index;
-						markupTextID = i;
+						//Yep, lowest.
+						//One last check though!
+						//We need to make sure this tag closes.
+						end = rawText.indexOf(escapeCloseText.get(escapeTextID), index+1);
+						if (end != -1) {
+							//This tag closes.
+							lowest = index;
+							lowestEscapeTextID = escapeTextID;
+							
+							//Update end
+							end += escapeCloseText.get(lowestEscapeTextID).length();
+						}
 					}
 				}
 			}
@@ -773,11 +782,6 @@ public class Page extends SimplePage {
 			if (lowest != -1) {
 				//Move the cursor to the end of the markup pair.
 				cursor = lowest;
-				
-				end = rawText.indexOf(escapeCloseText.get(markupTextID), cursor+1);
-				if (end != -1) {
-					end += escapeCloseText.get(markupTextID).length();
-				}
 			} else {
 				//Reached end of page.
 				cursor = -1;
