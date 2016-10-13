@@ -791,7 +791,7 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	}
 	
 	private void logInAt(String languageCode) {
-		boolean success = logIn(new User(languageCode, botUsername), botPassword);
+		boolean success = logIn(new User(botUsername, languageCode), botPassword);
 		
 		if (success) {
 			logInfo("Logged in at: " + languageCode);
