@@ -105,20 +105,33 @@ public class GenericBot extends NetworkingBase {
 		return instance;
 	}
 	
+	/**
+	 * Get the page at a certain location.
+	 * @param loc The location.
+	 * @return A Page.
+	 */
 	public Page getWikiPage(PageLocation loc) {
-		//This method fetches a Wiki page.
 		String serverOutput = getWikiPageXMLCode(loc);
 		
 		return parseWikiPage(serverOutput);
 	}
 	
+	/**
+	 * Get the page at a certain location.
+	 * @param loc The location.
+	 * @return A SimplePage.
+	 */
 	public SimplePage getWikiSimplePage(PageLocation loc) {
-		//This method fetches a Wiki page.
 		String serverOutput = getWikiPageXMLCode(loc);
 		
 		return parseWikiPageSimple(serverOutput);
 	}
 	
+	/**
+	 * Check if a page exists at a location.
+	 * @param loc The location.
+	 * @return A boolean.
+	 */
 	public boolean doesPageExist(PageLocation loc) {
 		String serverOutput = getWikiPageXMLCode(loc);
 		
@@ -135,6 +148,11 @@ public class GenericBot extends NetworkingBase {
 	    return page;
 	}
 	
+	/**
+	 * Get the pages at multiple locations. These must all be on the same wiki!
+	 * @param locs The locations.
+	 * @return An ArrayList of Page.
+	 */
 	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
 		
 		ArrayList<Page> pages = new ArrayList<Page>();
@@ -149,6 +167,11 @@ public class GenericBot extends NetworkingBase {
 		return pages;
 	}
 	
+	/**
+	 * Get the pages at multiple locations. These must all be on the same wiki!
+	 * @param locs The locations.
+	 * @return An ArrayList of SimplePage.
+	 */
 	public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
@@ -263,8 +286,14 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
+	/**
+	 * Get the revisions for a page at a location.
+	 * @param loc The location.
+	 * @param localRevisionDepth How deep to go.
+	 * @param getContent Wether or not to include the page content at the time of the revision.
+	 * @return
+	 */
 	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
-		//This method fetches the revisions of a page.
 		String returned = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
 		
 		//Parse page for info.
@@ -319,9 +348,10 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Get the pages in a category, non-recursively.
 	 * This method gets 100 category members per query call, so it might make multiple query calls.
 	 * @param loc The page location of the category.
-	 * @return Returns an arraylist of all pages in a category.
+	 * @return Returns An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getCategoryPages(PageLocation loc) {
 		String returned;
@@ -360,6 +390,12 @@ public class GenericBot extends NetworkingBase {
 		return toReturn;
 	}
 	
+	/**
+	 * Get the pages in a category, recursively.
+	 * This method gets 100 category members per query call, so it might make multiple query calls.
+	 * @param loc The page location of the category.
+	 * @return Returns An ArrayList of PageLocation.
+	 */
 	public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc) {
 		ArrayList<PageLocation> pageLocs = new ArrayList<PageLocation>();
 		ArrayList<PageLocation> toAdd = new ArrayList<PageLocation>();
@@ -383,8 +419,11 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Get the pages in a category, recursively.
+	 * This method gets 100 category members per query call, so it might make multiple query calls.
 	 * @param ignore Do not include these categories and pages in the returned result.
-	 * @param loc The page location.
+	 * @param loc The page location of the category.
+	 * @return Returns An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getCategoryPagesRecursive(PageLocation loc, ArrayList<String> ignore) {
 		ArrayList<PageLocation> pageLocs = new ArrayList<PageLocation>();
@@ -410,18 +449,22 @@ public class GenericBot extends NetworkingBase {
 		return pageLocs;
 	}
 	
-	/*
-	 * This method gets all pages that links to loc.
+	/**
+	 * Get all of the pages that link to a location.
+	 * This method gets 30 pages per query call, so it might make multiple query calls.
+	 * @param loc The location to get back links for.
+	 * @return An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc) {
 		return getPagesThatLinkTo(loc, Integer.MAX_VALUE);
 	}
 	
 	/**
-	 * This method gets 30 recent changes per query call, so it might make multiple query calls.
-	 * @param loc The page location to get back links for.
-	 * @param depth The amount of pages to get.
-	 * @return A list of page that link to loc.
+	 * Get the pages that link to a location.
+	 * This method gets 30 pages per query call, so it might make multiple query calls.
+	 * @param loc The location to get back links for.
+	 * @param depth The maximum amount of pages to get.
+	 * @return An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
 		//This method gets all the pages that link to another page. Redirects are included.
@@ -463,20 +506,20 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
-	 * This method gets all pages starting from the beginning.
-	 * @param language
-	 * @param depth
-	 * @return
+	 * This method gets all pages on a wiki.
+	 * @param language The wiki.
+	 * @param depth The maximum amount of pages to get.
+	 * @return An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getAllPages(String language, int depth) {
 		return getAllPages(language, depth, null, null);
 	}
 	
 	/**
-	 * This method gets all pages starting from the parameter "from".
-	 * @param language
-	 * @param depth
-	 * @param from
+	 * This method gets all pages on a wiki after a certain prefix.
+	 * @param language The wiki.
+	 * @param depth The maximum amount of pages to get.
+	 * @param from The prefix.
 	 * @return
 	 */
 	public ArrayList<PageLocation> getAllPages(String language, int depth, String from) {
@@ -484,10 +527,11 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * This methods gets all pages on a wiki after a certain prefix and in a certain namespace.
 	 * This method gets 30 pages per query call, so it might make multiple query calls.
-	 * @param language
-	 * @param depth
-	 * @param from
+	 * @param language The wiki.
+	 * @param depth The maximum amount of pages to get.
+	 * @param from The prefix.
 	 * @param apnamespace The id of the namespace being crawled.
 	 * @return
 	 */
@@ -525,7 +569,7 @@ public class GenericBot extends NetworkingBase {
 			//Parse text returned.
 			ArrayList<String> pageTitles= getPages(returned, "<p pageid=", "/>");
 			
-			//Transfer page names into wrapper class.
+			//Transfer page names into wrapper class, then into an ArrayList.
 			for (String title : pageTitles) {
 				if (toReturn.size() != depth) {
 					toReturn.add(new PageLocation(title, language));
@@ -564,7 +608,7 @@ public class GenericBot extends NetworkingBase {
 	 * Warning: Only supported in MW v.1.23 and above!
 	 * @param language The language of the wiki.
 	 * @param prefix The prefix that you are searching for.
-	 * @param psnamespace The namespace to search in.
+	 * @param psnamespace The id of the namespace to search in.
 	 * @return A list of pages with the given prefix.
 	 */
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
@@ -603,6 +647,32 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Get the direct url for a file.
+	 * @param loc The pageLocation of the file.
+	 * @return A String.
+	 */
+	protected String getDirectImageURL(PageLocation loc) {
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("url");
+		ImageInfo info = getImageInfo(loc, properties);
+		return info.getValue("url");
+	}
+	
+	/**
+	 * Get the url, dimensions, and byte size of a file.
+	 * @param loc The pageLocation of the file.
+	 * @return A ImageInfo.
+	 */
+	protected ImageInfo getImageInfo(PageLocation loc) {
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("url");
+		properties.add("size");
+		return getImageInfo(loc, properties);
+	}
+	
+	/**
+	 * Query the properties of a file.
+	 * 
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Imageinfo
 	 * 
 	 * Getting metadata, commonmetadata, or extmetadata will return a JSON string.
@@ -611,7 +681,7 @@ public class GenericBot extends NetworkingBase {
 	 * 
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
-	 * @return A ImageInfo class containing
+	 * @return A ImageInfo.
 	 */
 	protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
 		logFine("Getting file info for: " + loc.getTitle());
@@ -686,39 +756,46 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Query if the user exists or not.
+	 * @param user The user to check on.
+	 * @return A boolean.
+	 */
+	protected boolean doesUserExist(User user) {
+		return getUserInfo(user, new ArrayList<String>()) != null;
+	}
+	
+	/**
+	 * Query the properties of a user.
 	 * 
+	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
+	 * 
+	 * This method does not support getting the properties group, implicitgroup, rights, centralid, or cancreate.
+	 * In fact, doing so will throw an error.
+	 * 
+	 * Also, banned and invalid user will be returned as null.
 	 * @param loc The pageLocation of the file.
-	 * @return The url, dimensions, and byte size of the image.
+	 * @param propertyNames The list of properties you are querying for.
+	 * @return An ArrayList of ImageInfo
 	 */
-	protected ImageInfo getImageInfo(PageLocation loc) {
-		ArrayList<String> properties = new ArrayList<String>();
-		properties.add("url");
-		properties.add("size");
-		return getImageInfo(loc, properties);
+	protected UserInfo getUserInfo(User user, ArrayList<String> propertyNames) {
+		ArrayList<String> userNames = new ArrayList<String>();
+		userNames.add(user.getUserName());
+		return getUserInfo(user.getLanguage(), userNames, propertyNames).get(0);
 	}
 	
 	/**
-	 * @param loc The pageLocation of the file.
-	 * @return A String of the url that goes directly to the image file (and nothing else).
-	 */
-	protected String getDirectImageURL(PageLocation loc) {
-		ArrayList<String> properties = new ArrayList<String>();
-		properties.add("url");
-		ImageInfo info = getImageInfo(loc, properties);
-		return info.getValue("url");
-	}
-	
-	/**
+	 * Query the properties of multiple users.
+	 * 
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
 	 * 
 	 * Getting centralids also returns attachedlocal.
-	 * While Centralids is supported, it is currently experimental in MW.
+	 * While Centralids is supported, it is currently experimental in MediaWiki.
 	 * 
 	 * All non-existent users will be returned as null.
 	 * 
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
-	 * @return An ArrayList of ImageInfo
+	 * @return An ArrayList of ImageInfo.
 	 */
 	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
 		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
@@ -836,31 +913,11 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
-	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
-	 * 
-	 * This method does not support getting the properties group, implicitgroup, rights, centralid, or cancreate.
-	 * In fact, doing so will throw an error.
-	 * 
-	 * Also, banned and invalid user will be returned as null.
-	 * @param loc The pageLocation of the file.
-	 * @param propertyNames The list of properties you are querying for.
-	 * @return An ArrayList of ImageInfo
+	 * Log into a wiki.
+	 * @param user The username.
+	 * @param password The password.
+	 * @return Login success status.
 	 */
-	protected UserInfo getUserInfo(User user, ArrayList<String> propertyNames) {
-		ArrayList<String> userNames = new ArrayList<String>();
-		userNames.add(user.getUserName());
-		return getUserInfo(user.getLanguage(), userNames, propertyNames).get(0);
-	}
-	
-	/**
-	 * 
-	 * @param user
-	 * @return
-	 */
-	protected boolean doesUserExist(User user) {
-		return getUserInfo(user, new ArrayList<String>()) != null;
-	}
-	
 	public boolean logIn(User user, String password) {
         HttpEntity entity = null;
         
@@ -913,6 +970,11 @@ public class GenericBot extends NetworkingBase {
         return success;
 	}
 	
+	/**
+	 * Perform an APIcommand.
+	 * @param command The APIcommand.
+	 * @return Server output.
+	 */
 	public String APIcommand(APIcommand command) {
 		//Check throttle.
 		throttleAction();
@@ -1070,9 +1132,12 @@ public class GenericBot extends NetworkingBase {
 	}
 
 	/**
-	 * Automatically unescapes HTML5.
+	 * Perform a HTTP APIcommand.
+	 * @param command The APIcommand.
+	 * @return Server output.
 	 */
 	private String APIcommandHTTP(APIcommand command) {
+		//Build the command url
 		String url = baseURL + "/api.php?";
 		String[] editKeys = command.getKeysArray();
 		String[] editValues = command.getValuesArray();
@@ -1084,6 +1149,7 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		
+		//Follor the url!
 		try {
 			String[] output = getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML());
 			if (output == null) {
@@ -1096,27 +1162,33 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 
+	/**
+	 * Perform a POST APIcommand.
+	 * @param command The APIcommand.
+	 * @return Server output.
+	 */
 	private String APIcommandPOST(APIcommand command) {
+		//Build the POST request.
 		HttpEntity entity;
 		
-		String token = getToken(command);
+		//Get the key and value pairs of the command.
+		String[] editKeys = command.getKeysArray();
+		String[] editValues = command.getValuesArray();
+		int numEditKeys = editKeys.length;
+		int numEditValues = editValues.length;
 		
-		String[] editKeys;
-		String[] editValues;
-		editKeys = command.getKeysArray();
-		editValues = command.getValuesArray();
+		//Build the key and value pairs of our POST request.
+		String[] keys = new String[numEditKeys + 1];
+		String[] values = new String[numEditValues + 1];
 		
-		//Get command parameters
-		String[] keys = new String[editKeys.length + 1];
-		String[] values = new String[editValues.length + 1];
-		
-		//Shift parameters to larger array
-		for (int i = 0; i < editKeys.length; i++) {
+		for (int i = 0; i < numEditKeys; i++) {
 			keys[i] = editKeys[i];
 			values[i] = editValues[i];
 		}
 		
-		//Add a few more parameters
+		//Add a token to our POST request
+		String token = getToken(command);
+		
 		keys[keys.length - 1] = "token";
 		values[keys.length - 1] = "" + token;
 
@@ -1135,6 +1207,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Some MW actions require a token to execute. This is for security purposes.
+	 * This method gets that security token.
 	 * @param command The command that requires the token.
 	 * @return A token.
 	 */
