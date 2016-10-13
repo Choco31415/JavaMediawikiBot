@@ -154,14 +154,26 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of Page.
 	 */
 	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
-		
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
-		String serverOutput = getWikiPagesXMLCode(locs);
-		
-		ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
-		for (String st : pageStrings) {
-			pages.add(parseWikiPage(st + "\"}]}"));
+		//Enforce APIlimit.
+		for (int i = 0; i < locs.size(); i += APIlimit) {
+			//Get a small chunk of page locations.
+			ArrayList<PageLocation> chunkOfPages;
+			if (i + APIlimit <= locs.size()) {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
+			} else {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
+			}
+			
+			//Process this small chunk of page locations.
+			String serverOutput = getWikiPagesXMLCode(chunkOfPages);
+			
+			ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
+			for (String st : pageStrings) {
+				pages.add(parseWikiPage(st + "\"}]}"));
+			}
+
 		}
 		
 		return pages;
@@ -175,11 +187,23 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
-		String serverOutput = getWikiPagesXMLCode(locs);
-		
-		ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
-		for (String st : pageStrings) {
-			simplePages.add(parseWikiPageSimple(st + "\"}]}"));
+		//Enforce APIlimit.
+		for (int i = 0; i < locs.size(); i += APIlimit) {
+			//Get a small chunk of page locations.
+			ArrayList<PageLocation> chunkOfPages;
+			if (i + APIlimit <= locs.size()) {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
+			} else {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
+			}
+			
+			//Process this small chunk of page locations.
+			String serverOutput = getWikiPagesXMLCode(chunkOfPages);
+			
+			ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
+			for (String st : pageStrings) {
+				simplePages.add(parseWikiPageSimple(st + "\"}]}"));
+			}
 		}
 		
 		return simplePages;
@@ -305,7 +329,7 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
-	 * This method gets 30 recent changes per query call, so it might make multiple query calls.
+	 * This method gets 30 recent changes max per query call, so it might make multiple query calls.
 	 * @param depth The amount of revisions you want returned.
 	 * @return A list of recent changes wrapped in revisions.
 	 */
@@ -349,7 +373,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Get the pages in a category, non-recursively.
-	 * This method gets 100 category members per query call, so it might make multiple query calls.
+	 * This method gets 100 category members max per query call, so it might make multiple query calls.
 	 * @param loc The page location of the category.
 	 * @return Returns An ArrayList of PageLocation.
 	 */
@@ -392,7 +416,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Get the pages in a category, recursively.
-	 * This method gets 100 category members per query call, so it might make multiple query calls.
+	 * This method gets 100 category members max per query call, so it might make multiple query calls.
 	 * @param loc The page location of the category.
 	 * @return Returns An ArrayList of PageLocation.
 	 */
@@ -420,7 +444,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Get the pages in a category, recursively.
-	 * This method gets 100 category members per query call, so it might make multiple query calls.
+	 * This method gets 100 category members max per query call, so it might make multiple query calls.
 	 * @param ignore Do not include these categories and pages in the returned result.
 	 * @param loc The page location of the category.
 	 * @return Returns An ArrayList of PageLocation.
@@ -451,7 +475,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Get all of the pages that link to a location.
-	 * This method gets 30 pages per query call, so it might make multiple query calls.
+	 * This method gets 30 pages max per query call, so it might make multiple query calls.
 	 * @param loc The location to get back links for.
 	 * @return An ArrayList of PageLocation.
 	 */
@@ -528,7 +552,7 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * This methods gets all pages on a wiki after a certain prefix and in a certain namespace.
-	 * This method gets 30 pages per query call, so it might make multiple query calls.
+	 * This method gets 30 pages max per query call, so it might make multiple query calls.
 	 * @param language The wiki.
 	 * @param depth The maximum amount of pages to get.
 	 * @param from The prefix.
@@ -801,112 +825,124 @@ public class GenericBot extends NetworkingBase {
 		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
 		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
-		String serverOutput = APIcommand(new QueryUserInfo(language, userNames, propertyNames));
-		
-		// Read in the JSON!!!
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode rootNode = null;
-		try {
-			rootNode = mapper.readValue(serverOutput, JsonNode.class);
-		} catch (IOException e1) {
-			logError("Was expecting JSON, but did not recieve JSON from server.");
-			return null;
-		}
-		
 		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
 		
-		boolean firstUser = true;
-		for (JsonNode user : rootNode.findValue("users")) {
-			UserInfo userInfo = new UserInfo(new User(language, user.findValue("name").asText()));
-			boolean userExists = true;
-			
-			//Check that the user exists.
-			if (user.findParent("missing") != null || user.findParent("invalid") != null) {
-				userInfo = null;
-				userExists = false;
+		//Enforce APIlimit
+		int querySize = Math.min(50, APIlimit);
+		for (int i = 0; i < userNames.size(); i += querySize) {
+			//Get a small chunk of usernames.
+			ArrayList<String> chunkOfUserNames = new ArrayList<String>();
+			if (i + querySize <= userNames.size()) {
+				chunkOfUserNames = new ArrayList<String>(userNames.subList(i,  i + querySize));
 			}
 			
-			if (userExists) {
-				//Parse for queried properties one at a time
-				int property = 0;
-				do {
-					String name = propertyNames.get(property).toLowerCase();
-					String value = "";
-					
-					//Handle special cases, while avoiding duplicates
-					if (firstUser) {
-						if (name.equalsIgnoreCase("centralids")) {
-							propertyNames.add("attachedlocal");
-						}
-					}
-					
-					//Get and store values
-					if (name.equals("blockinfo")) {
-						//This is a doozie to handle. Twitch a twitch.
-						if (user.findValue("blockid") == null) {
-							userInfo.setAsNotBlocked();
-						} else {
-							//This user is blocked.
-							int blockID = user.findValue("blockid").asInt();
-							String blockedBy = user.findValue("blockedby").asText();
-							String blockReason = user.findValue("blockreason").asText();
-							String blockExpiration = user.findValue("blockexpiry").asText();
-							
-							userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
-						}
-					} else {
-						if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
-							//Mediawiki returns JSON array for these parameters.
-							ArrayList<String> temp = new ArrayList<String>();
-							
-							for (JsonNode node : user.findValue(name)) {
-								temp.add(node.asText());
+			//Query the server.
+			String serverOutput = APIcommand(new QueryUserInfo(language, chunkOfUserNames, propertyNames));
+			
+			// Read in the JSON!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting JSON, but did not recieve JSON from server.");
+				return null;
+			}
+			
+			//Parse out user info.
+			boolean firstUser = true;
+			for (JsonNode user : rootNode.findValue("users")) {
+				UserInfo userInfo = new UserInfo(new User(language, user.findValue("name").asText()));
+				boolean userExists = true;
+				
+				//Check that the user exists.
+				if (user.findParent("missing") != null || user.findParent("invalid") != null) {
+					userInfo = null;
+					userExists = false;
+				}
+				
+				if (userExists) {
+					//Parse for queried properties one at a time
+					int property = 0;
+					do {
+						String name = propertyNames.get(property).toLowerCase();
+						String value = "";
+						
+						//Handle special cases, while avoiding duplicates
+						if (firstUser) {
+							if (name.equalsIgnoreCase("centralids")) {
+								propertyNames.add("attachedlocal");
 							}
-							
-							switch (name) {
-								case "groups":
-									userInfo.setGroups(temp);
-									break;
-								case "implicitgroups":
-									userInfo.setImplicitGroups(temp);
-									break;
-								case "rights":
-									userInfo.setRights(temp);
-									break;
-								default:
-									//Required.
-									break;
+						}
+						
+						//Get and store values
+						if (name.equals("blockinfo")) {
+							//This is a doozie to handle. Twitch a twitch.
+							if (user.findValue("blockid") == null) {
+								userInfo.setAsNotBlocked();
+							} else {
+								//This user is blocked.
+								int blockID = user.findValue("blockid").asInt();
+								String blockedBy = user.findValue("blockedby").asText();
+								String blockReason = user.findValue("blockreason").asText();
+								String blockExpiration = user.findValue("blockexpiry").asText();
+								
+								userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
 							}
 						} else {
-							if (name.equals("centralid") || name.equals("attachedlocal")) {
-								//Mediawiki returns JSON for these parameters.
-								try {
-									value = mapper.writeValueAsString(rootNode.findValue(name));
-								} catch (JsonProcessingException e) {
-									logError("JSON Processing Error: " + e.getLocalizedMessage());
-									e.printStackTrace();
+							if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
+								//Mediawiki returns JSON array for these parameters.
+								ArrayList<String> temp = new ArrayList<String>();
+								
+								for (JsonNode node : user.findValue(name)) {
+									temp.add(node.asText());
+								}
+								
+								switch (name) {
+									case "groups":
+										userInfo.setGroups(temp);
+										break;
+									case "implicitgroups":
+										userInfo.setImplicitGroups(temp);
+										break;
+									case "rights":
+										userInfo.setRights(temp);
+										break;
+									default:
+										//Required.
+										break;
 								}
 							} else {
-								//Mediawiki returns String for these parameters
-								value = rootNode.findValue(name).asText();
+								if (name.equals("centralid") || name.equals("attachedlocal")) {
+									//Mediawiki returns JSON for these parameters.
+									try {
+										value = mapper.writeValueAsString(rootNode.findValue(name));
+									} catch (JsonProcessingException e) {
+										logError("JSON Processing Error: " + e.getLocalizedMessage());
+										e.printStackTrace();
+									}
+								} else {
+									//Mediawiki returns String for these parameters
+									value = rootNode.findValue(name).asText();
+								}
+								
+								if (name.equals("emailable")) {
+									value = user.findValue("emailable") != null ? "true" : "false";
+								}
+								
+								userInfo.addProperty(name, value);
 							}
-							
-							if (name.equals("emailable")) {
-								value = user.findValue("emailable") != null ? "true" : "false";
-							}
-							
-							userInfo.addProperty(name, value);
 						}
-					}
-					
-					property++;
-				} while (property < propertyNames.size());
+						
+						property++;
+					} while (property < propertyNames.size());
+				}
+				
+				//Store the user's info
+				toReturn.add(userInfo);	
+				
+				firstUser = false;
 			}
-			
-			//Store the user's info
-			toReturn.add(userInfo);	
-			
-			firstUser = false;
 		}
 		
 		return toReturn;
