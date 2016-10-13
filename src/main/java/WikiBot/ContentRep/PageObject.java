@@ -9,7 +9,7 @@ public abstract class PageObject {
 	//Name variables will be created in their respective classes.
 	protected int openPos;
 	protected int closePos;
-	protected String myObjectType;
+	protected String myObjectType;//Ex: Category
 	
 	protected String textOpening;//The text denoting the opening of this object.
 	protected String textClosing;//The text denoting the closing of this object.

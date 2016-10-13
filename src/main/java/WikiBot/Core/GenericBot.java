@@ -781,11 +781,27 @@ public class GenericBot extends NetworkingBase {
 	
 	/**
 	 * Query if the user exists or not.
+	 * Warning: Only supported in MW v.1.12 and above!
 	 * @param user The user to check on.
 	 * @return A boolean.
 	 */
 	protected boolean doesUserExist(User user) {
 		return getUserInfo(user, new ArrayList<String>()) != null;
+	}
+	
+	/**
+	 * Query the block info, groups, and editcount of a user.
+	 * Warning: Only supported in MW v.1.12 and above!
+	 * @param user The user to check on.
+	 * @return A UserInfo.
+	 */
+	protected UserInfo getUserInfo(User user) {
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("blockinfo");
+		properties.add("groups");
+		properties.add("editcount");
+		
+		return getUserInfo(user, properties);
 	}
 	
 	/**
@@ -797,18 +813,39 @@ public class GenericBot extends NetworkingBase {
 	 * In fact, doing so will throw an error.
 	 * 
 	 * Also, banned and invalid user will be returned as null.
+	 * 
+	 * Warning: Only supported in MW v.1.12 and above!
 	 * @param loc The pageLocation of the file.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return An ArrayList of ImageInfo
 	 */
 	protected UserInfo getUserInfo(User user, ArrayList<String> propertyNames) {
-		ArrayList<String> userNames = new ArrayList<String>();
-		userNames.add(user.getUserName());
-		return getUserInfo(user.getLanguage(), userNames, propertyNames).get(0);
+		ArrayList<User> userNames = new ArrayList<User>();
+		userNames.add(user);
+		return getUserInfo(userNames, propertyNames).get(0);
 	}
 	
 	/**
-	 * Query the properties of multiple users.
+	 * Query the block info, groups, and edit count of multiple users. All users must be from the same wiki!
+	 * 
+	 * This method gets 50 users max per query call, so it might make multiple query calls.
+	 * 
+	 * Warning: Only supported in MW v.1.12 and above!
+	 * @param language The language of the wiki with all users.
+	 * @param userNames The usernames to check on.
+	 * @return An ArrayList of UserInfo.
+	 */
+	protected ArrayList<UserInfo> getUserInfo(ArrayList<User> users) {
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("blockinfo");
+		properties.add("groups");
+		properties.add("editcount");
+		
+		return getUserInfo(users, properties);
+	}
+	
+	/**
+	 * Query the properties of multiple users. All users must be from the same wiki!
 	 * 
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Users
 	 * 
@@ -817,23 +854,44 @@ public class GenericBot extends NetworkingBase {
 	 * 
 	 * All non-existent users will be returned as null.
 	 * 
-	 * @param loc The pageLocation of the file.
+	 * This method gets 50 users max per query call, so it might make multiple query calls.
+	 * 
+	 * Warning: Only supported in MW v.1.12 and above!
+	 * @param language The language of the wiki with all users.
+	 * @param userNames The usernames to check on.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return An ArrayList of ImageInfo.
 	 */
-	protected ArrayList<UserInfo> getUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertyNames) {
-		logFine("Getting user info for: " + ArrayUtils.compactArray(userNames, ", "));
+	protected ArrayList<UserInfo> getUserInfo(ArrayList<User> users, ArrayList<String> propertyNames) {
+		//Logging
+		String userLogMessage = "Getting user info for: ";
+		for (User u : users) {
+			userLogMessage += u.getUserName() + ", ";
+		}
+		
+		logFine(userLogMessage);
 		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
+		//Method code below
 		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
+		
+		String language = users.get(0).getLanguage();
 		
 		//Enforce APIlimit
 		int querySize = Math.min(50, APIlimit);
-		for (int i = 0; i < userNames.size(); i += querySize) {
-			//Get a small chunk of usernames.
+		for (int i = 0; i < users.size(); i += querySize) {
+			//Get a small chunk of users.
+			ArrayList<User> chunkOfUsers = new ArrayList<User>();
+			if (i + querySize <= users.size()) {
+				chunkOfUsers = new ArrayList<User>(users.subList(i,  i + querySize));
+			} else {
+				chunkOfUsers = new ArrayList<User>(users.subList(i, users.size()));
+			}
+			
+			//Extract usernames from users
 			ArrayList<String> chunkOfUserNames = new ArrayList<String>();
-			if (i + querySize <= userNames.size()) {
-				chunkOfUserNames = new ArrayList<String>(userNames.subList(i,  i + querySize));
+			for (User u : chunkOfUsers) {
+				chunkOfUserNames.add(u.getUserName());
 			}
 			
 			//Query the server.
@@ -852,7 +910,8 @@ public class GenericBot extends NetworkingBase {
 			//Parse out user info.
 			boolean firstUser = true;
 			for (JsonNode user : rootNode.findValue("users")) {
-				UserInfo userInfo = new UserInfo(new User(language, user.findValue("name").asText()));
+				String userName = user.findValue("name").asText();
+				UserInfo userInfo = new UserInfo(new User(userName, language));
 				boolean userExists = true;
 				
 				//Check that the user exists.
@@ -1314,7 +1373,7 @@ public class GenericBot extends NetworkingBase {
 	/*
 	 * This is a specialized function and should not be used outside of this class.
 	 */
-	protected ArrayList<String> getPages(String XMLdata, String openingText, String closingText) {
+	private ArrayList<String> getPages(String XMLdata, String openingText, String closingText) {
 		//This method takes XMLdata and parses it for page names.
 		ArrayList<String> output = new ArrayList<String>();
 		int j = 0;
