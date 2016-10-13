@@ -151,6 +151,7 @@ public class Page extends SimplePage {
 	public int getNumPageObjectsOfType(String objectType) {
 		int count = 0;
 		for (PageObjectAdvanced object: pageObjects) {
+			//Check that the object type matches.
 			if (object.getObjectType().equalsIgnoreCase(objectType)) {
 				count++;
 			}
@@ -161,7 +162,8 @@ public class Page extends SimplePage {
 	public int getNumPageObjectsByHeader(String header) {
 		int count = 0;
 		for (PageObjectAdvanced object: pageObjects) {
-			if (object.getHeader().equalsIgnoreCase(header)) {
+			//Check that the header matches.
+			if (object.getHeader().trim().equalsIgnoreCase(header.trim())) {
 				count++;
 			}
 		}
@@ -174,7 +176,8 @@ public class Page extends SimplePage {
 	
 	public PageObjectAdvanced getPageObject(String header) {		
 		for (PageObjectAdvanced poa : pageObjects) {
-			if (poa.getHeader().equalsIgnoreCase(header)) {
+			//Check that header matches.
+			if (poa.getHeader().trim().equalsIgnoreCase(header.trim())) {
 				return poa;
 			}
 		}
@@ -184,8 +187,12 @@ public class Page extends SimplePage {
 	
 	public PageObjectAdvanced getPageObject(String header, String objectType) {		
 		for (PageObjectAdvanced poa : pageObjects) {
-			if (poa.getHeader().equalsIgnoreCase(header) && poa.getObjectType().equalsIgnoreCase(objectType)) {
-				return poa;
+			//Check that header matches.
+			if (poa.getHeader().trim().equalsIgnoreCase(header.trim())) {
+				//Check that object type matches.
+				if (poa.getObjectType().equalsIgnoreCase(objectType)) {
+					return poa;
+				}
 			}
 		}
 		
