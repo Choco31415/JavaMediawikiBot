@@ -20,7 +20,10 @@ public abstract class PageObjectAdvanced extends PageObject {
 		header = header_;
 	}
 	
-	//Set information.
+	/*
+	 * Set information methods.
+	 */
+	
 	public void addPageObjects(ArrayList<PageObjectAdvanced> po) {
 		pageObjects.addAll(po);
 	}
@@ -33,7 +36,9 @@ public abstract class PageObjectAdvanced extends PageObject {
 		parameters.set(index, param);
 	}
 	
-	//Get information.
+	/*
+	 * Get information methods.
+	 */
 	/**
 	 * Gets the header of the page object.
 	 * For templates, it would be the template name.
@@ -58,6 +63,7 @@ public abstract class PageObjectAdvanced extends PageObject {
 	public int getNumPageObjectsOfType(String objectType) {
 		int count = 0;
 		for (PageObject object: pageObjects) {
+			//Check that object type matches.
 			if (object.getObjectType().equalsIgnoreCase(objectType)) {
 				count++;
 			}
@@ -66,28 +72,37 @@ public abstract class PageObjectAdvanced extends PageObject {
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the number with this header.
+	 * Of the page objects this contains, get the count of objects with this header.
+	 * @return A count.
 	 */
 	public int getNumPageObjectsByHeader(String header) {
 		int count = 0;
 		for (PageObjectAdvanced object: pageObjects) {
-			if (object.getHeader().equalsIgnoreCase(header)) {
+			//Check that trimmed header matches.
+			if (object.getHeader().trim().equalsIgnoreCase(header.trim())) {
 				count++;
 			}
 		}
 		return count;
 	}
 	
+	/**
+	 * Of the page objects this contains, get the object with this id.
+	 * @param index The id of this page object.
+	 * @return A pageObject.
+	 */
 	public PageObject getPageObject(int index) {
 		return pageObjects.get(index);
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the first object with this header.
+	 * Of the page objects this contains, get the first object with this header.
+	 * @return A PageObjectAdvanced.
 	 */
 	public PageObjectAdvanced getPageObject(String header) {
 		for (PageObjectAdvanced poa : pageObjects) {
-			if (poa.getHeader().equalsIgnoreCase(header)) {
+			//Check that trimmed header matches.
+			if (poa.getHeader().trim().equalsIgnoreCase(header.trim())) {
 				return poa;
 			}
 		}
@@ -95,24 +110,31 @@ public abstract class PageObjectAdvanced extends PageObject {
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the first object with this header and of this object type.
+	 * Of the page objects this contains, get the first object with this header and of this object type.
+	 * @return A PageObjectAdvanced.
 	 */
 	public PageObjectAdvanced getPageObject(String header, String objectType) {
 		for (PageObjectAdvanced poa : pageObjects) {
-			if (poa.getHeader().equalsIgnoreCase(header) && poa.getObjectType().equalsIgnoreCase(objectType)) {
-				return poa;
+			//Check that trimmed header matches.
+			if (poa.getHeader().trim().equalsIgnoreCase(header.trim())) {
+				//Check that object type matches.
+				if (poa.getObjectType().equalsIgnoreCase(objectType)) {
+					return poa;
+				}
 			}
 		}
 		return null;
 	}
 	
 	/**
-	 * @return Of the page objects this contains, get the objects with this object type.
+	 * Of the page objects this contains, get the objects with this object type.
+	 * @return An ArrayList of PageObjectAdvanced.
 	 */
 	public ArrayList<PageObjectAdvanced> getPageObjectOfType(String objectType) {
 		ArrayList<PageObjectAdvanced> toReturn = new ArrayList<PageObjectAdvanced>();
 		
 		for (PageObjectAdvanced poa : pageObjects) {
+			//Check that object type matches.
 			if (poa.getObjectType().equalsIgnoreCase(objectType)) {
 				toReturn.add(poa);
 			}
@@ -121,10 +143,18 @@ public abstract class PageObjectAdvanced extends PageObject {
 		return toReturn;
 	}
 	
+	/**
+	 * Return all PageObjectAdvanced in this object, not recursively.
+	 * @return An ArrayList of PageObjectAdvanced.
+	 */
 	public ArrayList<PageObjectAdvanced> getAllPageObjects() {
 		return pageObjects;
 	}
 	
+	/**
+	 * Return all PageObjectAdvanced in this object, recursively.
+	 * @return An ArrayList of PageObjectAdvanced.
+	 */
 	public ArrayList<PageObjectAdvanced> getAllPageObjectsRecursive() {
 		ArrayList<PageObjectAdvanced> toReturn = new ArrayList<PageObjectAdvanced>();
 		
@@ -136,14 +166,18 @@ public abstract class PageObjectAdvanced extends PageObject {
 		return toReturn;
 	}
 	
+	/**
+	 * Returns the number of parameters this object has. For example, this example image has 2: [[File:Cat.png|180px|thumb]]
+	 * @return An int.
+	 */
 	public int getNumParameters() {
 		return parameters.size();
 	}
 	
 	/**
-	 * 
+	 * Get a parameter from this object.
 	 * @param index The parameter that you want to get. This starts counting at 0 after the object header.
-	 * @return
+	 * @return A String.
 	 */
 	public String getParameter(int index) {
 		return parameters.get(index);

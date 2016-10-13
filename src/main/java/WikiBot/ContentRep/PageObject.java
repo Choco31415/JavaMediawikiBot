@@ -5,13 +5,14 @@ package WikiBot.ContentRep;
  * For example, templates, image, categories, and more.
  */
 public abstract class PageObject {
+	
 	//Name variables will be created in their respective classes.
 	protected int openPos;
 	protected int closePos;
 	protected String myObjectType;
 	
-	protected String textOpening;
-	protected String textClosing;
+	protected String textOpening;//The text denoting the opening of this object.
+	protected String textClosing;//The text denoting the closing of this object.
 
 	public PageObject(String myObjectType_, int openPos_, int closePos_, String textOpening_, String textClosing_) {
 		myObjectType = myObjectType_;
@@ -55,20 +56,30 @@ public abstract class PageObject {
 		return closePos;
 	}
 	
+	/**
+	 * @return The object type. For example, Category.
+	 */
 	public String getObjectType() {
 		return myObjectType;
 	}
 	
+	/**
+	 * @return The text denoting the beginning of this object. In a link, it should return [[ or [.
+	 */
 	public String getOpeningString() {
 		return textOpening;
 	}
 	
+	/**
+	 * @return The text denoting the ending of this object. In a link, it should return ]] or ].
+	 */
 	public String getClosingString() {
 		return textClosing;
 	}
 
-	/*
-	 * A simple to string method that should stay within 1 line.
+	/**
+	 * A simple toString method that is 1 line long.
+	 * @return A String.
 	 */
 	public abstract String simpleToString();
 	
