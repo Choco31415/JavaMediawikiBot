@@ -719,7 +719,7 @@ public class GenericBot extends NetworkingBase {
 		try {
 			rootNode = mapper.readValue(serverOutput, JsonNode.class);
 		} catch (IOException e1) {
-			logError("Was expecting JSON, but did not recieve JSON from server.");
+			logError("Was expecting JSON, but did not receive JSON from server.");
 			return null;
 		}
 		
@@ -888,14 +888,8 @@ public class GenericBot extends NetworkingBase {
 				chunkOfUsers = new ArrayList<User>(users.subList(i, users.size()));
 			}
 			
-			//Extract usernames from users
-			ArrayList<String> chunkOfUserNames = new ArrayList<String>();
-			for (User u : chunkOfUsers) {
-				chunkOfUserNames.add(u.getUserName());
-			}
-			
 			//Query the server.
-			String serverOutput = APIcommand(new QueryUserInfo(language, chunkOfUserNames, propertyNames));
+			String serverOutput = APIcommand(new QueryUserInfo(chunkOfUsers, propertyNames));
 			
 			// Read in the JSON!!!
 			ObjectMapper mapper = new ObjectMapper();
@@ -903,7 +897,7 @@ public class GenericBot extends NetworkingBase {
 			try {
 				rootNode = mapper.readValue(serverOutput, JsonNode.class);
 			} catch (IOException e1) {
-				logError("Was expecting JSON, but did not recieve JSON from server.");
+				logError("Was expecting JSON, but did not receive JSON from server.");
 				return null;
 			}
 			
@@ -1005,6 +999,132 @@ public class GenericBot extends NetworkingBase {
 		}
 		
 		return toReturn;
+	}
+	
+	/**
+	 * Get the contributions of a user, up to a certain limit.
+	 * @param users The user to query.
+	 * @param depth The max amount of revisions, per user, to return.
+	 * @return An ArrayList of a user's contributions.
+	 */
+	public ArrayList<Revision> getUserContribs(User user, int depth) {
+		ArrayList<User> users = new ArrayList<User>();
+		users.add(user);
+		return getUserContribs(users, depth).get(0);
+	}
+	
+	/**
+	 * Get the contributions of multiple users, up to a certain limit.
+	 * @param users The users to query.
+	 * @param depth The max amount of revisions, per user, to return.
+	 * @return An ArrayList of ArrayList of Revision. In other words, it is a list of a users' list of contributions.
+	 */
+	public ArrayList<ArrayList<Revision>> getUserContribs(ArrayList<User> users, int depth) {
+		//Logging
+		String userLogMessage = "Getting contribs for users: ";
+		for (User u : users) {
+			userLogMessage += u.getUserName() + ", ";
+		}
+		
+		logFine(userLogMessage);
+		
+		//Method code below
+		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<ArrayList<Revision>>();
+		
+		String language = users.get(0).getLanguage();
+		
+		//For now, we only query certain properties.
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("title");
+		properties.add("comment");
+		properties.add("timestamp");
+		properties.add("flags");
+		
+		//Query users individually.
+		int maxQuerySize = Math.min(50, APIlimit);
+		for (int u = 0; u < users.size(); u++) {
+			//Get a user.
+			User user = users.get(u);
+			
+			//Query user's contributions.
+			int rev = 0;
+			boolean moreRevisionsExist = true;
+			String queryContinue = null; // User for continuing queries.
+			while (rev < depth && moreRevisionsExist) {
+				//Query the server.
+				int querySize = -1;
+				if (rev + maxQuerySize < depth) {
+					querySize = maxQuerySize;
+				} else {
+					querySize = depth - rev;
+				}
+				APIcommand queryUserContribs = new QueryUserContribs(user, properties, querySize);
+				if (queryContinue != null) {
+					queryUserContribs.addParameter("ucstart", queryContinue);
+				}
+				
+				String serverOutput = APIcommand(queryUserContribs);
+				
+				
+				// Read in the JSON!!!
+				ObjectMapper mapper = new ObjectMapper();
+				JsonNode rootNode = null;
+				try {
+					rootNode = mapper.readValue(serverOutput, JsonNode.class);
+				} catch (IOException e1) {
+					logError("Was expecting JSON, but did not receive JSON from server.");
+					return null;
+				}
+				
+				//Parse JSON for contribs
+				ArrayList<Revision> contribs = new ArrayList<Revision>();
+				
+				JsonNode queryNode = rootNode.findValue("query");
+				JsonNode userContribs = queryNode.findValue("usercontribs");
+				
+				for (int contribID = 0; contribID < userContribs.size(); contribID++) {
+					JsonNode contrib = userContribs.get(contribID);
+					
+					//Parse for revision info
+					String title = unescape(contrib.findValue("title").textValue());
+					PageLocation loc = new PageLocation(title, language);
+					String userName = user.getUserName();
+					String comment = unescape(contrib.findValue("comment").textValue());
+					Date date = createDate(unescape(contrib.findValue("timestamp").textValue()));
+					
+					//Parse for flags
+					ArrayList<String> flags = new ArrayList<String>();
+					
+					if (contrib.has("new")) {
+						flags.add("new");
+					}
+					if (contrib.has("top")) {
+						flags.add("top");
+					}
+					if (contrib.has("minor")) {
+						flags.add("minor");
+					}
+					
+					//Package and ship the revision! Then have it sink due to a bunyip and cucumber sandwiches.
+					contribs.add(new Revision(loc, userName, comment, date, flags));
+				}
+				
+				multiContribs.add(contribs);
+				
+				rev += querySize;
+				
+				//Parse for query continue
+				JsonNode queryContinueNode = rootNode.findValue("query-continue");
+				if (queryContinueNode == null) {
+					moreRevisionsExist = false;
+				} else {
+					JsonNode ucstartNode = queryContinueNode.findValue("ucstart");
+					queryContinue = ucstartNode.textValue();
+				}
+			}
+		}
+		
+		return multiContribs;
 	}
 	
 	/**
@@ -1138,7 +1258,7 @@ public class GenericBot extends NetworkingBase {
 					}
 
 					if (textReturned.contains("<warnings>")) {
-						logError("Warnings were recieved when editing " + command.getTitle() + ".");
+						logError("Warnings were received when editing " + command.getTitle() + ".");
 					} else {
 						//Check other possibilities for errors/warnings being returned..
 						String errorMessage = null;
@@ -1171,7 +1291,7 @@ public class GenericBot extends NetworkingBase {
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("xml")) {
 				//We are handling XML output. We do not do anything.
-				logFinest("XML recieved.");
+				logFinest("XML received.");
 				if (textReturned.length() < 1000) {
 					logFinest("XML: " + textReturned);
 				} else {
@@ -1179,7 +1299,7 @@ public class GenericBot extends NetworkingBase {
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("php")) {
 				//We are handling PHP output. We do not do anything.
-				logFinest("PHP recieved.");
+				logFinest("PHP received.");
 				if (textReturned.length() < 1000) {
 					logFinest("PHP: " + textReturned);
 				} else {
@@ -1455,7 +1575,7 @@ public class GenericBot extends NetworkingBase {
 					rev = new Revision(new PageLocation(forceTitle, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
 				}
 				
-				rev.setPageContent(content);
+				rev.setRevisionContent(content);
 				
 				//For eventual return.
 				output.add(rev);
@@ -1478,6 +1598,34 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		return date;
+	}
+	
+	/**
+	 * Unescapes string literals and HTML.
+	 * @param text The text to unescape.
+	 * @return A String.
+	 */
+	private String unescape(String text) {
+		return unescape(text, true, true);
+	}
+	
+	/**
+	 * Unescapes text.
+	 * @param text The text to unescape.
+	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
+	 * @param unescapeHTML Unescapes HTML text. Ex: & #039;
+	 * @return A String.
+	 */
+	private String unescape(String text, boolean unescapeText, boolean unescapeHTML) {
+		String unescaped = text;
+		if (unescapeText) {
+			unescaped = StringEscapeUtils.unescapeJava(unescaped);
+		}
+		if (unescapeHTML) {
+			unescaped = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(unescaped));
+		}
+		
+		return unescaped;
 	}
 	
 	/**

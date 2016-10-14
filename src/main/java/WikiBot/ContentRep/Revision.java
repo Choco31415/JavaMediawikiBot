@@ -7,7 +7,7 @@ public class Revision extends PageLocationContainer {
 	private String user;
 	private String comment;
 	private Date date;
-	private String page = null;
+	private String revContent = null;
 	private ArrayList<String> flags;
 	
 	public Revision(PageLocation pl_, String user_, String comment_, Date date_, ArrayList<String> flags_) {
@@ -18,8 +18,8 @@ public class Revision extends PageLocationContainer {
 		flags = flags_;
 	}
 	
-	public void setPageContent(String page_) {
-		page = page_;
+	public void setRevisionContent(String revContent_) {
+		revContent = revContent_;
 	}
 	
 	public String getUser() {
@@ -65,9 +65,13 @@ public class Revision extends PageLocationContainer {
 	public boolean isBot() {
 		return flags.contains("bot");
 	}
+	
+	public boolean hasRevisionContent() {
+		return revContent != null;
+	}
 		
-	public String getPage() {
-		return page;
+	public String getRevisionContent() {
+		return revContent;
 	}
 	
 	@Override
@@ -76,10 +80,10 @@ public class Revision extends PageLocationContainer {
 
 		//Attach if the revision contains page contents or not.
 		output = "(Revision";
-		if (page != null) {
-			output += " ; Page included";
+		if (hasRevisionContent()) {
+			output += " ; Content included";
 		} else {
-			output += " ; Page not included";
+			output += " ; Content not included";
 		}
 		output += ") ";
 		

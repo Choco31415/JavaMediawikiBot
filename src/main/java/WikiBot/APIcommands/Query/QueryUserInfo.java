@@ -2,6 +2,8 @@ package WikiBot.APIcommands.Query;
 
 import java.util.ArrayList;
 
+import WikiBot.ContentRep.User;
+
 /**
  * @Description
  * This command queries a wiki for user information.
@@ -27,10 +29,24 @@ import java.util.ArrayList;
  */
 public class QueryUserInfo extends QueryList {
 
-	public QueryUserInfo(String language, ArrayList<String> userNames, ArrayList<String> propertiesToGet) {
-		super("Query user info", language, "users", "json");
+	public QueryUserInfo(ArrayList<User> users, ArrayList<String> propertiesToGet) {
+		super("Query user info", users.get(0).getLanguage(), "users", "json");
+		
+		//Parse usernames into a MW friendly format.
+		String parsedUserNames = "";
+		for (int i = 0; i < users.size(); i++) {
+			User user = users.get(i);
+			
+			if (i != 0){
+				parsedUserNames += "|";
+			}
+			
+			parsedUserNames += user.getUserName();
+		}
+		
+		//Finish initializing the API command
 		keys.add("ususers");
-		values.add(compactArray(userNames, "|"));
+		values.add(parsedUserNames);
 		keys.add("usprop");
 		values.add(compactArray(propertiesToGet, "|"));
 		
