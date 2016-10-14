@@ -2,11 +2,13 @@ package WikiBot.Core;
  
 import java.io.*;
 import java.util.Date;
+import java.util.Iterator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList; 
 import java.util.ConcurrentModificationException;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
@@ -19,12 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
 import WikiBot.ContentRep.ImageInfo;
+import WikiBot.ContentRep.InfoContainer;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Revision;
 import WikiBot.ContentRep.SimplePage;
 import WikiBot.ContentRep.User;
 import WikiBot.ContentRep.UserInfo;
+import WikiBot.ContentRep.SiteInfo.SiteStatistics;
 import WikiBot.Errors.NetworkError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
@@ -719,7 +723,7 @@ public class GenericBot extends NetworkingBase {
 		try {
 			rootNode = mapper.readValue(serverOutput, JsonNode.class);
 		} catch (IOException e1) {
-			logError("Was expecting JSON, but did not recieve JSON from server.");
+			logError("Was expecting JSON, but did not receive JSON from server.");
 			return null;
 		}
 		
@@ -888,14 +892,8 @@ public class GenericBot extends NetworkingBase {
 				chunkOfUsers = new ArrayList<User>(users.subList(i, users.size()));
 			}
 			
-			//Extract usernames from users
-			ArrayList<String> chunkOfUserNames = new ArrayList<String>();
-			for (User u : chunkOfUsers) {
-				chunkOfUserNames.add(u.getUserName());
-			}
-			
 			//Query the server.
-			String serverOutput = APIcommand(new QueryUserInfo(language, chunkOfUserNames, propertyNames));
+			String serverOutput = APIcommand(new QueryUsers(chunkOfUsers, propertyNames));
 			
 			// Read in the JSON!!!
 			ObjectMapper mapper = new ObjectMapper();
@@ -903,7 +901,7 @@ public class GenericBot extends NetworkingBase {
 			try {
 				rootNode = mapper.readValue(serverOutput, JsonNode.class);
 			} catch (IOException e1) {
-				logError("Was expecting JSON, but did not recieve JSON from server.");
+				logError("Was expecting JSON, but did not receive JSON from server.");
 				return null;
 			}
 			
@@ -924,18 +922,18 @@ public class GenericBot extends NetworkingBase {
 					//Parse for queried properties one at a time
 					int property = 0;
 					do {
-						String name = propertyNames.get(property).toLowerCase();
+						String propName = propertyNames.get(property).toLowerCase();
 						String value = "";
 						
 						//Handle special cases, while avoiding duplicates
 						if (firstUser) {
-							if (name.equalsIgnoreCase("centralids")) {
+							if (propName.equalsIgnoreCase("centralids")) {
 								propertyNames.add("attachedlocal");
 							}
 						}
 						
 						//Get and store values
-						if (name.equals("blockinfo")) {
+						if (propName.equals("blockinfo")) {
 							//This is a doozie to handle. Twitch a twitch.
 							if (user.findValue("blockid") == null) {
 								userInfo.setAsNotBlocked();
@@ -949,15 +947,15 @@ public class GenericBot extends NetworkingBase {
 								userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
 							}
 						} else {
-							if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
+							if (propName.equals("groups") || propName.equals("implicitgroups") || propName.equals("rights")) {
 								//Mediawiki returns JSON array for these parameters.
 								ArrayList<String> temp = new ArrayList<String>();
 								
-								for (JsonNode node : user.findValue(name)) {
+								for (JsonNode node : user.findValue(propName)) {
 									temp.add(node.asText());
 								}
 								
-								switch (name) {
+								switch (propName) {
 									case "groups":
 										userInfo.setGroups(temp);
 										break;
@@ -972,24 +970,24 @@ public class GenericBot extends NetworkingBase {
 										break;
 								}
 							} else {
-								if (name.equals("centralid") || name.equals("attachedlocal")) {
+								if (propName.equals("centralid") || propName.equals("attachedlocal")) {
 									//Mediawiki returns JSON for these parameters.
 									try {
-										value = mapper.writeValueAsString(rootNode.findValue(name));
+										value = mapper.writeValueAsString(rootNode.findValue(propName));
 									} catch (JsonProcessingException e) {
 										logError("JSON Processing Error: " + e.getLocalizedMessage());
 										e.printStackTrace();
 									}
 								} else {
 									//Mediawiki returns String for these parameters
-									value = rootNode.findValue(name).asText();
+									value = rootNode.findValue(propName).asText();
 								}
 								
-								if (name.equals("emailable")) {
+								if (propName.equals("emailable")) {
 									value = user.findValue("emailable") != null ? "true" : "false";
 								}
 								
-								userInfo.addProperty(name, value);
+								userInfo.addProperty(propName, value);
 							}
 						}
 						
@@ -1005,6 +1003,193 @@ public class GenericBot extends NetworkingBase {
 		}
 		
 		return toReturn;
+	}
+	
+	/**
+	 * Get the contributions of a user, up to a certain limit.
+	 * @param users The user to query.
+	 * @param depth The max amount of revisions, per user, to return.
+	 * @return An ArrayList of a user's contributions.
+	 */
+	public ArrayList<Revision> getUserContribs(User user, int depth) {
+		ArrayList<User> users = new ArrayList<User>();
+		users.add(user);
+		return getUserContribs(users, depth).get(0);
+	}
+	
+	/**
+	 * Get the contributions of multiple users, up to a certain limit.
+	 * @param users The users to query.
+	 * @param depth The max amount of revisions, per user, to return.
+	 * @return An ArrayList of ArrayList of Revision. In other words, it is a list of a users' list of contributions.
+	 */
+	public ArrayList<ArrayList<Revision>> getUserContribs(ArrayList<User> users, int depth) {
+		//Logging
+		String userLogMessage = "Getting contribs for users: ";
+		for (User u : users) {
+			userLogMessage += u.getUserName() + ", ";
+		}
+		
+		logFine(userLogMessage);
+		
+		//Method code below
+		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<ArrayList<Revision>>();
+		
+		String language = users.get(0).getLanguage();
+		
+		//For now, we only query certain properties.
+		ArrayList<String> properties = new ArrayList<String>();
+		properties.add("title");
+		properties.add("comment");
+		properties.add("timestamp");
+		properties.add("flags");
+		
+		//Query users individually.
+		int maxQuerySize = Math.min(50, APIlimit);
+		for (int u = 0; u < users.size(); u++) {
+			//Get a user.
+			User user = users.get(u);
+			
+			//Query user's contributions.
+			int rev = 0;
+			boolean moreRevisionsExist = true;
+			String queryContinue = null; // User for continuing queries.
+			while (rev < depth && moreRevisionsExist) {
+				//Query the server.
+				int querySize = -1;
+				if (rev + maxQuerySize < depth) {
+					querySize = maxQuerySize;
+				} else {
+					querySize = depth - rev;
+				}
+				APIcommand queryUserContribs = new QueryUserContribs(user, properties, querySize);
+				if (queryContinue != null) {
+					queryUserContribs.addParameter("ucstart", queryContinue);
+				}
+				
+				String serverOutput = APIcommand(queryUserContribs);
+				
+				
+				// Read in the JSON!!!
+				ObjectMapper mapper = new ObjectMapper();
+				JsonNode rootNode = null;
+				try {
+					rootNode = mapper.readValue(serverOutput, JsonNode.class);
+				} catch (IOException e1) {
+					logError("Was expecting JSON, but did not receive JSON from server.");
+					return null;
+				}
+				
+				//Parse JSON for contribs
+				ArrayList<Revision> contribs = new ArrayList<Revision>();
+				
+				JsonNode queryNode = rootNode.findValue("query");
+				JsonNode userContribs = queryNode.findValue("usercontribs");
+				
+				for (int contribID = 0; contribID < userContribs.size(); contribID++) {
+					JsonNode contrib = userContribs.get(contribID);
+					
+					//Parse for revision info
+					String title = unescape(contrib.findValue("title").textValue());
+					PageLocation loc = new PageLocation(title, language);
+					String userName = user.getUserName();
+					String comment = unescape(contrib.findValue("comment").textValue());
+					Date date = createDate(unescape(contrib.findValue("timestamp").textValue()));
+					
+					//Parse for flags
+					ArrayList<String> flags = new ArrayList<String>();
+					
+					if (contrib.has("new")) {
+						flags.add("new");
+					}
+					if (contrib.has("top")) {
+						flags.add("top");
+					}
+					if (contrib.has("minor")) {
+						flags.add("minor");
+					}
+					
+					//Package and ship the revision! Then have it sink due to a bunyip and cucumber sandwiches.
+					contribs.add(new Revision(loc, userName, comment, date, flags));
+				}
+				
+				multiContribs.add(contribs);
+				
+				rev += querySize;
+				
+				//Parse for query continue
+				JsonNode queryContinueNode = rootNode.findValue("query-continue");
+				if (queryContinueNode == null) {
+					moreRevisionsExist = false;
+				} else {
+					JsonNode ucstartNode = queryContinueNode.findValue("ucstart");
+					queryContinue = ucstartNode.textValue();
+				}
+			}
+		}
+		
+		return multiContribs;
+	}
+	
+	public SiteStatistics getSiteStatistics(String language) {
+		// Logging
+		String userLogMessage = "Getting site statistics for wiki: " + language;
+		
+		logFine(userLogMessage);
+		
+		// Method code below.
+		ArrayList<String> propertyNames = new ArrayList<String>();
+		propertyNames.add("statistics");
+		
+		SiteStatistics container = new SiteStatistics(language);
+		
+		// Query the server.
+		container = (SiteStatistics) getSiteInfo(container, language, propertyNames);
+		
+		return container;
+		
+	}
+	
+	public InfoContainer getSiteInfo(InfoContainer container, String language, ArrayList<String> propertyNames) {		
+		// Method code below
+			
+		// Query the server.
+		String serverOutput = APIcommand(new QuerySiteInfo(language, propertyNames));
+		
+		// Read in the JSON!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting JSON, but did not receive JSON from server.");
+			return null;
+		}
+		
+		// Parse out site info / queried properties.
+		int property = 0;
+		do {
+			String propName = propertyNames.get(property).toLowerCase();
+			
+			// First off, we'll start by getting the property object.
+			JsonNode propNode = rootNode.findValue(propName);
+			
+			// Secondly, we'll iterate over all data pairs in the property object.
+			Iterator<Map.Entry<String, JsonNode>> nodeIterator = propNode.fields();
+			while ( nodeIterator.hasNext() ) {
+				Map.Entry<String, JsonNode> childPropNode = nodeIterator.next();
+				String childName = childPropNode.getKey();
+				String value = childPropNode.getValue().asText();
+				
+				// Store the info.
+				container.addProperty(childName, value);
+			}
+			
+			// Next!
+			property++;
+		} while (property < propertyNames.size());
+		
+		return container;
 	}
 	
 	/**
@@ -1138,7 +1323,7 @@ public class GenericBot extends NetworkingBase {
 					}
 
 					if (textReturned.contains("<warnings>")) {
-						logError("Warnings were recieved when editing " + command.getTitle() + ".");
+						logError("Warnings were received when editing " + command.getTitle() + ".");
 					} else {
 						//Check other possibilities for errors/warnings being returned..
 						String errorMessage = null;
@@ -1171,7 +1356,7 @@ public class GenericBot extends NetworkingBase {
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("xml")) {
 				//We are handling XML output. We do not do anything.
-				logFinest("XML recieved.");
+				logFinest("XML received.");
 				if (textReturned.length() < 1000) {
 					logFinest("XML: " + textReturned);
 				} else {
@@ -1179,7 +1364,7 @@ public class GenericBot extends NetworkingBase {
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("php")) {
 				//We are handling PHP output. We do not do anything.
-				logFinest("PHP recieved.");
+				logFinest("PHP received.");
 				if (textReturned.length() < 1000) {
 					logFinest("PHP: " + textReturned);
 				} else {
@@ -1455,7 +1640,7 @@ public class GenericBot extends NetworkingBase {
 					rev = new Revision(new PageLocation(forceTitle, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
 				}
 				
-				rev.setPageContent(content);
+				rev.setRevisionContent(content);
 				
 				//For eventual return.
 				output.add(rev);
@@ -1478,6 +1663,34 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		return date;
+	}
+	
+	/**
+	 * Unescapes string literals and HTML.
+	 * @param text The text to unescape.
+	 * @return A String.
+	 */
+	private String unescape(String text) {
+		return unescape(text, true, true);
+	}
+	
+	/**
+	 * Unescapes text.
+	 * @param text The text to unescape.
+	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
+	 * @param unescapeHTML Unescapes HTML text. Ex: & #039;
+	 * @return A String.
+	 */
+	private String unescape(String text, boolean unescapeText, boolean unescapeHTML) {
+		String unescaped = text;
+		if (unescapeText) {
+			unescaped = StringEscapeUtils.unescapeJava(unescaped);
+		}
+		if (unescapeHTML) {
+			unescaped = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(unescaped));
+		}
+		
+		return unescaped;
 	}
 	
 	/**

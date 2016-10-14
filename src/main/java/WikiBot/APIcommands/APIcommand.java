@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.PageLocationContainer;
+import WikiBot.ContentRep.User;
 import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
@@ -165,7 +166,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	protected String compactPLArray(ArrayList<PageLocation> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
+		//This takes an array of page locations and compacts it into one string.
 		String output = "";
 		
 		for (int i = 0; i < array.size(); i++) {
@@ -178,8 +179,31 @@ public class APIcommand extends PageLocationContainer {
 		return output;
 	}
 	
+	/**
+	 * This takes an array of users and compacts it into on string.
+	 * @param users The group of users to compact.
+	 * @return A String.
+	 */
+	protected String compactUserArray(ArrayList<User> users) {
+		String parsedUserNames = "";
+		for (int i = 0; i < users.size(); i++) {
+			User user = users.get(i);
+			
+			if (i != 0){
+				parsedUserNames += "|";
+			}
+			
+			parsedUserNames += user.getUserName();
+		}
+		return parsedUserNames;
+	}
+	
+	/**
+	 * This takes an array of strings and compacts it into one string.
+	 * @param array The array of Strings to compact.
+	 * @return A String.
+	 */
 	protected String compactArray(ArrayList<String> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
 		return ArrayUtils.compactArray(array, delimitor);
 	}
 
