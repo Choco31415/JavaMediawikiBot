@@ -206,7 +206,6 @@ public class StatisticsBot extends GenericBot {
 						insertText += ss.getValue(stat);
 					}
 				}
-				System.out.println(ss);
 				
 				insertText += "\n";
 				
