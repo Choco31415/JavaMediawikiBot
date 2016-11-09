@@ -1,0 +1,114 @@
+<!--Initialized-->
+
+Welcome to InterwikiBot's international wiki statistics page! This page is updated weekly.
+If there is an issue, please contact the [[User:{{User:InterwikiBot/Owner}}|bot's owner]].
+
+This code is made with the [[User:InterwikiBot#Documentation#Java|Java framework]].
+
+All times are in the format: YYYY/MM/DD HH:MM
+
+== De ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== En ==
+For a more complete list, see [[User:KrIsMa/Statistics]].
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== Hu ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== Id ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== Nl ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== Ja ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}
+
+== Ru ==
+
+{|class="wikitable sortable" style="width:650px"
+|-
+!ID
+!Time
+!Pages
+!Articles
+!Edits
+!Images
+!Users
+!Active Users
+!Admins
+|}

@@ -2,11 +2,13 @@ package WikiBot.Core;
  
 import java.io.*;
 import java.util.Date;
+import java.util.Iterator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList; 
 import java.util.ConcurrentModificationException;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
@@ -19,12 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import WikiBot.APIcommands.APIcommand;
 import WikiBot.APIcommands.Query.*;
 import WikiBot.ContentRep.ImageInfo;
+import WikiBot.ContentRep.InfoContainer;
 import WikiBot.ContentRep.Page;
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.Revision;
 import WikiBot.ContentRep.SimplePage;
 import WikiBot.ContentRep.User;
 import WikiBot.ContentRep.UserInfo;
+import WikiBot.ContentRep.SiteInfo.SiteStatistics;
 import WikiBot.Errors.NetworkError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
@@ -889,7 +893,7 @@ public class GenericBot extends NetworkingBase {
 			}
 			
 			//Query the server.
-			String serverOutput = APIcommand(new QueryUserInfo(chunkOfUsers, propertyNames));
+			String serverOutput = APIcommand(new QueryUsers(chunkOfUsers, propertyNames));
 			
 			// Read in the JSON!!!
 			ObjectMapper mapper = new ObjectMapper();
@@ -918,18 +922,18 @@ public class GenericBot extends NetworkingBase {
 					//Parse for queried properties one at a time
 					int property = 0;
 					do {
-						String name = propertyNames.get(property).toLowerCase();
+						String propName = propertyNames.get(property).toLowerCase();
 						String value = "";
 						
 						//Handle special cases, while avoiding duplicates
 						if (firstUser) {
-							if (name.equalsIgnoreCase("centralids")) {
+							if (propName.equalsIgnoreCase("centralids")) {
 								propertyNames.add("attachedlocal");
 							}
 						}
 						
 						//Get and store values
-						if (name.equals("blockinfo")) {
+						if (propName.equals("blockinfo")) {
 							//This is a doozie to handle. Twitch a twitch.
 							if (user.findValue("blockid") == null) {
 								userInfo.setAsNotBlocked();
@@ -943,15 +947,15 @@ public class GenericBot extends NetworkingBase {
 								userInfo.setBlockInfo(blockID, blockedBy, blockReason, blockExpiration);
 							}
 						} else {
-							if (name.equals("groups") || name.equals("implicitgroups") || name.equals("rights")) {
+							if (propName.equals("groups") || propName.equals("implicitgroups") || propName.equals("rights")) {
 								//Mediawiki returns JSON array for these parameters.
 								ArrayList<String> temp = new ArrayList<String>();
 								
-								for (JsonNode node : user.findValue(name)) {
+								for (JsonNode node : user.findValue(propName)) {
 									temp.add(node.asText());
 								}
 								
-								switch (name) {
+								switch (propName) {
 									case "groups":
 										userInfo.setGroups(temp);
 										break;
@@ -966,24 +970,24 @@ public class GenericBot extends NetworkingBase {
 										break;
 								}
 							} else {
-								if (name.equals("centralid") || name.equals("attachedlocal")) {
+								if (propName.equals("centralid") || propName.equals("attachedlocal")) {
 									//Mediawiki returns JSON for these parameters.
 									try {
-										value = mapper.writeValueAsString(rootNode.findValue(name));
+										value = mapper.writeValueAsString(rootNode.findValue(propName));
 									} catch (JsonProcessingException e) {
 										logError("JSON Processing Error: " + e.getLocalizedMessage());
 										e.printStackTrace();
 									}
 								} else {
 									//Mediawiki returns String for these parameters
-									value = rootNode.findValue(name).asText();
+									value = rootNode.findValue(propName).asText();
 								}
 								
-								if (name.equals("emailable")) {
+								if (propName.equals("emailable")) {
 									value = user.findValue("emailable") != null ? "true" : "false";
 								}
 								
-								userInfo.addProperty(name, value);
+								userInfo.addProperty(propName, value);
 							}
 						}
 						
@@ -1125,6 +1129,67 @@ public class GenericBot extends NetworkingBase {
 		}
 		
 		return multiContribs;
+	}
+	
+	public SiteStatistics getSiteStatistics(String language) {
+		// Logging
+		String userLogMessage = "Getting site statistics for wiki: " + language;
+		
+		logFine(userLogMessage);
+		
+		// Method code below.
+		ArrayList<String> propertyNames = new ArrayList<String>();
+		propertyNames.add("statistics");
+		
+		SiteStatistics container = new SiteStatistics(language);
+		
+		// Query the server.
+		container = (SiteStatistics) getSiteInfo(container, language, propertyNames);
+		
+		return container;
+		
+	}
+	
+	public InfoContainer getSiteInfo(InfoContainer container, String language, ArrayList<String> propertyNames) {		
+		// Method code below
+			
+		// Query the server.
+		String serverOutput = APIcommand(new QuerySiteInfo(language, propertyNames));
+		
+		// Read in the JSON!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting JSON, but did not receive JSON from server.");
+			return null;
+		}
+		
+		// Parse out site info / queried properties.
+		int property = 0;
+		do {
+			String propName = propertyNames.get(property).toLowerCase();
+			
+			// First off, we'll start by getting the property object.
+			JsonNode propNode = rootNode.findValue(propName);
+			
+			// Secondly, we'll iterate over all data pairs in the property object.
+			Iterator<Map.Entry<String, JsonNode>> nodeIterator = propNode.fields();
+			while ( nodeIterator.hasNext() ) {
+				Map.Entry<String, JsonNode> childPropNode = nodeIterator.next();
+				String childName = childPropNode.getKey();
+				String value = childPropNode.getValue().asText();
+				
+				// Store the info.
+				container.addProperty(childName, value);
+			}
+			
+			// Next!
+			property++;
+		} while (property < propertyNames.size());
+		
+		return container;
 	}
 	
 	/**

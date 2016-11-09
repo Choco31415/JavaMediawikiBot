@@ -9,8 +9,8 @@ public class User {
 	
 	/**
 	 * 
-	 * @param language_ The user's wiki.
 	 * @param username_ The user's name.
+	 * @param language_ The user's wiki.
 	 */
 	public User(String username_, String language_) {
 		language = language_;
