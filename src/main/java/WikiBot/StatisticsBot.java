@@ -111,15 +111,16 @@ public class StatisticsBot extends GenericBot {
 		}
 		
 		// Run forever.
-		while (true) {
+		boolean running = true;
+		while (running) {
 			runChecks();
 			
 			int weekInSeconds = 60*60*24*7;
 			try {
 				Thread.sleep(1000*weekInSeconds);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				running = false;// If there is an error, continuing to run will likely be a bad idea.
 			}
 		}
 	}
@@ -190,10 +191,6 @@ public class StatisticsBot extends GenericBot {
 				// Format it into wiki text.
 				String insertText = "|-";
 				
-				// ID...
-				int ID = getNextID(sectionText);
-				insertText += "\n|" + ID;
-				
 				// Time...
 				insertText += "\n|" + timeStamp;
 						
@@ -218,69 +215,5 @@ public class StatisticsBot extends GenericBot {
 		// Update the page.
 		APIcommand updatePage = new EditPage(statsPage, rawText, "Weekly update.");
 		APIcommand(updatePage);
-	}
-	
-	/**
-	 * Given a section's text, parse it to find what the next table row ID should be.
-	 * @param sectionText
-	 * @return
-	 */
-	public int getNextID(String sectionText) {
-		final String rowStart = "|-\n|";
-		
-		int ID = 1;// Default value...
-		
-		if (sectionText.contains(rowStart)) {
-			// This section contains an ID column. Read every row to find the maximum already used ID.
-			int cursor = sectionText.indexOf(rowStart);
-			while (cursor != -1) {
-				
-				int currentID = readID(sectionText, cursor+4);
-				
-				if (currentID > ID) {
-					ID = currentID;
-				}
-				
-				cursor = sectionText.indexOf(rowStart, cursor + 1);
-			}
-			
-			// Add one onto the highest ID.
-			ID += 1;
-		}
-		
-		return ID;
-	}
-	
-	/**
-	 * Given a String and an index, and given that there is a number starting
-	 * at index, read in the number.
-	 * @param text
-	 * @param cursor
-	 * @return
-	 */
-	public int readID(String text, int cursor) {
-		// Set up variables.
-		final String nums = "0123456789";
-		final ArrayList<Character> ID = new ArrayList<Character>();
-		
-		// Iterate until you reach non-int values or the end of the String.
-		char c = text.charAt(cursor);
-		while (cursor < text.length() && nums.contains(new String(new char[]{c}))) {
-			ID.add(c);
-			cursor++;
-			c = text.charAt(cursor);
-		}
-		
-		// Convert ID to String, then int.
-		char[] IDchars = new char[ID.size()];
-		for (int i = 0; i < ID.size(); i++) {
-			Character IDchar = ID.get(i);
-			IDchars[i] = IDchar;
-		}
-		
-		String strID = new String(IDchars);
-		
-		// Return!!!
-		return new Integer(strID);
 	}
 }
