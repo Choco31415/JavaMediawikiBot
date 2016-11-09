@@ -110,17 +110,22 @@ public class StatisticsBot extends GenericBot {
 			throw new Error("Didn't log in.");
 		}
 		
-		// Run forever.
+		// Run.
 		boolean running = true;
 		while (running) {
 			runChecks();
 			
-			int weekInSeconds = 60*60*24*7;
-			try {
-				Thread.sleep(1000*weekInSeconds);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				running = false;// If there is an error, continuing to run will likely be a bad idea.
+			int daysLeft = 7;
+			while (running & daysLeft > 0) {
+				System.out.println(daysLeft + " days until next check.");
+				int dayInSeconds = 60*60*24;
+				try {
+					Thread.sleep(1000*dayInSeconds);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					running = false;// If there is an error, continuing to run will likely be a bad idea.
+				}
+				daysLeft--;
 			}
 		}
 	}
