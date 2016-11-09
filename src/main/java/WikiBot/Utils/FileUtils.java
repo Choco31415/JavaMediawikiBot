@@ -2,6 +2,7 @@ package WikiBot.Utils;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 
@@ -110,9 +112,47 @@ public class FileUtils {
 		try {
 			toReturn = ImageIO.read(FileUtils.class.getResourceAsStream(path));
 		} catch (IOException e) {
-			throw new Error("Could not read imag: " + path);
+			throw new Error("Could not read image: " + path);
 		}
 		
 		return toReturn;
+	}
+	
+	/**
+	 * Read in a .properties file. Thanks to Java for the code.
+	 * 
+	 * @param path The path to the properties file.
+	 * @param properties The properties to read in.
+	 * @return The values of the properties, in the same order as passed in.
+	 */
+	public static ArrayList<String> readProperties(String path, ArrayList<String> properties) {
+		Properties prop = new Properties();
+		InputStream in = null;
+		
+		ArrayList<String> values = new ArrayList<String>();
+
+		try {
+
+			in = FileUtils.class.getResourceAsStream(path);
+
+			// Load a properties file.
+			prop.load(in);
+
+			// Read in each value one by one.
+			for (String property : properties) {
+				values.add(prop.getProperty(property));
+			}
+
+		} catch (IOException ex) {
+			throw new Error("Could not read property file: " + path);
+		}
+		
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return values;
 	}
 }

@@ -21,6 +21,7 @@ sourceCompatibility = 1.7
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -28,7 +29,10 @@ dependencies {
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.0'
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'commons-logging:commons-logging:1.2'
-    compile 'org.apache.httpcomponents:httpclient:4.5.2'
     compile 'org.apache.httpcomponents:httpcore:4.4.4'
+	compile 'org.apache.httpcomponents:httpmime:4.5.2'
+	compile 'com.google.http-client:google-http-client-gson:1.19.0'
+    compile 'com.google.apis:google-api-services-analyticsreporting:v4-rev112-1.22.0'
+    compile group: 'org.jfree', name: 'jfreechart', version: '1.0.19'
     testCompile 'junit:junit:4.+'
 }

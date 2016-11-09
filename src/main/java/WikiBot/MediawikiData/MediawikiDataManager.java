@@ -1,5 +1,6 @@
 package WikiBot.MediawikiData;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import WikiBot.Utils.FileUtils;
@@ -54,8 +55,12 @@ public class MediawikiDataManager {
 		return instance;
 	}
 	
-	public void readFamily(String family, int commentBufferLineCount) {
-		ArrayList<String> lines = FileUtils.readFileAsList("/Families/" + family + ".txt", commentBufferLineCount, false, true);
+	public void readDefaultFamily(String family, int commentBufferLineCount) {
+		readFamily(new File("/Families/" + family + ".txt"), commentBufferLineCount);
+	}
+	
+	public void readFamily(File family, int commentBufferLineCount) {
+		ArrayList<String> lines = FileUtils.readFileAsList(family.getAbsolutePath(), commentBufferLineCount, false, true);
 		
 		// Gather array size
 		WikiPrefix = new ArrayList<String>();

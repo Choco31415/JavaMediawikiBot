@@ -7,9 +7,12 @@ import WikiBot.ContentRep.User;
 /**
  * @Description
  * This command queries a wiki for user information.
+ * Do not confuse this with API:UserInfo.
  * 
  * All query-able properties can be found here:
  * https://www.mediawiki.org/wiki/API:Users
+ * 
+ * Recommended not used raw.
  * 
  * @RequiredRights
  * none
@@ -27,22 +30,13 @@ import WikiBot.ContentRep.User;
  * emailable: 1.14+
  * gender: 1.16+
  */
-public class QueryUserInfo extends QueryList {
+public class QueryUsers extends QueryList {
 
-	public QueryUserInfo(ArrayList<User> users, ArrayList<String> propertiesToGet) {
+	public QueryUsers(ArrayList<User> users, ArrayList<String> propertiesToGet) {
 		super("Query user info", users.get(0).getLanguage(), "users", "json");
 		
 		//Parse usernames into a MW friendly format.
-		String parsedUserNames = "";
-		for (int i = 0; i < users.size(); i++) {
-			User user = users.get(i);
-			
-			if (i != 0){
-				parsedUserNames += "|";
-			}
-			
-			parsedUserNames += user.getUserName();
-		}
+		String parsedUserNames = compactUserArray(users);
 		
 		//Finish initializing the API command
 		keys.add("ususers");

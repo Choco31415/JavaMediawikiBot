@@ -1,24 +1,34 @@
 package WikiBot.APIcommands;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.PageLocationContainer;
+import WikiBot.ContentRep.User;
 import WikiBot.Errors.UnsupportedError;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
 import WikiBot.Utils.ArrayUtils;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
 
 /**
  * @Description
  * This class is a base for making APIcommands.
  * 
  * APIcommands are commands to a wiki's API.
+ * 
+ * Only use this class to create new commands. Ex: EditPage
  */
 public class APIcommand extends PageLocationContainer {
 	
 	protected String commandName;//One or two words to summarize what this edit does.
 	
+	protected boolean requiresHttpEntity = false;
 	protected boolean requiresPOST = false;
 	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
@@ -96,6 +106,10 @@ public class APIcommand extends PageLocationContainer {
 		}
 	}
 	
+	public HttpEntity getHttpEntity(String token) {
+		return null;// For extended command needs only.
+	} 
+	
 	public PageLocation getPageLocation() {
 		return pl;
 	}
@@ -114,24 +128,20 @@ public class APIcommand extends PageLocationContainer {
 	
 	public String[] getKeysArray() {
 		String[] temp = new String[keys.size()];
-		for (int i = 0; i < keys.size(); i++) {
-			temp[i] = keys.get(i);
-		}
-		return temp;
+		return keys.toArray(temp);
 	}
 	
 	public String[] getValuesArray() {
 		String[] temp = new String[values.size()];
-		for (int i = 0; i < values.size(); i++) {
-			temp[i] = values.get(i);
-		}
-		return temp;
+		return values.toArray(temp);
 	}
 	
 	public String getValue(String key) {
 		return values.get(keys.indexOf(key));
 	}
 	
+	public void setRequiresEntity(boolean bool) { requiresHttpEntity = bool; }
+	public boolean requiresEntity() { return requiresHttpEntity; }
 	public void setRequiresPOST(boolean bool) { requiresPOST = bool; }
 	public boolean requiresPOST() { return requiresPOST; }
 	public void setUnescapeText(boolean bool) { unescapeText = bool; }
@@ -161,11 +171,22 @@ public class APIcommand extends PageLocationContainer {
 		if (doesKeyExist("text")) {
 			temp += "\nText: \n" + getValue("text");
 		}
+		if (requiresEntity()) {
+			String entity;
+			try {
+				entity = EntityUtils.toString(getHttpEntity("<token>"));
+			} catch (ParseException e) {
+				entity = "Required.";
+			} catch (IOException e) {
+				entity = "Required.";
+			}
+			temp += "\nEntity: " + entity;
+		}
 		return temp;
 	}
 	
 	protected String compactPLArray(ArrayList<PageLocation> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
+		//This takes an array of page locations and compacts it into one string.
 		String output = "";
 		
 		for (int i = 0; i < array.size(); i++) {
@@ -178,8 +199,31 @@ public class APIcommand extends PageLocationContainer {
 		return output;
 	}
 	
+	/**
+	 * This takes an array of users and compacts it into on string.
+	 * @param users The group of users to compact.
+	 * @return A String.
+	 */
+	protected String compactUserArray(ArrayList<User> users) {
+		String parsedUserNames = "";
+		for (int i = 0; i < users.size(); i++) {
+			User user = users.get(i);
+			
+			if (i != 0){
+				parsedUserNames += "|";
+			}
+			
+			parsedUserNames += user.getUserName();
+		}
+		return parsedUserNames;
+	}
+	
+	/**
+	 * This takes an array of strings and compacts it into one string.
+	 * @param array The array of Strings to compact.
+	 * @return A String.
+	 */
 	protected String compactArray(ArrayList<String> array, String delimitor) {
-		//This takes an array of strings and compacts it into one string.
 		return ArrayUtils.compactArray(array, delimitor);
 	}
 

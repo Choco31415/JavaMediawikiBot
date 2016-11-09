@@ -12,6 +12,8 @@ import WikiBot.ContentRep.PageLocation;
  * All query-able properties can be found here:
  * https://www.mediawiki.org/wiki/API:Imageinfo
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

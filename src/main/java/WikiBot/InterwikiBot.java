@@ -27,7 +27,7 @@ public class InterwikiBot extends BotPanel {
 		super("Scratch", "en");
 		
 		//Preferences
-		panelName = "InterwikiBot";
+		setPanelName("InterwikiBot");
 		
 		botUsername = "InterwikiBot";
 		
@@ -37,7 +37,11 @@ public class InterwikiBot extends BotPanel {
 		APIthrottle = 0.5;//Minimum time between any API commands.
 		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
 		
-		setLoggerLevel(Level.INFO);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
+		setLoggerLevel(Level.FINEST);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
+	}
+	
+	public static void main(String[] args) {
+		InterwikiBot bot = new InterwikiBot(); // Start GUI
 	}
 	
 	/*

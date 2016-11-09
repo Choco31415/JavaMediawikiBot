@@ -4,6 +4,8 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets a list of all pages on the wiki.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
