@@ -5,7 +5,7 @@ If there is an issue, please contact the [[User:{{User:InterwikiBot/Owner}}|bot'
 
 This code is made with the [[User:InterwikiBot#Documentation#Java|Java framework]].
 
-All times are in the format: YYYY/MM/DD HH:MM
+All times are in the format: YYYY/MM/DD hh:mm
 
 == De ==
 
