@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import WikiBot.Utils.ArrayUtils;
 
 /**
- * This class stores user information, like it's direct url, ect...
+ * This class stores user information, like the direct url, block info, ect...
  */
 public class UserInfo extends InfoContainer {
 	
@@ -60,6 +60,34 @@ public class UserInfo extends InfoContainer {
 	public boolean hasRights() { return rights != null; }
 	public void setRights(ArrayList<String> arr) { rights = arr; }
 	public ArrayList<String> getRights() { return rights; }
+
+	/**
+	 * Use this method to see if this UserInfo contains information on a user's edit count.
+	 * @return
+	 */
+	public boolean hasEditCount() { return hasProperty("editcount"); }
+	public int getEditCount() { return new Integer(getValue("editcount")); }
+	
+	/**
+	 * Use this method to see if this UserInfo contains information on a user's registration date and time.
+	 * @return
+	 */
+	public boolean hasRegistration() { return hasProperty("registration"); }
+	public String getRegistration() { return getValue("registration"); }
+	
+	/**
+	 * Use this method to see if this UserInfo contains information on if a user is emailable.
+	 * @return
+	 */
+	public boolean hasEmailable() { return hasProperty("emailable"); }
+	public boolean getEmailable() { return new Boolean(getValue("emailable")); }
+	
+	/**
+	 * Use this method to see if this UserInfo contains information on a user's gender.
+	 * @return
+	 */
+	public boolean hasGender() { return hasProperty("gender"); }
+	public String getGender() { return getValue("gender"); }
 	
 	/**
 	 * Use this method to see if this UserInfo contains information on a user's block (or lack thereof).

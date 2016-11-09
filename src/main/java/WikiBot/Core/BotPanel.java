@@ -656,20 +656,8 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == logInSelectedButton || e.getSource() == logInAllButton || e.getSource() == logInHomeButton) {
-			//Build window.
-		    JPasswordField passwordField = new JPasswordField(24);//24 is the width, in columns, of the password field.
-		    JLabel label = new JLabel("Enter bot password:");
-		    Box box = Box.createHorizontalBox();
-		    box.add(label);
-		    box.add(passwordField);
-		    
-		    //Show window asking for password.
-			int button = JOptionPane.showConfirmDialog(null, box, "Password:", JOptionPane.OK_CANCEL_OPTION);
-			
-			//What button was pressed?
-			if (button == JOptionPane.OK_OPTION) {
-				botPassword = new String(passwordField.getPassword());
-			} else {
+			botPassword = promptForPassword();
+			if (botPassword.equals("")) {
 				return;
 			}
 		}
@@ -743,6 +731,33 @@ public abstract class BotPanel extends GenericBot implements ActionListener {
 					pushButton.setText("Pause Push");
 				}
 			}
+		}
+	}
+	
+	/*
+	 * Password methods.
+	 */
+	
+	/**
+	 * Using a pop-up window, prompt the user for a password.
+	 * @return The password, or "" if the user canceled.
+	 */
+	public String promptForPassword() {
+		//Build window.
+	    JPasswordField passwordField = new JPasswordField(24);//24 is the width, in columns, of the password field.
+	    JLabel label = new JLabel("Enter bot password:");
+	    Box box = Box.createHorizontalBox();
+	    box.add(label);
+	    box.add(passwordField);
+	    
+	    //Show window asking for password.
+		int button = JOptionPane.showConfirmDialog(null, box, "Password:", JOptionPane.OK_CANCEL_OPTION);
+		
+		//What button was pressed?
+		if (button == JOptionPane.OK_OPTION) {
+			return new String(passwordField.getPassword());
+		} else {
+			return "";
 		}
 	}
 	
