@@ -97,13 +97,26 @@ public class StatisticsBot extends GenericBot {
 			botPassword = sc.nextLine();
 		}
 		
-		b.run(botPassword);
+		boolean softStart = true;
+		
+		System.out.println("Do you want a soft start? Y/N");
+		
+		//Accommodate Eclipse test run environments.
+		try {
+			Console console = System.console();
+			softStart = console.readLine().equalsIgnoreCase("Y");
+		} catch (Error|Exception e) {
+			Scanner sc = new Scanner(System.in);
+			softStart = sc.nextLine().equalsIgnoreCase("Y");
+		}
+		
+		b.run(botPassword, softStart);
 	}
 	
 	/*
 	 * This is the entry point for the Object portion of the bot.
 	 */
-	public void run(String botPassword) {
+	public void run(String botPassword, boolean softStart) {
 		boolean loggedIn = logIn(bot, botPassword);
 		
 		if (!loggedIn) {
@@ -112,8 +125,12 @@ public class StatisticsBot extends GenericBot {
 		
 		// Run.
 		boolean running = true;
+		boolean firstLoop = true;
 		while (running) {
-			runChecks();
+			//If soft starting, do not run the first loop.
+			if (!firstLoop && softStart || !softStart) {
+				runChecks();
+			}
 			
 			int daysLeft = 7;
 			while (running & daysLeft > 0) {
