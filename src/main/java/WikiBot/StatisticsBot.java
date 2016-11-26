@@ -3,6 +3,7 @@ package WikiBot;
 import java.io.Console;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -128,7 +129,7 @@ public class StatisticsBot extends GenericBot {
 		boolean firstLoop = true;
 		while (running) {
 			//If soft starting, do not run the first loop.
-			if (!firstLoop && softStart || !softStart) {
+			if (( !firstLoop && softStart ) || !softStart ) {
 				runChecks();
 			}
 			
@@ -144,6 +145,8 @@ public class StatisticsBot extends GenericBot {
 				}
 				daysLeft--;
 			}
+			
+			firstLoop = false;
 		}
 	}
 
@@ -161,19 +164,11 @@ public class StatisticsBot extends GenericBot {
 		
 		if (!pageExists || !sp.getRawText().contains("<!--Initialized-->")) {
 			// Not initialized, so initialize it.
-			ArrayList<String> defaultTextArray = FileUtils.readFileAsList(defaultStatsFile, 0, false, false);
-			String defaultText = "";
-			
-			for (String line : defaultTextArray) {
-				defaultText += line + "\n";
-			}
+			String defaultText = generateDefaultPageText();
 			
 			APIcommand initPage = new EditPage(statsPage, defaultText, "Initializing.");
 			APIcommand(initPage); // Push text.
-		}
-		
-		// Update sp to have content.
-		if (sp == null) {
+			
 			sp = getWikiPage(statsPage);
 		}
 		
@@ -236,5 +231,45 @@ public class StatisticsBot extends GenericBot {
 		// Update the page.
 		APIcommand updatePage = new EditPage(statsPage, rawText, "Weekly update.");
 		APIcommand(updatePage);
+	}
+	
+	public String generateDefaultPageText() {
+		String defaultText = "";
+		
+		ArrayList<String> defaultTextArray = FileUtils.readFileAsList(defaultStatsFile, 0, false, false);
+		
+		for (String line : defaultTextArray) {
+			defaultText += line + "\n";
+		}
+		
+		ArrayList<String> wikiPrefixes = mdm.getWikiPrefixes();
+		Collections.sort(wikiPrefixes);
+		
+		for (String wikiPrefix : wikiPrefixes) {
+			String apiURL = mdm.getWikiURL(wikiPrefix);
+			String siteURL = apiURL.substring(0, apiURL.lastIndexOf('/')) + "/wiki";
+			String allArticlesURL = siteURL + "/Special:AllPages";
+			String recentChangesURL = siteURL + "/Special:RecentChanges";
+			String allImagesURL = apiURL + "/index.php?title=Special:AllPages&namespace=6";
+			String allUsersURL = siteURL + "/Special:ListUsers";
+			String activeUsersURL = siteURL + "/Special:ActiveUsers";
+			String allAdminsURL = apiURL + "/index.php?title=Special:ListUsers&group=sysop";
+			
+			defaultText += "\n== " + wikiPrefix + " ==\n\n";
+			
+			defaultText += "{|class='wikitable sortable' style='width:700px'"
+			+ "\n|-"
+			+ "\n!Time"
+			+ "\n!Pages"
+			+ "\n![" + allArticlesURL + " Articles]"
+			+ "\n![" + recentChangesURL + " Edits]"
+			+ "\n![" + allImagesURL + " Images]"
+			+ "\n![" + allUsersURL + " Users]"
+			+ "\n![" + activeUsersURL + " Active Users]"
+			+ "\n![" + allAdminsURL + " Admins]"
+			+ "\n|}\n";
+		}
+		
+		return defaultText;
 	}
 }

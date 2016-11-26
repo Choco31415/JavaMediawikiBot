@@ -1,107 +1,14 @@
 <!--Initialized-->
+{| style = "margin: 0 auto; float:right"
+! style = "padding:15px" | [[File:Gobo1.png|right|x120px]]
 
-Welcome to InterwikiBot's international wiki statistics page! This page is updated weekly.
+|<center>Welcome to InterwikiBot's international wiki statistics page! This page is updated weekly.
+
 If there is an issue, please contact the [[User:{{User:InterwikiBot/Owner}}|bot's owner]].
 
-This code is made with the [[User:InterwikiBot#Documentation#Java|Java framework]].
+This code is made with the bot's [[User:InterwikiBot#Documentation#Java|Java framework]].
 
-All times are in the format: YYYY/MM/DD hh:mm
+All times are in the format: YYYY/MM/DD hh:mm</center>
 
-== De ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== En ==
-For a more complete list, see [[User:KrIsMa/Statistics]].
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== Hu ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== Id ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== Nl ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== Ja ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
-|}
-
-== Ru ==
-
-{|class="wikitable sortable" style="width:650px"
-|-
-!Time
-!Pages
-!Articles
-!Edits
-!Images
-!Users
-!Active Users
-!Admins
+! style = "padding:15px" | [[File:Wiki.png|right|x120px]]
 |}
