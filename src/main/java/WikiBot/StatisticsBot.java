@@ -21,17 +21,17 @@ public class StatisticsBot extends GenericBot {
 	private static final long serialVersionUID = 1L;
 
 	private static String username;
+	private static String password;
 	private static String language;
-	private static User bot;
+	private static User botUser;
+	private static String botPropFile;
 	
 	private static StatisticsBot instance;
 	
 	private static PageLocation statsPage;
 	private static String defaultStatsFile;
 	
-	private static String[] statsTracked;
-	
-	private static SimpleDateFormat dateFormat;
+	private static String[] statsTracked;// Which statistics are we tracking?
 	
 	/*
 	 * This is where I initialize my custom Mediawiki bot.
@@ -47,16 +47,12 @@ public class StatisticsBot extends GenericBot {
 		
 		setLoggerLevel(Level.INFO);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
 		
-		username = "InterwikiBot";
-		language = "en";
-		bot = new User(username, language);
+		botPropFile = "/BotPropertiesFile.txt";
 		
 		statsPage = new PageLocation("User:" + username + "/International Stats", language);
 		defaultStatsFile = "/DefaultStatsPage.txt";
 		
 		statsTracked = new String[]{"pages", "articles", "edits", "images", "users", "activeusers", "admins"};
-		
-		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 		
 		if (instance == null) {
 			instance = this;
@@ -85,69 +81,40 @@ public class StatisticsBot extends GenericBot {
 	public static void main(String[] args) {
 		StatisticsBot b = getInstance();
 		
-		String botPassword = "";
-		
-		System.out.println("Please input the bot password:");
-		
-		//Accommodate Eclipse test run environments.
-		try {
-			Console console = System.console();
-			botPassword = new String(console.readPassword());
-		} catch (Error|Exception e) {
-			Scanner sc = new Scanner(System.in);
-			botPassword = sc.nextLine();
-		}
-		
-		boolean softStart = true;
-		
-		System.out.println("Do you want a soft start? Y/N");
-		
-		//Accommodate Eclipse test run environments.
-		try {
-			Console console = System.console();
-			softStart = console.readLine().equalsIgnoreCase("Y");
-		} catch (Error|Exception e) {
-			Scanner sc = new Scanner(System.in);
-			softStart = sc.nextLine().equalsIgnoreCase("Y");
-		}
-		
-		b.run(botPassword, softStart);
+		b.run();
 	}
 	
-	/*
+	/**
 	 * This is the entry point for the Object portion of the bot.
+	 * 
+	 * @param botPassword The password of the bot.
+	 * @param delay The amount of seconds to delay checks.
 	 */
-	public void run(String botPassword, boolean softStart) {
-		boolean loggedIn = logIn(bot, botPassword);
+	public void run() {
+		loadPropFile();
+		
+		boolean loggedIn = logIn(botUser, password);
 		
 		if (!loggedIn) {
 			throw new Error("Didn't log in.");
 		}
 		
-		// Run.
-		boolean running = true;
-		boolean firstLoop = true;
-		while (running) {
-			//If soft starting, do not run the first loop.
-			if (( !firstLoop && softStart ) || !softStart ) {
-				runChecks();
-			}
-			
-			int daysLeft = 7;
-			while (running & daysLeft > 0) {
-				System.out.println(daysLeft + " days until next check.");
-				int dayInSeconds = 60*60*24;
-				try {
-					Thread.sleep(1000*dayInSeconds);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					running = false;// If there is an error, continuing to run will likely be a bad idea.
-				}
-				daysLeft--;
-			}
-			
-			firstLoop = false;
-		}
+		runChecks();
+	}
+	
+	
+	public void loadPropFile() {
+		ArrayList<String> properties = new ArrayList<>();
+		properties.add("username");
+		properties.add("password");
+		properties.add("langauge");
+		
+		ArrayList<String> values = FileUtils.readProperties(botPropFile, properties);
+		
+		username = values.get(0);
+		password = values.get(1);
+		language = values.get(2);
+		botUser = new User(username);
 	}
 
 	/*
