@@ -33,11 +33,13 @@ public class StatisticsBot extends GenericBot {
 	
 	private static String[] statsTracked;// Which statistics are we tracking?
 	
+	private static SimpleDateFormat dateFormat;
+	
 	/*
 	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public StatisticsBot() {
-		super("Scratch", "en");
+		super("Scratch", language);
 		
 		//Preferences
 		APIlimit = 30;//The amount of items to get per query call, if there are multiple items.
@@ -47,12 +49,14 @@ public class StatisticsBot extends GenericBot {
 		
 		setLoggerLevel(Level.INFO);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
 		
-		botPropFile = "/BotPropertiesFile.txt";
+		botPropFile = "/BotProperties.properties";
 		
 		statsPage = new PageLocation("User:" + username + "/International Stats", language);
 		defaultStatsFile = "/DefaultStatsPage.txt";
 		
 		statsTracked = new String[]{"pages", "articles", "edits", "images", "users", "activeusers", "admins"};
+		
+		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 		
 		if (instance == null) {
 			instance = this;
@@ -92,6 +96,7 @@ public class StatisticsBot extends GenericBot {
 	 */
 	public void run() {
 		loadPropFile();
+		statsPage = new PageLocation("User:" + username + "/International Stats", language);
 		
 		boolean loggedIn = logIn(botUser, password);
 		
@@ -107,14 +112,14 @@ public class StatisticsBot extends GenericBot {
 		ArrayList<String> properties = new ArrayList<>();
 		properties.add("username");
 		properties.add("password");
-		properties.add("langauge");
+		properties.add("language");
 		
 		ArrayList<String> values = FileUtils.readProperties(botPropFile, properties);
 		
 		username = values.get(0);
 		password = values.get(1);
 		language = values.get(2);
-		botUser = new User(username);
+		botUser = new User(username, language);
 	}
 
 	/*

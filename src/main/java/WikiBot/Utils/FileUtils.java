@@ -133,7 +133,7 @@ public class FileUtils {
 
 		try {
 
-			in = new FileInputStream(path);
+			in = FileUtils.class.getResourceAsStream(path);
 
 			// Load a properties file.
 			prop.load(in);
