@@ -6,6 +6,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command edits a page section.
  * 
+ * Recommended used raw.
+ * 
  * @RequiredRights
  * edit
  * 
@@ -29,7 +31,7 @@ public class EditSection extends APIcommand {
 		values.add(pl.getTitle());
 		keys.add("section");
 		values.add("" + sectionID_);
-		keys.add("appendtext");
+		keys.add("text");
 		values.add(text_);
 		keys.add("summary");
 		values.add(editSummary_);

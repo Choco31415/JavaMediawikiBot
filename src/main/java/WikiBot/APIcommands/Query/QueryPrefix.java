@@ -4,6 +4,8 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets pages with a certain prefix.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

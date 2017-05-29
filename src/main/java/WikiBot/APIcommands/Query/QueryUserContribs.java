@@ -8,6 +8,8 @@ import WikiBot.ContentRep.User;
  * @Description
  * This command gets a list of a user's contributions.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

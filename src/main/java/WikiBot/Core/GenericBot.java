@@ -1,11 +1,14 @@
 package WikiBot.Core;
  
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.Iterator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList; 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Locale;
 import java.util.Map;
@@ -15,10 +18,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import WikiBot.APIcommands.APIcommand;
+import WikiBot.APIcommands.UploadFileChunk;
 import WikiBot.APIcommands.Query.*;
 import WikiBot.ContentRep.ImageInfo;
 import WikiBot.ContentRep.InfoContainer;
@@ -71,6 +76,7 @@ public class GenericBot extends NetworkingBase {
 	protected boolean logPageDownloads = true;//Should the bot log page downloads?
 	public boolean parseThurough = false;//Will make additional query calls to resolve page parsing disambiguates.
 	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
+	protected int maxFileChunkSize = 20000;//The max byte size of a file chunk when uploading files.
 	
 	protected final String homeWikiLanguage;//The default wiki of a bot.
 	protected String family = "";//The wiki family your bot works in.
@@ -1193,6 +1199,76 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
+	 * Upload a file to a wiki. The max file size supported is ~2GB.
+	 * 
+	 * @param loc The PageLocation to upload to.
+	 * @param localPath The local path of the file.
+	 * @param uploadComment The upload comment.
+	 * @param pageText The page text to use.
+	 * @return
+	 */
+	public void uploadFile(PageLocation loc, Path localPath, String uploadComment, String pageText) {
+		// Get prepared to read in the file.
+		byte[] bytes;
+		try {
+			bytes = Files.readAllBytes(localPath);
+		} catch (IOException e) {
+			logError("Couldn't read " + localPath + " for upload.");
+			return;
+		}
+		
+		// Useful data
+		int filesize = bytes.length;
+		int offset = 0;
+		String filekey = "";
+		String results = "";
+		boolean firstLoop = true;
+		
+		do {
+			// Prepare a chunk for sending.
+			byte[] chunk;
+			if (offset < filesize-maxFileChunkSize) {
+				chunk = Arrays.copyOfRange(bytes, offset, offset+maxFileChunkSize);
+			} else {
+				chunk = Arrays.copyOfRange(bytes, offset, filesize);
+			}
+			
+			// Send it.
+			String serverOutput;
+			if (firstLoop) {
+				serverOutput = APIcommand(new UploadFileChunk(loc, filesize, chunk));
+			} else {
+				serverOutput = APIcommand(new UploadFileChunk(loc, filesize, chunk, offset, filekey));
+			}
+			
+			// Read in the JSON!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting JSON, but did not receive JSON from server.");
+				return;
+			}
+			
+			// Read in server output.
+			JsonNode uploadNode = rootNode.get("upload");
+			
+			results = uploadNode.get("result").asText();
+			if (!results.equals("Success")){
+				offset = Integer.parseInt(uploadNode.get("offset").asText());
+			}
+			filekey = uploadNode.get("filekey").asText();
+			
+			
+			firstLoop = false;
+		} while (!results.equals("Success"));
+		
+		// FINISH HIM
+		results = APIcommand(new UploadFileChunk(loc, filekey, uploadComment, pageText));
+	}
+	
+	/**
 	 * Log into a wiki.
 	 * @param user The username.
 	 * @param password The password.
@@ -1273,7 +1349,11 @@ public class GenericBot extends NetworkingBase {
 			//Look out for network issues. Attempt the command.
 			try {
 				if (command.requiresPOST()) {
-					textReturned = APIcommandPOST(command);
+					if (command.requiresEntity()) {
+						textReturned = APIcommandHttpEntity(command);
+					} else {
+						textReturned = APIcommandPOST(command);
+					}
 				} else {
 					textReturned = APIcommandHTTP(command);
 				}
@@ -1297,7 +1377,7 @@ public class GenericBot extends NetworkingBase {
 
 		//Handle mediawiki output.
 		if (textReturned != null) {
-			if (!command.doesKeyExist("format") || command.getValue("format").equalsIgnoreCase("html")) {
+			if (!command.doesKeyExist("format") || command.getValue("format").equalsIgnoreCase("html") || textReturned.contains("DOCTYPE")) {
 				//We are handling HTML output. It is the default output format.
 				//We will parse it for any errors/warnings.
 				
@@ -1392,12 +1472,26 @@ public class GenericBot extends NetworkingBase {
 					} else {
 						logFinest("JSON: " + textReturned.substring(0, 1000));	
 					}
-					//log("JSON: " + textReturned);
+					
+
 					
 					//Look for errors/warnings.
-					if (textReturned.contains("\"error\"")) {
-						logError(parseTextForItem(textReturned, "\"info\"", "\","));
-					} else if (textReturned.contains("Internal Server Error")){
+					if (textReturned.contains("error")) {
+						// Load in the JSON!!
+						ObjectMapper mapper = new ObjectMapper();
+						JsonNode rootNode = null;
+						try {
+							rootNode = mapper.readValue(textReturned, JsonNode.class);
+						} catch (IOException e1) {
+							logError("Was expecting JSON, but did not receive JSON from server.");
+							throw new Error("Was expecting JSON, but did not receive JSON from server.");
+						}
+						
+						
+						String error = rootNode.findValue("info").asText();
+						logError(error);
+						throw new Error(error);
+					} else if (textReturned.contains("Internal Server Error")) {
 						logError("Internal Server Error");
 						logFinest(textReturned);
 						throw new Error("Internal Server Error");
@@ -1449,7 +1543,7 @@ public class GenericBot extends NetworkingBase {
 	 */
 	private String APIcommandPOST(APIcommand command) {
 		//Build the POST request.
-		HttpEntity entity;
+		HttpEntity response;
 		
 		//Get the key and value pairs of the command.
 		String[] editKeys = command.getKeysArray();
@@ -1471,11 +1565,40 @@ public class GenericBot extends NetworkingBase {
 		
 		keys[keys.length - 1] = "token";
 		values[keys.length - 1] = "" + token;
-
 		//Send the command!
-        entity = getPOST(baseURL + "/api.php?", keys, values);
+        response = getPOST(baseURL + "/api.php?", keys, values);
         try {
-			String serverOutput = EntityUtils.toString(entity);
+			String serverOutput = EntityUtils.toString(response);
+			
+			return serverOutput;
+		} catch (org.apache.http.ParseException | IOException e) {
+			e.printStackTrace();
+			
+			return null;
+		}
+	}
+	
+	private String APIcommandHttpEntity(APIcommand command) {
+		//Build the command url
+		String url = baseURL + "/api.php?";
+		String[] editKeys = command.getKeysArray();
+		String[] editValues = command.getValuesArray();
+		
+		for (int i = 0; i < editKeys.length; i++) {
+			url += URLencode(editKeys[i]) + "=" + URLencode(editValues[i]);
+			if (i != editKeys.length-1) {
+				url += "&";
+			}
+		}
+		
+		//Add a token to our POST request
+		String token = getToken(command);
+		HttpEntity entity = command.getHttpEntity(token);
+		
+		HttpEntity response = getPOST(url, entity);
+		
+		try {
+			String serverOutput = EntityUtils.toString(response);
 			
 			return serverOutput;
 		} catch (org.apache.http.ParseException | IOException e) {

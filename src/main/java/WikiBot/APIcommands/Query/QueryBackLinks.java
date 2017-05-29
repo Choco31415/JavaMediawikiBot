@@ -6,6 +6,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command gets all the pages that link to this page.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

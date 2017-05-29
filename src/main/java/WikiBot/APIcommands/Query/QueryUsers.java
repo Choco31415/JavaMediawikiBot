@@ -12,6 +12,8 @@ import WikiBot.ContentRep.User;
  * All query-able properties can be found here:
  * https://www.mediawiki.org/wiki/API:Users
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

@@ -7,6 +7,8 @@ import WikiBot.ContentRep.PageLocation;
  * This command edits a page, or creates one if the
  * page location does not exist.
  * 
+ * Recommended used raw.
+ * 
  * @RequiredRights
  * edit
  * 

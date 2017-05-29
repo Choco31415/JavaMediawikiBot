@@ -73,6 +73,10 @@ public class Page extends SimplePage {
 		return sections.get(i-1);
 	}
 	
+	public String getHeaderText() {
+		return getSectionText(0);
+	}
+	
 	public String getLastSectionText() {
 		return getSectionText(sections.size());
 	}

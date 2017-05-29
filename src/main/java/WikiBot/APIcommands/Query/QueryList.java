@@ -7,6 +7,8 @@ import WikiBot.APIcommands.APIcommand;
  * This class is used to format other APIcommands.
  * Unless you plan on making an APIcommand,
  * you can ignore this class.
+ * 
+ * Recommended not used raw.
  */
 public class QueryList extends APIcommand {
 	public QueryList(String shortSummary_, String language, String list) {

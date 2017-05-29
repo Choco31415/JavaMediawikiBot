@@ -1,0 +1,11 @@
+<!--Initialized-->
+Welcome to the Google Analytics statistics page! Here, you can see statistics for this wiki. Data is refreshed every day.
+
+If there is an issue, please contact the [[User:InterwikiBot|bot's owner]].
+
+This code is made with the bot's Java framework.
+
+== Site Statistics ==
+
+
+== Popular Pages ==

@@ -4,6 +4,8 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets a list of recent changes.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 

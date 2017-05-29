@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -157,6 +158,14 @@ public class NetworkingBase extends javax.swing.JPanel {
 		return logger.exportLog();
 	}
 	
+	/**
+	 * Set if logger propagates to Stdout.
+	 * @param set
+	 */
+	public void setLogPropagation(boolean set) {
+		logger.setPropagation(set);
+	}
+	
 	/*
 	 * <notice>
 	 * 
@@ -215,20 +224,41 @@ public class NetworkingBase extends javax.swing.JPanel {
 	/*
 	 * A method for creating a Web POST request.
 	 */
-	protected HttpEntity getPOST(String url, String[] key, String[] value) {
+	protected HttpEntity getPOST(String url, String[] keys, String[] values) {
 		logFiner("Loading: " + url);
 		
         HttpResponse response = null;
 		
         HttpPost httpost = new HttpPost(url);
     	
+        // Attach keys and values.
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        for (int i = 0; i < key.length; i++) {
-        	nvps.add(new BasicNameValuePair(key[i], value[i]));
+        for (int i = 0; i < keys.length; i++) {
+        	nvps.add(new BasicNameValuePair(keys[i], values[i]));
         }
 
         httpost.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
-
+        
+        // Fetch the url.
+        try {
+			response = httpclient.execute(httpost, context);
+		} catch (SocketException|NoHttpResponseException e) {
+			throw new NetworkError("Cannot connect to server at: " + url);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return response.getEntity();
+	}
+	
+	protected HttpEntity getPOST(String url, HttpEntity entity) {
+		logFiner("Multipart loading: " + url);
+		
+		HttpResponse response = null;
+		
+		HttpPost httpost = new HttpPost(url);
+		httpost.setEntity(entity);
+		
+		//Fetch the url.
         try {
 			response = httpclient.execute(httpost, context);
 		} catch (SocketException|NoHttpResponseException e) {

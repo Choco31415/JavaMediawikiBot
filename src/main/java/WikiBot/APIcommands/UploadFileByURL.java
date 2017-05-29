@@ -7,7 +7,10 @@ import WikiBot.ContentRep.PageLocation;
  * This command uploads a file to the wiki, given a url to the file.
  * This is done synchronously.
  * 
+ * Recommended used.
+ * 
  * @RequiredRights
+ * upload
  * upload_by_url
  * 
  * @ReqiuredOther
