@@ -135,9 +135,11 @@ public class GenericBot extends NetworkingBase {
 	 * @return A Page.
 	 */
 	public Page getWikiPage(PageLocation loc) {
-		String serverOutput = getWikiPageXMLCode(loc);
+		JsonNode serverOutput = getWikiPageJsonCode(loc);
+		JsonNode pages = serverOutput.findValue("pages");
+		JsonNode page = pages.elements().next();
 		
-		return parseWikiPage(serverOutput);
+		return parseWikiPage(page);
 	}
 	
 	/**
@@ -146,9 +148,11 @@ public class GenericBot extends NetworkingBase {
 	 * @return A SimplePage.
 	 */
 	public SimplePage getWikiSimplePage(PageLocation loc) {
-		String serverOutput = getWikiPageXMLCode(loc);
+		JsonNode serverOutput = getWikiPageJsonCode(loc);
+		JsonNode pages = serverOutput.findValue("pages");
+		JsonNode page = pages.elements().next();
 		
-		return parseWikiPageSimple(serverOutput);
+		return parseWikiSimplePage(page);
 	}
 	
 	/**
@@ -157,19 +161,29 @@ public class GenericBot extends NetworkingBase {
 	 * @return A boolean.
 	 */
 	public boolean doesPageExist(PageLocation loc) {
-		String serverOutput = getWikiPageXMLCode(loc);
+		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		
-		return !serverOutput.contains("\"pages\":{\"-1\"");
+		return !serverOutput.has("missing");
 	}
 	
-	private String getWikiPageXMLCode(PageLocation loc) {		
-		String page = APIcommand(new QueryPageContent(loc));
+	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
+		String serverOutput = APIcommand(new QueryPageContent(loc));
+		
+		// Read in the Json!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting Json, but did not receive Json from server.");
+			return null;
+		}
 		
 	    if (logPageDownloads) {
 	    	logFine(baseURL + " // " + loc.getTitle() + " is downloaded.");
 	    }
 	    
-	    return page;
+	    return rootNode;
 	}
 	
 	/**
@@ -191,11 +205,11 @@ public class GenericBot extends NetworkingBase {
 			}
 			
 			//Process this small chunk of page locations.
-			String serverOutput = getWikiPagesXMLCode(chunkOfPages);
+			JsonNode serverOutput = getWikiPagesJsonCode(chunkOfPages);
 			
-			ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
-			for (String st : pageStrings) {
-				pages.add(parseWikiPage(st + "\"}]}"));
+			JsonNode pageNodes = serverOutput.findValue("pages");
+			for (JsonNode pageNode : pageNodes) {
+				pages.add(parseWikiPage(pageNode));
 			}
 
 		}
@@ -222,50 +236,55 @@ public class GenericBot extends NetworkingBase {
 			}
 			
 			//Process this small chunk of page locations.
-			String serverOutput = getWikiPagesXMLCode(chunkOfPages);
+			JsonNode serverOutput = getWikiPagesJsonCode(chunkOfPages);
 			
-			ArrayList<String> pageStrings = parseTextForItems(serverOutput, "pageid", "\"}]}", 0);
-			for (String st : pageStrings) {
-				simplePages.add(parseWikiPageSimple(st + "\"}]}"));
+			JsonNode pageNodes = serverOutput.findValue("pages");
+			for (JsonNode pageNode : pageNodes) {
+				simplePages.add(parseWikiSimplePage(pageNode));
 			}
 		}
 		
 		return simplePages;
 	}
 	
-	private String getWikiPagesXMLCode(ArrayList<PageLocation> locs) {
+	private JsonNode getWikiPagesJsonCode(ArrayList<PageLocation> locs) {
 		if (locs.size() == 0) {
 			return null;
 		}
 		
 		String serverOutput = APIcommand(new QueryPageContent(locs));
 		
+		// Read in the Json!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting Json, but did not receive Json from server.");
+			return null;
+		}
+		
 		//Log stuff
         if (logPageDownloads) {
-        	if (locs.size() > 1) {
-        		logFine(baseURL + " // " + locs.get(0).getTitle()
-        				+ " through " + locs.get(locs.size()-1).getTitle()
-        				+ " is downloaded.");
-        		
-        		//Super detailed log output
-        		String finest = "Specifically, this includes: "; 
-        		for (int i = 0; i < locs.size(); i++) {
-        			if (i != 0) {
-        				finest += ", ";
-        			}
-        			finest += locs.get(i).getTitle();
-        		}
-        		logFinest(finest);
-        		
-        	} else {
-        		logFine(baseURL + " // " + locs.get(0).getTitle() + " is downloaded.");
-        	}
+    		logFine(baseURL + " // " + locs.get(0).getTitle()
+    				+ " through " + locs.get(locs.size()-1).getTitle()
+    				+ " is downloaded.");
+    		
+    		//Super detailed log output
+    		String finest = "Specifically, this includes: "; 
+    		for (int i = 0; i < locs.size(); i++) {
+    			if (i != 0) {
+    				finest += ", ";
+    			}
+    			finest += locs.get(i).getTitle();
+    		}
+    		logFinest(finest);
         }
         
-        return serverOutput;
+        return rootNode;
 	}
 
-	protected SimplePage parseWikiPageSimple(String XMLcode) {
+	protected SimplePage parseWikiSimplePage(JsonNode code) {
 		/*
 		 * This is a custom built XML parser for Wiki pages.
 		 * It creates a SimplePage object.
@@ -274,23 +293,20 @@ public class GenericBot extends NetworkingBase {
 		SimplePage newPage = null;
 		
 		//Parse out page information
-		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
-		int pageid = -1;
-		try {
-			pageid = Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0));
-		} catch (NumberFormatException | IndexOutOfBoundsException e) {
-			throw new NullPointerException("Incorrect page name: " + title + " BaseURL: " + baseURL);
-		}
+		String title = code.get("title").asText();
+		int pageid = new Integer(code.get("pageid").asText());
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
 		newPage = new SimplePage(title, wikiPrefix, pageid);
-		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\"") + 5, XMLcode.indexOf("\"}]}")));
+		
+		String rawText = code.findValue("*").asText();
+		newPage.setRawText(rawText);
 		
 		return newPage;
 	}
 	
-	protected Page parseWikiPage(String XMLcode) {
+	protected Page parseWikiPage(JsonNode code) {
 		/*
 		 * This is a custom built XML parser for Wiki pages.
 		 * It creates a Page object.
@@ -299,28 +315,24 @@ public class GenericBot extends NetworkingBase {
 		Page newPage = null;
 		
 		//Parse out page information
-		String title = parseTextForItem(XMLcode, "title", "\",", 3, 0);
-		int pageid = -1;
-		try {
-			pageid = Integer.parseInt(parseTextForItem(XMLcode, "pageid", ",", 2, 0));
-		} catch (NumberFormatException | IndexOutOfBoundsException e) {
-			throw new NullPointerException("Incorrect page name: " + title + " BaseURL: " + baseURL);
-		}
+		String title = code.get("title").asText();
+		int pageid = new Integer(code.get("pageid").asText());
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
 		newPage = new Page(title, pageid, wikiPrefix);
-		newPage.setRawText(XMLcode.substring(XMLcode.indexOf("\"*\":") + 5, XMLcode.indexOf("\"}]}")));
+		String rawText = code.findValue("*").asText();
+		newPage.setRawText(rawText);
 		
 		//Get revisions, if needed.
-		getPastRevisions(newPage);
+		getPageRevisions(newPage);
 		return newPage;
 	}
 	
 	/**
 	 * @param The page to attach revisions to.
 	 */
-	private void getPastRevisions(Page page) {
+	private void getPageRevisions(Page page) {
 		//This method fetches the revisions of a page, if needed.
 		if (getRevisions) {
 			String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
@@ -340,6 +352,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param localRevisionDepth How deep to go.
 	 * @param getContent Wether or not to include the page content at the time of the revision.
 	 * @return
+	 * @outdated Merge with above too.
 	 */
 	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
 		String returned = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
@@ -356,6 +369,7 @@ public class GenericBot extends NetworkingBase {
 	 * This method gets 30 recent changes max per query call, so it might make multiple query calls.
 	 * @param depth The amount of revisions you want returned.
 	 * @return A list of recent changes wrapped in revisions.
+	 * @outdated
 	 */
 	public ArrayList<Revision> getRecentChanges(String language, int depth) {
 		//This method fetches the recent changes.
@@ -400,6 +414,7 @@ public class GenericBot extends NetworkingBase {
 	 * This method gets 100 category members max per query call, so it might make multiple query calls.
 	 * @param loc The page location of the category.
 	 * @return Returns An ArrayList of PageLocation.
+	 * @outdated
 	 */
 	public ArrayList<PageLocation> getCategoryPages(PageLocation loc) {
 		String returned;
@@ -513,6 +528,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param loc The location to get back links for.
 	 * @param depth The maximum amount of pages to get.
 	 * @return An ArrayList of PageLocation.
+	 * @outdated
 	 */
 	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
 		//This method gets all the pages that link to another page. Redirects are included.
@@ -582,6 +598,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param from The prefix.
 	 * @param apnamespace The id of the namespace being crawled.
 	 * @return
+	 * @outdated
 	 */
 	public ArrayList<PageLocation> getAllPages(String language, int depth, String from, Integer apnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
@@ -658,6 +675,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param prefix The prefix that you are searching for.
 	 * @param psnamespace The id of the namespace to search in.
 	 * @return A list of pages with the given prefix.
+	 * @outdated
 	 */
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
@@ -723,7 +741,7 @@ public class GenericBot extends NetworkingBase {
 	 * 
 	 * The list of accepted properties to query is here: https://www.mediawiki.org/wiki/API:Imageinfo
 	 * 
-	 * Getting metadata, commonmetadata, or extmetadata will return a JSON string.
+	 * Getting metadata, commonmetadata, or extmetadata will return a Json string.
 	 * 
 	 * Getting size also returns width and height.
 	 * 
@@ -737,13 +755,13 @@ public class GenericBot extends NetworkingBase {
 		
 		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
 		
-		// Read in the JSON!!!
+		// Read in the Json!!!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
 			rootNode = mapper.readValue(serverOutput, JsonNode.class);
 		} catch (IOException e1) {
-			logError("Was expecting JSON, but did not receive JSON from server.");
+			logError("Was expecting Json, but did not receive Json from server.");
 			return null;
 		}
 		
@@ -782,11 +800,11 @@ public class GenericBot extends NetworkingBase {
 			
 			//Get value
 			if (name.equals("metadata") || name.equals("commonmetadata") || name.equals("extmetadata")) {
-				//Mediawiki returns JSON for these parameters.
+				//Mediawiki returns Json for these parameters.
 				try {
 					value = mapper.writeValueAsString(rootNode.findValue(name));
 				} catch (JsonProcessingException e) {
-					logError("JSON Processing Error: " + e.getLocalizedMessage());
+					logError("Json Processing Error: " + e.getLocalizedMessage());
 					e.printStackTrace();
 				}
 			} else {
@@ -915,13 +933,13 @@ public class GenericBot extends NetworkingBase {
 			//Query the server.
 			String serverOutput = APIcommand(new QueryUsers(chunkOfUsers, propertyNames));
 			
-			// Read in the JSON!!!
+			// Read in the Json!!!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
 				rootNode = mapper.readValue(serverOutput, JsonNode.class);
 			} catch (IOException e1) {
-				logError("Was expecting JSON, but did not receive JSON from server.");
+				logError("Was expecting Json, but did not receive Json from server.");
 				return null;
 			}
 			
@@ -968,7 +986,7 @@ public class GenericBot extends NetworkingBase {
 							}
 						} else {
 							if (propName.equals("groups") || propName.equals("implicitgroups") || propName.equals("rights")) {
-								//Mediawiki returns JSON array for these parameters.
+								//Mediawiki returns Json array for these parameters.
 								ArrayList<String> temp = new ArrayList<String>();
 								
 								for (JsonNode node : user.findValue(propName)) {
@@ -991,11 +1009,11 @@ public class GenericBot extends NetworkingBase {
 								}
 							} else {
 								if (propName.equals("centralid") || propName.equals("attachedlocal")) {
-									//Mediawiki returns JSON for these parameters.
+									//Mediawiki returns Json for these parameters.
 									try {
 										value = mapper.writeValueAsString(rootNode.findValue(propName));
 									} catch (JsonProcessingException e) {
-										logError("JSON Processing Error: " + e.getLocalizedMessage());
+										logError("Json Processing Error: " + e.getLocalizedMessage());
 										e.printStackTrace();
 									}
 								} else {
@@ -1090,17 +1108,17 @@ public class GenericBot extends NetworkingBase {
 				String serverOutput = APIcommand(queryUserContribs);
 				
 				
-				// Read in the JSON!!!
+				// Read in the Json!!!
 				ObjectMapper mapper = new ObjectMapper();
 				JsonNode rootNode = null;
 				try {
 					rootNode = mapper.readValue(serverOutput, JsonNode.class);
 				} catch (IOException e1) {
-					logError("Was expecting JSON, but did not receive JSON from server.");
+					logError("Was expecting Json, but did not receive Json from server.");
 					return null;
 				}
 				
-				//Parse JSON for contribs
+				//Parse Json for contribs
 				ArrayList<Revision> contribs = new ArrayList<Revision>();
 				
 				JsonNode queryNode = rootNode.findValue("query");
@@ -1176,13 +1194,13 @@ public class GenericBot extends NetworkingBase {
 		// Query the server.
 		String serverOutput = APIcommand(new QuerySiteInfo(language, propertyNames));
 		
-		// Read in the JSON!!!
+		// Read in the Json!!!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
 			rootNode = mapper.readValue(serverOutput, JsonNode.class);
 		} catch (IOException e1) {
-			logError("Was expecting JSON, but did not receive JSON from server.");
+			logError("Was expecting Json, but did not receive Json from server.");
 			return null;
 		}
 		
@@ -1255,13 +1273,13 @@ public class GenericBot extends NetworkingBase {
 				serverOutput = APIcommand(new UploadFileChunk(loc, filesize, chunk, offset, filekey));
 			}
 			
-			// Read in the JSON!!!
+			// Read in the Json!!!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
 				rootNode = mapper.readValue(serverOutput, JsonNode.class);
 			} catch (IOException e1) {
-				logError("Was expecting JSON, but did not receive JSON from server.");
+				logError("Was expecting Json, but did not receive Json from server.");
 				return;
 			}
 			
@@ -1464,8 +1482,8 @@ public class GenericBot extends NetworkingBase {
 				} else {
 					logFinest("PHP: " + textReturned.substring(0, 1000));	
 				}
-			} else if (command.getValue("format").equalsIgnoreCase("json")){
-				//We are handling JSON output.
+			} else if (command.getValue("format").equalsIgnoreCase("Json")){
+				//We are handling Json output.
 				//We will look for errors/warnings.
 				
 				//Error handling
@@ -1480,25 +1498,25 @@ public class GenericBot extends NetworkingBase {
 					logError(error);
 					throw new Error(error);
 				} else {
-					//Log a small portion of the JSON. It's nice.
+					//Log a small portion of the Json. It's nice.
 					if (textReturned.length() < 1000) {
-						logFinest("JSON: " + textReturned);
+						logFinest("Json: " + textReturned);
 					} else {
-						logFinest("JSON: " + textReturned.substring(0, 1000));	
+						logFinest("Json: " + textReturned.substring(0, 1000));	
 					}
 					
 
 					
 					//Look for errors/warnings.
 //					if (textReturned.contains("error")) {
-//						// Load in the JSON!!
+//						// Load in the Json!!
 //						ObjectMapper mapper = new ObjectMapper();
 //						JsonNode rootNode = null;
 //						try {
 //							rootNode = mapper.readValue(textReturned, JsonNode.class);
 //						} catch (IOException e1) {
-//							logError("Was expecting JSON, but did not receive JSON from server.");
-//							throw new Error("Was expecting JSON, but did not receive JSON from server.");
+//							logError("Was expecting Json, but did not receive Json from server.");
+//							throw new Error("Was expecting Json, but did not receive Json from server.");
 //						}
 //						
 //						
@@ -1628,6 +1646,7 @@ public class GenericBot extends NetworkingBase {
 	 * This method gets that security token.
 	 * @param command The command that requires the token.
 	 * @return A token.
+	 * @outdated
 	 */
 	protected String getToken(APIcommand command) {
 		String[] keys = null;
