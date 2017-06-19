@@ -330,19 +330,13 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	/**
-	 * @param The page to attach revisions to.
+	 * @param page The page to attach revisions to.
 	 */
 	private void getPageRevisions(Page page) {
 		//This method fetches the revisions of a page, if needed.
 		if (getRevisions) {
-			String returned = APIcommand(new QueryPageRevisions(page.getPageLocation(), revisionDepth, getRevisionContent));
-			
-			//Parse page for info.
-			if (getRevisionContent) {
-				page.setRevisions(getRevisionsFromXML(returned, "<rev user=", "</rev>", true, page.getTitle()));
-			} else {
-				page.setRevisions(getRevisionsFromXML(returned, "<rev user=", "\" />", false, page.getTitle()));
-			}
+			ArrayList<Revision> revisions = getPastRevisions(page.getPageLocation(), revisionDepth, getRevisionContent);
+			page.setRevisions(revisions);
 		}
 	}
 	
@@ -350,26 +344,67 @@ public class GenericBot extends NetworkingBase {
 	 * Get the revisions for a page at a location.
 	 * @param loc The location.
 	 * @param localRevisionDepth How deep to go.
-	 * @param getContent Wether or not to include the page content at the time of the revision.
+	 * @param getContent Whether or not to include the page content at the time of the revision.
 	 * @return
-	 * @outdated Merge with above too.
 	 */
 	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
-		String returned = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
+		ArrayList<Revision> toReturn = new ArrayList<>();
 		
-		//Parse page for info.
-		if (getContent) {
-			return getRevisionsFromXML(returned, "<rev user=", "</rev>", true, loc.getTitle());
-		} else {
-			return getRevisionsFromXML(returned, "<rev user=", "\" />", false, loc.getTitle());
+		String serverOutput = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
+		
+		
+		// Read in the Json!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting Json, but did not receive Json from server.");
+			return null;
+		}		
+		
+		//Parse output for info.
+		JsonNode query = rootNode.get("query");
+		
+		String title = query.findValue("title").asText();
+		PageLocation revisionLoc = new PageLocation(title, loc.getLanguage());
+		
+		JsonNode revisionList = query.findValue("revisions");
+		for (JsonNode revisionNode : revisionList) {
+			String user = revisionNode.get("user").asText();
+			String comment = revisionNode.get("comment").asText();
+			Date date = createDate(revisionNode.get("timestamp").asText());
+			
+			//Parse for flags
+			ArrayList<String> flags = new ArrayList<String>();
+			ArrayList<String> flagsToSearchFor = new ArrayList<String>();
+			flagsToSearchFor.add("minor");
+			flagsToSearchFor.add("new");
+			flagsToSearchFor.add("bot");
+			for (String flag: flagsToSearchFor) {
+				if (revisionNode.has(flag)) {
+					//Flag found.
+					flags.add(flag);
+				}
+			}
+			
+			Revision revision = new Revision(revisionLoc, user, comment, date, flags);
+			
+			if (getContent) {
+				String content = revisionNode.get("*").asText();
+				revision.setRevisionContent(content);
+			}
+			
+			toReturn.add(revision);
 		}
+		
+		return toReturn;
 	}
 	
 	/**
 	 * This method gets 30 recent changes max per query call, so it might make multiple query calls.
 	 * @param depth The amount of revisions you want returned.
 	 * @return A list of recent changes wrapped in revisions.
-	 * @outdated
 	 */
 	public ArrayList<Revision> getRecentChanges(String language, int depth) {
 		//This method fetches the recent changes.
@@ -378,33 +413,68 @@ public class GenericBot extends NetworkingBase {
 		
 		logFine("Getting recent changes.");
 		
+		int revisionsNeeded = depth;
 		do {
+			int batchSize = Math.min(Math.min(30, APIlimit), revisionsNeeded);
+			
 			//Make a query call.
-			String returned;
+			String serverOutput;
 			if (rccontinue == null) {
-				returned = APIcommand(new QueryRecentChanges(language, Math.min(30, APIlimit)));
+				serverOutput = APIcommand(new QueryRecentChanges(language, batchSize));
 			} else {
-				returned = APIcommand(new QueryRecentChanges(language, Math.min(30, APIlimit), rccontinue));
+				serverOutput = APIcommand(new QueryRecentChanges(language, batchSize, rccontinue));
 			}
-			ArrayList<Revision> returnedRevisions = getRevisionsFromXML(returned, "<rc type=", "\" />", false, null);
-		
-			//Make sure we return the correct amount of items.
-			int numRevisionsNeeded = depth - toReturn.size();
-			if (returnedRevisions.size() > numRevisionsNeeded) {
-				toReturn.addAll(returnedRevisions.subList(0, numRevisionsNeeded));
-			} else {
-				toReturn.addAll(returnedRevisions);
+			
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
 			}
+			
+			// Read in the revisions returned.
+			JsonNode query = rootNode.get("query");
+			
+			JsonNode rcList = query.findValue("recentchanges");
+			for (JsonNode rcNode : rcList) {
+				String title = rcNode.get("title").asText();
+				PageLocation rcLoc = new PageLocation(title, language);
+				String user = rcNode.get("user").asText();
+				String comment = rcNode.get("comment").asText();
+				Date date = createDate(rcNode.get("timestamp").asText());
+				
+				//Parse for flags
+				ArrayList<String> flags = new ArrayList<String>();
+				ArrayList<String> flagsToSearchFor = new ArrayList<String>();
+				flagsToSearchFor.add("minor");
+				flagsToSearchFor.add("new");
+				flagsToSearchFor.add("bot");
+				for (String flag: flagsToSearchFor) {
+					if (rcNode.has(flag)) {
+						//Flag found.
+						flags.add(flag);
+					}
+				}
+				
+				Revision revision = new Revision(rcLoc, user, comment, date, flags);
+				
+				toReturn.add(revision);
+			}
+			
+			revisionsNeeded -= batchSize;
 			
 			//Try continuing the query.
 			try {
-				rccontinue = parseTextForItem(returned, "rccontinue", "\"");
+				rccontinue = rootNode.findParent("rccontinue").asText();
 				
 				logFiner("Next page batch starts at: " + rccontinue);
 			} catch (IndexOutOfBoundsException e) {
 				rccontinue = null;
 			}
-		} while (rccontinue != null && toReturn.size() != depth);
+		} while (rccontinue != null && revisionsNeeded != 0);
 		 
 		 return toReturn;
 	}
@@ -1731,78 +1801,6 @@ public class GenericBot extends NetworkingBase {
 				output.add(parseTextForItem(temp, "title", "\""));
 			}
 		} while(j != -1);
-		return output;
-	}
-	
-	/*
-	 * This is a specialized function and should not be used outside of this class.
-	 */
-	private ArrayList<Revision> getRevisionsFromXML(String XMLdata, String openingText, String closingText, boolean includeContent, String forceTitle) {
-		//This method takes XML data and parses it for revisions.
-		
-		//Revision related data.
-		ArrayList<Revision> output = new ArrayList<Revision>();
-		String revision;
-		String user;
-		String comment;
-		String tempDate;
-		Date date = null;
-		String content;
-		String title;
-		ArrayList<String> flags;
-		
-		//Iteration variables.
-		int j = 0;
-		int k = -1;
-		while (j != -1) {
-			j = XMLdata.indexOf(openingText, k+1);
-			k = XMLdata.indexOf(closingText, j+1);
-			if (j != -1) {
-				//No errors detected. Continue parsing.
-				
-				//Get a single revision's text.
-				revision = XMLdata.substring(j, k+closingText.length());
-				
-				//Extract info.
-				user = parseTextForItem(revision, "user", "\"", 2, 0);
-				tempDate = parseTextForItem(revision, "timestamp", "\"", 2, 0);
-				date = createDate(tempDate);
-				content = null;
-				if (includeContent) {
-					comment = parseTextForItem(revision, "comment", "\" contentformat", 2, 0);
-					content = parseTextForItem(revision, "xml:space=\"preserve\"", "</rev>", 1, 0);
-				} else {
-					comment = parseTextForItem(revision, "comment", closingText, 2, 0);
-				}
-				
-				//Parse for flags
-				flags = new ArrayList<String>();
-				ArrayList<String> flagsToSearchFor = new ArrayList<String>();
-				flagsToSearchFor.add("minor");
-				flagsToSearchFor.add("new");
-				flagsToSearchFor.add("bot");
-				for (String flag: flagsToSearchFor) {
-					if (revision.contains(flag + "=\"\"")) {
-						//Flag found.
-						flags.add(flag);
-					}
-				}
-				
-				//Generate and store revision
-				Revision rev;
-				if (forceTitle == null) {
-					title = parseTextForItem(revision, "title", "\"");
-					rev = new Revision(new PageLocation(title, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
-				} else {
-					rev = new Revision(new PageLocation(forceTitle, mdm.getWikiPrefixFromURL(baseURL)), user, comment, date, flags);
-				}
-				
-				rev.setRevisionContent(content);
-				
-				//For eventual return.
-				output.add(rev);
-			}
-		}
 		return output;
 	}
 	

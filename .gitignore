@@ -192,3 +192,5 @@ gradle-app.setting
 ### Project Files ###
 
 src/main/resources/BotProperties.properties
+Log.txt
+
