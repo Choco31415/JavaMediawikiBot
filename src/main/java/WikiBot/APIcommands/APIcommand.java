@@ -13,7 +13,6 @@ import WikiBot.Utils.ArrayUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.util.EntityUtils;
 
 /**

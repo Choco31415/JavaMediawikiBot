@@ -2,7 +2,6 @@ package WikiBot.Utils;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,6 +98,38 @@ public class FileUtils {
 		}
 		writer.write(text);
 		writer.close();
+	}
+	
+	/**
+	 * Read in a text file.
+	 * @param file File path.
+	 */
+	public static String readFile(String path) {
+		StringBuilder file = new StringBuilder("");
+		
+		try {
+			// Read in the file!
+			InputStream in = FileUtils.class.getResourceAsStream(path);
+			BufferedReader br = new BufferedReader(
+						new InputStreamReader(in)
+					);
+			
+			// Parse file array into java int array
+			String line;
+			line = br.readLine();
+			do {
+				file.append(line + "\n");
+				line = br.readLine();
+			} while (line != null);
+			
+			in.close();
+			br.close();
+			
+		} catch (IOException e) {
+			logger.logError("Error reading in list.");
+		}
+		
+		return file.toString();
 	}
 	
 	/**

@@ -222,6 +222,7 @@ public class FamilyGenerator extends NetworkingBase {
 		}
 		
 		String serverOutput = ArrayUtils.compactArray(getURL(url, true));
+		serverOutput = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(serverOutput));
 		
 		// Read in the Json!!!
 		ObjectMapper mapper = new ObjectMapper();
@@ -240,11 +241,16 @@ public class FamilyGenerator extends NetworkingBase {
 			if (!languageOnly || mapNode.has("language")) {
 				url = mapNode.get("url").asText();
 				String prefix = mapNode.get("prefix").asText();
+				System.out.print(prefix + " ");
 				
 				if (!wikiPrefixes.contains(prefix) && !toExclude.contains(prefix)) {
-					System.out.print(prefix + " ");
 					
-					url = getAPIurl(url);
+					try {
+						url = getAPIurl(url);
+					} catch (Exception e) {
+						System.out.println("Failed to add: " + url);
+						continue;
+					}
 					
 					wikiURLs.add(url);
 					wikiPrefixes.add(prefix);
@@ -407,7 +413,7 @@ public class FamilyGenerator extends NetworkingBase {
 			if (responseCode != 200 && segmentID < pathSegments.length) {
 				// Let's go up a directory.
 				MediawikiURL += pathSegments[segmentID]; // Try adding another path section.
-				if (segmentID < pathSegments.length-1) {
+				if (segmentID != pathSegments.length-1) {
 					MediawikiURL += "/";
 				}
 			}
@@ -463,17 +469,19 @@ public class FamilyGenerator extends NetworkingBase {
 	}
 	
 	private void writeFamily() {
-		String toWrite = "";
+		String toWrite = "[";
 		
 		if (wikiPrefixes.size() > 0) {
 			for (int i = 0; i < wikiPrefixes.size(); i++) {
-				if (i != 0) {
-					toWrite += "\n";
+				toWrite += "{\"prefix\": \"" + wikiPrefixes.get(i) + "\", ";
+				toWrite += "\"version\": \"" + MWversions.get(i) + "\", ";
+				toWrite += "\"url\": \"" + wikiURLs.get(i) + "\"}";
+				if (i != wikiPrefixes.size()-1) {
+					toWrite += ",\n";
 				}
-				toWrite += wikiPrefixes.get(i);
-				toWrite += ":" + MWversions.get(i);
-				toWrite += ": " + wikiURLs.get(i);
 			}
+			
+			toWrite += "]";
 			
 			FileUtils.writeFile(toWrite, RESOURCES_PATH + "/Families/" + familyName + ".txt");
 		}

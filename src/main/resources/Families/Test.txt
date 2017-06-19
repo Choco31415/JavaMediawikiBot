@@ -1,4 +1,4 @@
-en:1.22.7: https://wiki.scratch.mit.edu/w
-mw26:1.26.4: http://127.0.0.1:8080/mediawiki26
-mw23:1.23.17: http://127.0.0.1:8080/mediawiki23
-mw19:1.19.24: http://127.0.0.1:8080/mediawiki19
+[{"prefix": "en", "version": "1.22.7", "url": "https://wiki.scratch.mit.edu/w"},
+{"prefix": "mw26", "version": "1.26.4", "url": "http://127.0.0.1:8080/mediawiki26"},
+{"prefix": "mw23", "version": "1.23.17", "url": "http://127.0.0.1:8080/mediawiki23"},
+{"prefix": "mw19", "version": "1.19.24", "url": "http://127.0.0.1:8080/mediawiki19"}]
