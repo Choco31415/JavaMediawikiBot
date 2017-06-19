@@ -10,8 +10,8 @@ public class SimplePage extends PageLocationContainer implements Cloneable {
 	protected String lan;
 	protected String rawText;
 	
-	public SimplePage(String title_, String lan_, int pageID_) {
-		super(title_, lan_);
+	public SimplePage(String lan_, String title_, int pageID_) {
+		super(lan_, title_);
 		pageID = pageID_;
 		lan = lan_;
 	}
@@ -52,7 +52,7 @@ public class SimplePage extends PageLocationContainer implements Cloneable {
 	}
 	
 	public SimplePage clone() {
-		SimplePage output = new SimplePage(getTitle(), lan, pageID);
+		SimplePage output = new SimplePage(lan, getTitle(), pageID);
 		output.setRawText(rawText);
 		return output;
 	}

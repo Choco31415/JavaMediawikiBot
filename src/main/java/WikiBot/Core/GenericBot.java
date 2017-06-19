@@ -298,7 +298,7 @@ public class GenericBot extends NetworkingBase {
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
-		newPage = new SimplePage(title, wikiPrefix, pageid);
+		newPage = new SimplePage(wikiPrefix, title, pageid);
 		
 		String rawText = code.findValue("*").asText();
 		newPage.setRawText(rawText);
@@ -320,7 +320,7 @@ public class GenericBot extends NetworkingBase {
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
-		newPage = new Page(title, pageid, wikiPrefix);
+		newPage = new Page(wikiPrefix, title, pageid);
 		String rawText = code.findValue("*").asText();
 		newPage.setRawText(rawText);
 		
@@ -367,7 +367,7 @@ public class GenericBot extends NetworkingBase {
 		JsonNode query = rootNode.get("query");
 		
 		String title = query.findValue("title").asText();
-		PageLocation revisionLoc = new PageLocation(title, loc.getLanguage());
+		PageLocation revisionLoc = new PageLocation(loc.getLanguage(), title);
 		
 		JsonNode revisionList = query.findValue("revisions");
 		for (JsonNode revisionNode : revisionList) {
@@ -441,7 +441,7 @@ public class GenericBot extends NetworkingBase {
 			JsonNode rcList = query.findValue("recentchanges");
 			for (JsonNode rcNode : rcList) {
 				String title = rcNode.get("title").asText();
-				PageLocation rcLoc = new PageLocation(title, language);
+				PageLocation rcLoc = new PageLocation(language, title);
 				String user = rcNode.get("user").asText();
 				String comment = rcNode.get("comment").asText();
 				Date date = createDate(rcNode.get("timestamp").asText());
@@ -467,11 +467,11 @@ public class GenericBot extends NetworkingBase {
 			revisionsNeeded -= batchSize;
 			
 			//Try continuing the query.
-			try {
-				rccontinue = rootNode.findParent("rccontinue").asText();
+			if (rootNode.findValue("rccontinue") != null) {
+				rccontinue = rootNode.findValue("rccontinue").asText();
 				
 				logFiner("Next page batch starts at: " + rccontinue);
-			} catch (IndexOutOfBoundsException e) {
+			} else {
 				rccontinue = null;
 			}
 		} while (rccontinue != null && revisionsNeeded != 0);
@@ -484,10 +484,8 @@ public class GenericBot extends NetworkingBase {
 	 * This method gets 100 category members max per query call, so it might make multiple query calls.
 	 * @param loc The page location of the category.
 	 * @return Returns An ArrayList of PageLocation.
-	 * @outdated
 	 */
 	public ArrayList<PageLocation> getCategoryPages(PageLocation loc) {
-		String returned;
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String cmcontinue = null;
 		
@@ -495,27 +493,40 @@ public class GenericBot extends NetworkingBase {
 		
 		do {
 			//Make a query call.
+			String serverOutput;
 			if (cmcontinue == null) {
-				returned = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit)));
+				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit)));
 			} else {
-				returned = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit), cmcontinue));
+				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit), cmcontinue));
+			}
+			
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
 			}
 
 			//Parse page for info.
-			ArrayList<String> pageNames = getPages(returned, "<cm pageid=", "/>");
+			JsonNode query = rootNode.get("query");
 			
-			//Transfer page names into wrapper class.
-			for (String pageName : pageNames) {
-				PageLocation loc2 = new PageLocation(pageName, loc.getLanguage());
-				toReturn.add(loc2);
-			}	
+			JsonNode categoryList = query.get("categorymembers");
+			for (JsonNode categoryNode : categoryList) {
+				String title = categoryNode.get("title").asText();
+				PageLocation categoryPage = new PageLocation(loc.getLanguage(), title);
+				
+				toReturn.add(categoryPage);
+			}
 			
 			//Try continuing the query.
-			try {
-				cmcontinue = parseTextForItem(returned, "cmcontinue", "\"");
+			if (rootNode.findValue("cmcontinue")  != null) {
+				cmcontinue = rootNode.findValue("cmcontinue").asText();
 				
 				logFiner("Next page batch starts at: " + cmcontinue);
-			} catch (IndexOutOfBoundsException e) {
+			} else {
 				cmcontinue = null;
 			}
 		} while (cmcontinue != null);
@@ -607,34 +618,50 @@ public class GenericBot extends NetworkingBase {
 		
 		logFine("Getting pages that link to: "  + loc.getTitle());
 		
+		int backlinksNeeded = depth;
 		do {
 			//Make a query call.
-			String returned;
+			int batchSize = Math.min(Math.min(30, APIlimit), backlinksNeeded);
+			
+			String serverOutput;
 			if (blcontinue == null) {
-				returned = APIcommand(new QueryBackLinks(loc, Math.min(30, APIlimit)));
+				serverOutput = APIcommand(new QueryBackLinks(loc, batchSize));
 			} else {
-				returned = APIcommand(new QueryBackLinks(loc, Math.min(30, APIlimit), blcontinue));
+				serverOutput = APIcommand(new QueryBackLinks(loc, batchSize, blcontinue));
 			}
 	
-			//Parse page for info.
-			ArrayList<String> pageTitles = getPages(returned, "<bl pageid=", "/>");
-			
-			//Transfer page names into wrapper class.
-			for (String title : pageTitles) {
-				if (toReturn.size() != depth) {
-					toReturn.add(new PageLocation(title, loc.getLanguage()));
-				} else {
-					break;
-				}
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
 			}
+
+			//Parse page for info.
+			JsonNode query = rootNode.get("query");
+			
+			JsonNode backlinkList = query.findValue("backlinks");
+			for (JsonNode backlinkNode : backlinkList) {
+				String title = backlinkNode.get("title").asText();
+				PageLocation backlinkLoc = new PageLocation(loc.getLanguage(), title);
+				
+				toReturn.add(backlinkLoc);
+			}
+			
+			backlinksNeeded -= batchSize;
 			
 			//Try continuing the query.
-			try {
-				blcontinue = parseTextForItem(returned, "blcontinue", "\"");
-			} catch (IndexOutOfBoundsException e) {
+			if (rootNode.findValue("blcontinue") != null) {
+				blcontinue = rootNode.findValue("blcontinue").asText();
+				
+				logFiner("Next backlink batch starts at: " + blcontinue);
+			} else {
 				blcontinue = null;
 			}
-		} while (blcontinue != null && toReturn.size() != depth);
+		} while (blcontinue != null && backlinksNeeded != 0);
 		
 		return toReturn;
 	}
@@ -707,7 +734,7 @@ public class GenericBot extends NetworkingBase {
 			//Transfer page names into wrapper class, then into an ArrayList.
 			for (String title : pageTitles) {
 				if (toReturn.size() != depth) {
-					toReturn.add(new PageLocation(title, language));
+					toReturn.add(new PageLocation(language, title));
 				} else {
 					break;
 				}
@@ -765,7 +792,7 @@ public class GenericBot extends NetworkingBase {
 			
 			//Transfer page names into wrapper class.
 			for (String pageName : pageTitles) {
-				PageLocation loc2 = new PageLocation(pageName, language);
+				PageLocation loc2 = new PageLocation(language, pageName);
 				toReturn.add(loc2);
 			}	
 			
@@ -1017,7 +1044,7 @@ public class GenericBot extends NetworkingBase {
 			boolean firstUser = true;
 			for (JsonNode user : rootNode.findValue("users")) {
 				String userName = user.findValue("name").asText();
-				UserInfo userInfo = new UserInfo(new User(userName, language));
+				UserInfo userInfo = new UserInfo(new User(language, userName));
 				boolean userExists = true;
 				
 				//Check that the user exists.
@@ -1199,7 +1226,7 @@ public class GenericBot extends NetworkingBase {
 					
 					//Parse for revision info
 					String title = unescape(contrib.findValue("title").textValue());
-					PageLocation loc = new PageLocation(title, language);
+					PageLocation loc = new PageLocation(language, title);
 					String userName = user.getUserName();
 					String comment = unescape(contrib.findValue("comment").textValue());
 					Date date = createDate(unescape(contrib.findValue("timestamp").textValue()));

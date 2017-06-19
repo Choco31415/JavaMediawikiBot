@@ -53,7 +53,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language, boolean requiresPOST_, String oldTokenType_, String newTokenType_) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 		requiresPOST = requiresPOST_;
 		oldTokenType = oldTokenType_;
@@ -61,7 +61,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 	}
 	

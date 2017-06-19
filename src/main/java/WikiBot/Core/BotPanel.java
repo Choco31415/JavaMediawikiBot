@@ -487,7 +487,7 @@ public abstract class BotPanel extends GenericBot {
 	 * @param languageCode The wiki's language code.
 	 */
 	private void logInAt(String languageCode) {
-		boolean success = logIn(new User(botUsername, languageCode), botPassword);
+		boolean success = logIn(new User(languageCode, botUsername), botPassword);
 		
 		if (success) {
 			logInfo("Logged in at: " + languageCode);

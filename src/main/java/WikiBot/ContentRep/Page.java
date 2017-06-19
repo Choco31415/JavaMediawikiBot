@@ -28,8 +28,8 @@ public class Page extends SimplePage {
 	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
 	private ArrayList<Revision> revisions = new ArrayList<Revision>();
 	
-	public Page(String title_, int pageID_, String lan_) {
-		super(title_, lan_, pageID_);
+	public Page(String lan_, String title_, int pageID_) {
+		super(lan_, title_, pageID_);
 		
 		mdm = MediawikiDataManager.getInstance();
 	}
@@ -390,7 +390,7 @@ public class Page extends SimplePage {
 	
 	//Type methods
 	public SimplePage createSimplePage() {
-		SimplePage output = new SimplePage(getTitle(), lan, pageID);
+		SimplePage output = new SimplePage(lan, getTitle(), pageID);
 		output.setRawText(rawText);
 		return output;
 	}
@@ -529,7 +529,7 @@ public class Page extends SimplePage {
 							//Check for interwiki
 							for (String iw: mdm.getWikiPrefixes()) {
 								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
-									interwikis.add(new Interwiki(header.substring(iw.length()+1).trim(), iw, openIndex+pos, outerCloseIndex+pos));
+									interwikis.add(new Interwiki(iw, header.substring(iw.length()+1).trim(), openIndex+pos, outerCloseIndex+pos));
 									
 									openIndex = outerCloseIndex;
 									break objectParse;
@@ -569,7 +569,7 @@ public class Page extends SimplePage {
 					if (isLink && bot.shouldParseThurough()) {
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
-								SimplePage sp = bot.getWikiSimplePage(new PageLocation(((Template)object).getTemplateName(), lan));
+								SimplePage sp = bot.getWikiSimplePage(new PageLocation(lan, ((Template)object).getTemplateName()));
 								if (sp.getRawText().contains("\n") && depth == 0) {
 									//This is parsed as a template.
 									//Add all page objects to the page.
