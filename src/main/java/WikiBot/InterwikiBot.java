@@ -37,7 +37,7 @@ public class InterwikiBot extends BotPanel {
 		APIthrottle = 0.5;//Minimum time between any API commands.
 		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
 		
-		setLoggerLevel(Level.FINEST);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
+		setLoggerLevel(Level.INFO);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
 	}
 	
 	public static void main(String[] args) {
@@ -57,9 +57,9 @@ public class InterwikiBot extends BotPanel {
 		 * The edit summary will be "This page needs an interwiki. ^.^ "
 		 * The bot GUI will show an edit summary of "Interwiki"
 		 */
-		ArrayList<Revision> revisions = this.getRecentChanges("en", 2);
-		for (Revision r : revisions) {
-			System.out.println(r);
-		}
+		PageLocation loc = new PageLocation("Scratch Cat", "en");
+		Page page = getWikiPage(loc);
+		System.out.println(page);
+		proposeEdit(new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ "));
 	}
 }
