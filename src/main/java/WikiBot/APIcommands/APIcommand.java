@@ -30,7 +30,6 @@ public class APIcommand extends PageLocationContainer {
 	
 	protected boolean requiresHttpEntity = false;
 	protected boolean requiresPOST = false;
-	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
 	
 	protected String oldTokenType = "";//Pre MW 1.24
@@ -144,8 +143,6 @@ public class APIcommand extends PageLocationContainer {
 	public boolean requiresEntity() { return requiresHttpEntity; }
 	public void setRequiresPOST(boolean bool) { requiresPOST = bool; }
 	public boolean requiresPOST() { return requiresPOST; }
-	public void setUnescapeText(boolean bool) { unescapeText = bool; }
-	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	

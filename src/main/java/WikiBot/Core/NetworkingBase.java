@@ -181,10 +181,9 @@ public class NetworkingBase extends javax.swing.JPanel {
 	
 	/**
 	 * @param ur The url you want to get.
-	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: & #039;
 	 */
-	protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
+	protected String[] getURL(String ur, boolean unescapeHTML4) throws IOException {
 		logFiner("Loading: " + ur);
 		
 		//This method actual fetches a web page, and turns it into a more easily use-able format.
@@ -206,9 +205,6 @@ public class NetworkingBase extends javax.swing.JPanel {
         ArrayList<String> page = new ArrayList<String>();
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
-        	if (unescapeText) {
-        		inputLine = StringEscapeUtils.unescapeJava(inputLine);
-        	}
         	if (unescapeHTML4) {
         		inputLine = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(inputLine));
         	}

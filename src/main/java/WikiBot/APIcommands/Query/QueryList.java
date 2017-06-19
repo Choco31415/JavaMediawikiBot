@@ -19,7 +19,6 @@ public class QueryList extends APIcommand {
 		values.add("query");
 		keys.add("list");
 		values.add(list);
-		unescapeText = true;
 		unescapeHTML = true;
 	}
 	
@@ -31,7 +30,6 @@ public class QueryList extends APIcommand {
 		values.add("query");
 		keys.add("list");
 		values.add(list);
-		unescapeText = true;
 		unescapeHTML = true;
 	}
 }

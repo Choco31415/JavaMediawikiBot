@@ -141,6 +141,7 @@ public class FamilyGenerator extends NetworkingBase {
 		//Check a few things with the user first.
 		boolean excludeDefaultInterwiki = true;
 		boolean localOnly = true;
+		boolean languageOnly = true;
 		
 		boolean legibleInput = true;
 		do {
@@ -171,6 +172,31 @@ public class FamilyGenerator extends NetworkingBase {
 			}
 		} while (!legibleInput);
 		
+		do {
+			legibleInput = true;
+			
+			//User options
+			System.out.println("Do you want to include only language wikis? y/n");
+			
+			//Read in user input
+			input = br.readLine();
+			
+			switch (input) {
+				case "y":
+					excludeDefaultInterwiki = false;
+					languageOnly = false;
+					break;
+				case "n":
+					excludeDefaultInterwiki = true;
+					languageOnly = true;
+					break;
+				default:
+					System.out.println("Invalid input. Please only enter: y, n");
+					legibleInput = false;
+					break;
+			}
+		} while (!legibleInput);
+		
 		ArrayList<String> toExclude = new ArrayList<String>();
 		if (excludeDefaultInterwiki) {
 			System.out.println("If any wikis are included by mistake, update "
@@ -190,19 +216,30 @@ public class FamilyGenerator extends NetworkingBase {
 		
 		//Get the interwiki map. MW v.1.11+ required
 		if (localOnly) {
-			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&format=xml";
+			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&format=json";
 		} else {
-			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=xml";
+			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=json";
 		}
 		
-		String serverOutput = ArrayUtils.compactArray(getURL(url, false, true));
-		ArrayList<String> lines = parseTextForItems(serverOutput, "<iw prefix", "/>", 0);
+		String serverOutput = ArrayUtils.compactArray(getURL(url, true));
+		
+		// Read in the Json!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			System.out.println("Was expecting Json, but did not receive Json from server.");
+			return;
+		}
+		
+		JsonNode mapList = rootNode.findValue("interwikimap");
 		
 		System.out.print("Detected wikis: ");
-		for (String line : lines) {
-			if (line.contains("language")) {
-				url = parseTextForItem(line, "url=", "\"", 1, 0).replace("$", "").replace(" ", "_");
-				String prefix = parseTextForItem(line, "iw prefix", "\"");
+		for (JsonNode mapNode : mapList) {
+			if (!languageOnly || mapNode.has("language")) {
+				url = mapNode.get("url").asText();
+				String prefix = mapNode.get("prefix").asText();
 				
 				if (!wikiPrefixes.contains(prefix) && !toExclude.contains(prefix)) {
 					System.out.print(prefix + " ");
@@ -404,7 +441,7 @@ public class FamilyGenerator extends NetworkingBase {
 	 * @throws IOException
 	 */
 	private String getMWversion(String apiURL) throws IOException {
-		String serverOutput = ArrayUtils.compactArray(getURL(apiURL + "/api.php?action=query&meta=siteinfo&format=json", false, true));
+		String serverOutput = ArrayUtils.compactArray(getURL(apiURL + "/api.php?action=query&meta=siteinfo&format=json", true));
 		
 		// Read in the JSON!!!
 		ObjectMapper mapper = new ObjectMapper();

@@ -294,7 +294,7 @@ public class GenericBot extends NetworkingBase {
 		
 		//Parse out page information
 		String title = code.get("title").asText();
-		int pageid = new Integer(code.get("pageid").asText());
+		int pageid = code.get("pageid").asInt();
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
@@ -316,7 +316,7 @@ public class GenericBot extends NetworkingBase {
 		
 		//Parse out page information
 		String title = code.get("title").asText();
-		int pageid = new Integer(code.get("pageid").asText());
+		int pageid = code.get("pageid").asInt();
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
 		//Initialize the SimplePage object with this info.
@@ -609,7 +609,6 @@ public class GenericBot extends NetworkingBase {
 	 * @param loc The location to get back links for.
 	 * @param depth The maximum amount of pages to get.
 	 * @return An ArrayList of PageLocation.
-	 * @outdated
 	 */
 	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
 		//This method gets all the pages that link to another page. Redirects are included.
@@ -690,12 +689,12 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * This methods gets all pages on a wiki after a certain prefix and in a certain namespace.
 	 * This method gets 30 pages max per query call, so it might make multiple query calls.
+	 * 
 	 * @param language The wiki.
 	 * @param depth The maximum amount of pages to get.
 	 * @param from The prefix.
 	 * @param apnamespace The id of the namespace being crawled.
-	 * @return
-	 * @outdated
+	 * @return An ArrayList containing a subset of all pages.
 	 */
 	public ArrayList<PageLocation> getAllPages(String language, int depth, String from, Integer apnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
@@ -705,48 +704,56 @@ public class GenericBot extends NetworkingBase {
 		
 		do {
 			//Make query call.
-			String returned;
+			String serverOutput;
 			if (apnamespace == null) {
 				if (apcontinue == null) {
 					if (from != null) {
-						returned = APIcommand(new QueryAllPages(language, APIlimit, from));
+						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, from));
 					} else {
-						returned = APIcommand(new QueryAllPages(language, APIlimit));
+						serverOutput = APIcommand(new QueryAllPages(language, APIlimit));
 					}
 				} else {
-					returned = APIcommand(new QueryAllPages(language, APIlimit, apcontinue));
+					serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apcontinue));
 				}
 			} else {
 				if (apcontinue == null) {
 					if (from != null) {
-						returned = APIcommand(new QueryAllPages(language, APIlimit, from, apnamespace));
+						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, from, apnamespace));
 					} else {
-						returned = APIcommand(new QueryAllPages(language, APIlimit, apnamespace));
+						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apnamespace));
 					}
 				} else {
-					returned = APIcommand(new QueryAllPages(language, APIlimit, apcontinue, apnamespace));
+					serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apcontinue, apnamespace));
 				}
 			}
 			
-			//Parse text returned.
-			ArrayList<String> pageTitles= getPages(returned, "<p pageid=", "/>");
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
+			}
+
+			//Parse page for info.
+			JsonNode query = rootNode.get("query");
 			
-			//Transfer page names into wrapper class, then into an ArrayList.
-			for (String title : pageTitles) {
-				if (toReturn.size() != depth) {
-					toReturn.add(new PageLocation(language, title));
-				} else {
-					break;
-				}
+			JsonNode pageList = query.findValue("allpages");
+			for (JsonNode pageNode : pageList) {
+				String title = pageNode.get("title").asText();
+				PageLocation pageLoc = new PageLocation(language, title);
+				
+				toReturn.add(pageLoc);
 			}
 			
 			//Try continuing the query.
-			try {
-				apcontinue = parseTextForItem(returned, "apcontinue", "\"");
-				apcontinue = apcontinue.replace("_", " ");
-				
+			if (rootNode.findValue("apcontinue") != null) {
+				apcontinue = rootNode.findValue("apcontinue").asText();
+
 				logFiner("Next page batch starts at: " + apcontinue);
-			} catch (IndexOutOfBoundsException e) {
+			} else {
 				apcontinue = null;
 			}
 		} while (apcontinue != null && toReturn.size() != depth);
@@ -768,11 +775,11 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * Query the wiki for a list of pages with this prefix. Search in the given namespace.
 	 * Warning: Only supported in MW v.1.23 and above!
+	 * 
 	 * @param language The language of the wiki.
 	 * @param prefix The prefix that you are searching for.
 	 * @param psnamespace The id of the namespace to search in.
-	 * @return A list of pages with the given prefix.
-	 * @outdated
+	 * @return An ArrayList of pages with the given prefix.
 	 */
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
@@ -780,26 +787,38 @@ public class GenericBot extends NetworkingBase {
 		
 		do {
 			//Make query call.
-			String returned;
+			String serverOutput;
 			if (psoffset == null) {
-				returned = APIcommand(new QueryPrefix(language, prefix, 0, psnamespace));
+				serverOutput = APIcommand(new QueryPrefix(language, prefix, 0, psnamespace));
 			} else {
-				returned = APIcommand(new QueryPrefix(language, prefix, psoffset, psnamespace));
+				serverOutput = APIcommand(new QueryPrefix(language, prefix, psoffset, psnamespace));
 			}
 			
-			//Parse text returned.
-			ArrayList<String> pageTitles= getPages(returned, "<ps", "/>");
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
+			try {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
+			}
+
+			//Parse page for info.
+			JsonNode query = rootNode.get("query");
 			
-			//Transfer page names into wrapper class.
-			for (String pageName : pageTitles) {
-				PageLocation loc2 = new PageLocation(language, pageName);
-				toReturn.add(loc2);
+			JsonNode prefixList = query.findValue("prefixsearch");
+			for (JsonNode prefixNode : prefixList) {
+				String title = prefixNode.get("title").asText();
+				PageLocation prefixLoc = new PageLocation(language, title);
+				
+				toReturn.add(prefixLoc);
 			}	
 			
 			//Try continuing the query.
-			try {
-				psoffset = Integer.parseInt(parseTextForItem(returned, "psoffset", "\""));
-			} catch (IndexOutOfBoundsException e) {
+			if (rootNode.findValue("psoffset") != null) {
+				psoffset = rootNode.findValue("psoffset").asInt();
+			} else {
 				psoffset = null;
 			}
 		} while (psoffset != null);
@@ -1655,7 +1674,7 @@ public class GenericBot extends NetworkingBase {
 		
 		//Follor the url!
 		try {
-			String[] output = getURL(url, command.shouldUnescapeText(), command.shouldUnescapeHTML());
+			String[] output = getURL(url, command.shouldUnescapeHTML());
 			if (output == null) {
 				throw new NetworkError("Cannot connect to server at: " + baseURL);
 			} else {
@@ -1786,13 +1805,21 @@ public class GenericBot extends NetworkingBase {
 			serverOutput = EntityUtils.toString(entity);
 
 			//Get the token
+			// Read in the Json!!!
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode rootNode = null;
 			try {
-				token = parseTextForItem(serverOutput, tokenType + "token", "\"");
-			} catch (Throwable e) {
+				rootNode = mapper.readValue(serverOutput, JsonNode.class);
+			} catch (IOException e1) {
+				logError("Was expecting Json, but did not receive Json from server.");
+				return null;
+			}
+			
+			if (rootNode.findValue("token") != null) {
+				token = rootNode.findValue("token").asText();
+			} else {
 				throw new Error("Something failed with your API command. Make sure that you are logged in, aren't moving a page to an existing page, ect...");
 			}
-		} catch (org.apache.http.ParseException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
