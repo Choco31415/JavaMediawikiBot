@@ -241,9 +241,9 @@ public class FamilyGenerator extends NetworkingBase {
 			if (!languageOnly || mapNode.has("language")) {
 				url = mapNode.get("url").asText();
 				String prefix = mapNode.get("prefix").asText();
-				System.out.print(prefix + " ");
 				
 				if (!wikiPrefixes.contains(prefix) && !toExclude.contains(prefix)) {
+					System.out.print(prefix + " ");
 					
 					try {
 						url = getAPIurl(url);
