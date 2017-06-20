@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import WikiBot.APIcommands.APIcommand;
+import WikiBot.APIcommands.Login;
 import WikiBot.APIcommands.UploadFileChunk;
 import WikiBot.APIcommands.Query.*;
 import WikiBot.ContentRep.ImageInfo;
@@ -1422,9 +1423,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param password The password.
 	 * @return Login success status.
 	 */
-	public boolean logIn(User user, String password) {
-        HttpEntity entity = null;
-        
+	public boolean logIn(User user, String password) {       
         baseURL = mdm.getWikiURL(user.getLanguage());
         
         try {
@@ -1433,36 +1432,18 @@ public class GenericBot extends NetworkingBase {
         	logFinest("No cookies detected.");
         }
 
-        //LOG IN
-        String token = null;
-        String serverOutput = "";
-        for (int j = 0; j < 2; j++) {
-    		//Check throttle.
-    		throttleAction();
-    		
-    		//Send POST request.
-        	if (token == null) {
-        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword"}, new String[]{user.getUserName(), password});
-        	} else {
-        		entity = getPOST(baseURL + "/api.php?action=login&format=xml", new String[]{"lgname", "lgpassword", "lgtoken"}, new String[]{user.getUserName(), password, token});
-        	}
-        	
-	        logCookies();
-	        
-	        try {
-				serverOutput = EntityUtils.toString(entity);
-				
-				logFinest("server output: " + serverOutput);
-
-				if (j == 0) {
-					token = parseTextForItem(serverOutput, "token", "\"");
-					
-					logFinest("Login token: " + token);
-				}
-			} catch (org.apache.http.ParseException | IOException | IndexOutOfBoundsException e) {
-				e.printStackTrace();
-			}
-        }
+        //LOG IN		
+		APIcommand login = new Login(user, password);
+		
+		String lgtoken = getToken(login);
+		
+        logCookies();
+		
+		login = new Login(user, password, lgtoken);
+		
+		String serverOutput = APIcommandPOST(login);
+    	
+        logCookies();
         
         boolean success = serverOutput.contains("Success");
 		logFiner("Login status at " + user.getLanguage() + ": " + success);
@@ -1607,12 +1588,7 @@ public class GenericBot extends NetworkingBase {
 					//Ugh, the Mediawiki API documentation was returned.
 					logFinest("Mediawiki API documentation page returned.");
 					
-					String error = "||" + parseTextForItem(textReturned, "code", "\",", 3, 0);
-					if (textReturned.contains("info")) {
-						error += ":" + parseTextForItem(textReturned, "info", "\",", 3, 0);
-					}
-					logError(error);
-					throw new Error(error);
+					throw new Error("Mediawiki API documentation page returned.");
 				} else {
 					//Log a small portion of the Json. It's nice.
 					if (textReturned.length() < 1000) {
@@ -1770,6 +1746,7 @@ public class GenericBot extends NetworkingBase {
 		
 		VersionNumber MWVersion = command.getMWVersion();
 		String tokenType;
+		boolean newTokenSystem = false;
 		
 		//Token getting changes a bit between MW versions 1.20 and 1.24.
 		if (MWVersion.compareTo("1.24") >= 0) {
@@ -1780,31 +1757,36 @@ public class GenericBot extends NetworkingBase {
 		
 		//Build the API call
 		//Handle special cases first.
-		if (tokenType.equals("rollback") && MWVersion.compareTo("1.24") < 0) {
+		if (tokenType.equals("login") && MWVersion.compareTo("1.24") < 0) {
+			// Login format does not change pre 1.24.
+			keys = new String[]{"action", "lgname", "lgpassword", "format"};
+			values = new String[]{"login", command.getValue("lgname"), command.getValue("lgpassword"), "json"};
+		} else if (tokenType.equals("rollback") && MWVersion.compareTo("1.24") < 0) {
 			keys = new String[]{"action", "prop", "rvtoken", "titles", "user", "format"};
 			values = new String[]{"query", "revisions", "rollback", command.getTitle(), command.getValue("user"), "xml"};
 		} else {
 			//General cases
 			if (MWVersion.compareTo("1.24") >= 0) {
 				keys = new String[]{"action", "meta", "type", "format"};
-				values = new String[]{"query", "tokens", tokenType, "xml"};
+				values = new String[]{"query", "tokens", tokenType, "json"};
+				newTokenSystem = true;
 			} else if (MWVersion.compareTo("1.20") >= 0) {
 				keys = new String[]{"action", "type", "format"};
-				values = new String[]{"tokens", tokenType, "xml"};
+				values = new String[]{"tokens", tokenType, "json"};
 			} else {
 				keys = new String[]{"action", "prop", "intoken", "titles", "format"};
-				values = new String[]{"query", "info", tokenType, command.getTitle(), "xml"};
+				values = new String[]{"query", "info", tokenType, command.getTitle(), "json"};
 			}
 		}
         
         HttpEntity entity = getPOST(baseURL + "/api.php?", keys, values);
         
-		String serverOutput = "";
 		String token = "";
 		try {
-			serverOutput = EntityUtils.toString(entity);
+			String serverOutput = EntityUtils.toString(entity);
+			
+			logFinest("Received token response: " + serverOutput);
 
-			//Get the token
 			// Read in the Json!!!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
@@ -1815,14 +1797,22 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 			
-			if (rootNode.findValue("token") != null) {
-				token = rootNode.findValue("token").asText();
+			// Consider that the token may be hidden under different field names.
+			String tokenField = "token";
+			if (newTokenSystem) {
+				tokenField = tokenType + tokenField;
+			}
+			
+			// Fetch the token!!!
+			if (rootNode.findValue(tokenField) != null) {
+				token = rootNode.findValue(tokenField).asText();
 			} else {
 				throw new Error("Something failed with your API command. Make sure that you are logged in, aren't moving a page to an existing page, ect...");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		return token;
 	}
 	
@@ -1835,28 +1825,6 @@ public class GenericBot extends NetworkingBase {
 	 * 
 	 * </notice>
 	 */
-	
-	/*
-	 * This is a specialized function and should not be used outside of this class.
-	 */
-	private ArrayList<String> getPages(String XMLdata, String openingText, String closingText) {
-		//This method takes XMLdata and parses it for page names.
-		ArrayList<String> output = new ArrayList<String>();
-		int j = 0;
-		int k = -1;
-		String temp;
-		//Parse page for info.
-		do {
-			j = XMLdata.indexOf(openingText, k+1);
-			k = XMLdata.indexOf(closingText, j+1);
-			if (j != -1) {
-				//No errors detected.
-				temp = XMLdata.substring(j, k+6);
-				output.add(parseTextForItem(temp, "title", "\""));
-			}
-		} while(j != -1);
-		return output;
-	}
 	
 	/**
 	 * This takes a String date and converts it into a Date object.

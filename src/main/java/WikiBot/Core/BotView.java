@@ -30,7 +30,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
-import WikiBot.APIcommands.APIcommand;
 import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.Utils.DocumentSizeFilter;
 import WikiBot.Utils.FileUtils;
