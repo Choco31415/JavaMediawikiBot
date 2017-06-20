@@ -5,12 +5,6 @@ import java.util.ArrayList;
 import WikiBot.ContentRep.InfoContainer;
 
 public class SiteStatistics extends InfoContainer {
-	//Pages
-	//Articles
-	//Edits
-	//Images
-	//Users
-	//ActiveUsers
 	
 	String language;
 	

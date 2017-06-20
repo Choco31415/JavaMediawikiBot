@@ -465,11 +465,16 @@ public abstract class BotPanel extends GenericBot {
 	    pushWorker = new SwingWorker<Void, Void>() {
 	        @Override
 	        public Void doInBackground() {
-			    for (String languageCode : languageCodes) {
-			    	logInAt(languageCode);
-			    }
-			    
-			    return null;
+	        	try {
+				    for (String languageCode : languageCodes) {
+				    	logInAt(languageCode);
+				    }
+	        	} catch (Error e) {
+	        		logError(e.getMessage());
+	        		e.printStackTrace();
+	        	}
+	        	
+	        	return null;
 	        }
 
 	        @Override

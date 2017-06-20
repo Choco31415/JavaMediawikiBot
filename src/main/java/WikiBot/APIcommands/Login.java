@@ -24,19 +24,4 @@ public class Login extends APIcommand {
 		keys.add("lgpassword");
 		values.add(password);
 	}
-	
-	public Login(User user, String password, String lgtoken) {
-		super("login", user.getLanguage(), true, "login", "login");
-		
-		keys.add("action");
-		values.add("login");
-		keys.add("format");
-		values.add("json");
-		keys.add("lgname");
-		values.add(user.getUserName());
-		keys.add("lgpassword");
-		values.add(password);
-		keys.add("lgtoken");
-		values.add(lgtoken);
-	}
 }

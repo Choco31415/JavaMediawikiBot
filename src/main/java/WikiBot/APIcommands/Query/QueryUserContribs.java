@@ -35,7 +35,7 @@ public class QueryUserContribs extends QueryList {
 		values.add(compactArray(propertiesToGet, "|"));
 		keys.add("uclimit");
 		values.add("" + uclimit);
-		unescapeHTML = false;
+		unescapeHTML = true;
 		
 		enforceMWVersion("1.9");
 		

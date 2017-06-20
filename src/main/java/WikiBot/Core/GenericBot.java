@@ -1245,11 +1245,11 @@ public class GenericBot extends NetworkingBase {
 					JsonNode contrib = userContribs.get(contribID);
 					
 					//Parse for revision info
-					String title = unescape(contrib.findValue("title").textValue());
+					String title = contrib.findValue("title").textValue();
 					PageLocation loc = new PageLocation(language, title);
 					String userName = user.getUserName();
-					String comment = unescape(contrib.findValue("comment").textValue());
-					Date date = createDate(unescape(contrib.findValue("timestamp").textValue()));
+					String comment = contrib.findValue("comment").textValue();
+					Date date = createDate(contrib.findValue("timestamp").textValue());
 					
 					//Parse for flags
 					ArrayList<String> flags = new ArrayList<String>();
@@ -1435,13 +1435,7 @@ public class GenericBot extends NetworkingBase {
         //LOG IN		
 		APIcommand login = new Login(user, password);
 		
-		String lgtoken = getToken(login);
-		
-        logCookies();
-		
-		login = new Login(user, password, lgtoken);
-		
-		String serverOutput = APIcommandPOST(login);
+		String serverOutput = APIcommand(login);
     	
         logCookies();
         
@@ -1487,6 +1481,7 @@ public class GenericBot extends NetworkingBase {
 					textReturned = APIcommandHTTP(command);
 				}
 			} catch (Error e) {
+				e.printStackTrace();
 				//Network issues encountered. Handle them.
 				networkError = true;
 				if (interruptedConnectionWait > 0) {
@@ -1559,7 +1554,7 @@ public class GenericBot extends NetworkingBase {
 							logError(error);
 						} else {
 							//Everything looks ok.
-							logFinest(command.getTitle() + " has been edited.");
+							logFinest(command.getTitle() + " has been updated.");
 						}
 					}
 				}
@@ -1670,26 +1665,19 @@ public class GenericBot extends NetworkingBase {
 		//Build the POST request.
 		HttpEntity response;
 		
-		//Get the key and value pairs of the command.
-		String[] editKeys = command.getKeysArray();
-		String[] editValues = command.getValuesArray();
-		int numEditKeys = editKeys.length;
-		int numEditValues = editValues.length;
-		
-		//Build the key and value pairs of our POST request.
-		String[] keys = new String[numEditKeys + 1];
-		String[] values = new String[numEditValues + 1];
-		
-		for (int i = 0; i < numEditKeys; i++) {
-			keys[i] = editKeys[i];
-			values[i] = editValues[i];
-		}
-		
 		//Add a token to our POST request
 		String token = getToken(command);
 		
-		keys[keys.length - 1] = "token";
-		values[keys.length - 1] = "" + token;
+		if (command.getCommandName() == "login") {
+			command.addParameter("lgtoken", token);
+		} else {
+			command.addParameter("token", token);
+		}
+		
+		//Get the key and value pairs of the command.
+		String[] keys = command.getKeysArray();
+		String[] values = command.getValuesArray();		
+		
 		//Send the command!
         response = getPOST(baseURL + "/api.php?", keys, values);
         try {
@@ -1746,7 +1734,6 @@ public class GenericBot extends NetworkingBase {
 		
 		VersionNumber MWVersion = command.getMWVersion();
 		String tokenType;
-		boolean newTokenSystem = false;
 		
 		//Token getting changes a bit between MW versions 1.20 and 1.24.
 		if (MWVersion.compareTo("1.24") >= 0) {
@@ -1754,13 +1741,15 @@ public class GenericBot extends NetworkingBase {
 		} else {
 			tokenType = command.getOldTokenType();
 		}
+		String tokenField = tokenType + "token";
 		
 		//Build the API call
 		//Handle special cases first.
-		if (tokenType.equals("login") && MWVersion.compareTo("1.24") < 0) {
-			// Login format does not change pre 1.24.
+		if (tokenType.equals("login") && MWVersion.compareTo("1.27") < 0) {
+			// Login format does not change pre 1.26.
 			keys = new String[]{"action", "lgname", "lgpassword", "format"};
 			values = new String[]{"login", command.getValue("lgname"), command.getValue("lgpassword"), "json"};
+			tokenField = "token";
 		} else if (tokenType.equals("rollback") && MWVersion.compareTo("1.24") < 0) {
 			keys = new String[]{"action", "prop", "rvtoken", "titles", "user", "format"};
 			values = new String[]{"query", "revisions", "rollback", command.getTitle(), command.getValue("user"), "xml"};
@@ -1769,7 +1758,6 @@ public class GenericBot extends NetworkingBase {
 			if (MWVersion.compareTo("1.24") >= 0) {
 				keys = new String[]{"action", "meta", "type", "format"};
 				values = new String[]{"query", "tokens", tokenType, "json"};
-				newTokenSystem = true;
 			} else if (MWVersion.compareTo("1.20") >= 0) {
 				keys = new String[]{"action", "type", "format"};
 				values = new String[]{"tokens", tokenType, "json"};
@@ -1795,12 +1783,6 @@ public class GenericBot extends NetworkingBase {
 			} catch (IOException e1) {
 				logError("Was expecting Json, but did not receive Json from server.");
 				return null;
-			}
-			
-			// Consider that the token may be hidden under different field names.
-			String tokenField = "token";
-			if (newTokenSystem) {
-				tokenField = tokenType + tokenField;
 			}
 			
 			// Fetch the token!!!
@@ -1840,34 +1822,6 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		return date;
-	}
-	
-	/**
-	 * Unescapes string literals and HTML.
-	 * @param text The text to unescape.
-	 * @return A String.
-	 */
-	private String unescape(String text) {
-		return unescape(text, true, true);
-	}
-	
-	/**
-	 * Unescapes text.
-	 * @param text The text to unescape.
-	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
-	 * @param unescapeHTML Unescapes HTML text. Ex: & #039;
-	 * @return A String.
-	 */
-	private String unescape(String text, boolean unescapeText, boolean unescapeHTML) {
-		String unescaped = text;
-		if (unescapeText) {
-			unescaped = StringEscapeUtils.unescapeJava(unescaped);
-		}
-		if (unescapeHTML) {
-			unescaped = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(unescaped));
-		}
-		
-		return unescaped;
 	}
 	
 	/**

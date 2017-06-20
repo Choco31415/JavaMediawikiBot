@@ -453,10 +453,9 @@ public class FamilyGenerator extends NetworkingBase {
 				boolean validDirectory = true;
 				File familyFile;
 				if (directory.length() == 0) {
-					familyFile = new File(RESOURCES_PATH + "/Families/");
-				} else {
-					familyFile = new File(directory);
+					directory = RESOURCES_PATH + "/Families/";
 				}
+				familyFile = new File(directory);
 
 				validDirectory = familyFile.isDirectory() && familyFile.canWrite();
 				if (!validDirectory) {
