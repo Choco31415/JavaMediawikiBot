@@ -1,6 +1,7 @@
 package WikiBot.MediawikiData;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -47,36 +48,10 @@ public class FamilyGenerator extends NetworkingBase {
 	public void run() throws IOException, URISyntaxException {
 		setLoggerLevel(Level.INFO);
 		
-		boolean running = true;
 		System.out.println("You are running the script that makes a new wiki family.");
 		
 		//Get user input
 		br = new BufferedReader(new InputStreamReader(System.in));
-		
-		boolean legibleInput;
-		do {
-			legibleInput = true;
-			
-			//User options
-			System.out.println("b - Build a wiki family");
-			System.out.println("e - Exit");
-			
-			//Read in user input
-			input = br.readLine();
-			
-			switch (input) {
-				case "b":
-					//Meh.
-					break;
-				case "e":
-					running = false;
-					break;
-				default:
-					System.out.println("Invalid input. Please only enter: m, g, e");
-					legibleInput = false;
-					break;
-			}
-		} while (!legibleInput);
 		
 		System.out.println("What is the name of the wiki family?");
 		
@@ -85,13 +60,9 @@ public class FamilyGenerator extends NetworkingBase {
 		
 		System.out.println("Creating family " + familyName + ".");
 		
-		if (running) {
-			manuallyBuildWikiFamily();
-			writeFamily();
-			System.exit(0);
-		} else {
-			System.exit(0);
-		}
+		manuallyBuildWikiFamily();
+		writeFamily();
+		System.exit(0);
 	}
 	
 	private void manuallyBuildWikiFamily() throws IOException, URISyntaxException {
@@ -468,22 +439,52 @@ public class FamilyGenerator extends NetworkingBase {
 		return version;
 	}
 	
-	private void writeFamily() {
-		String toWrite = "[";
-		
+	private void writeFamily() throws IOException {
 		if (wikiPrefixes.size() > 0) {
-			for (int i = 0; i < wikiPrefixes.size(); i++) {
-				toWrite += "{\"prefix\": \"" + wikiPrefixes.get(i) + "\", ";
-				toWrite += "\"version\": \"" + MWversions.get(i) + "\", ";
-				toWrite += "\"url\": \"" + wikiURLs.get(i) + "\"}";
-				if (i != wikiPrefixes.size()-1) {
-					toWrite += ",\n";
+			boolean done = false;
+			
+			do {
+				System.out.println("Please input a directory to write the family file to.");
+				System.out.println("Please include the leading slash.");
+				System.out.println("Input blank for this project's resource folder.");
+				String directory = br.readLine();
+				
+				// Check that directory is valid.
+				boolean validDirectory = true;
+				File familyFile;
+				if (directory.length() == 0) {
+					familyFile = new File(RESOURCES_PATH + "/Families/");
+				} else {
+					familyFile = new File(directory);
 				}
-			}
-			
-			toWrite += "]";
-			
-			FileUtils.writeFile(toWrite, RESOURCES_PATH + "/Families/" + familyName + ".txt");
+
+				validDirectory = familyFile.isDirectory() && familyFile.canWrite();
+				if (!validDirectory) {
+					System.out.println("Invalid directory or can't write.");
+				}
+				
+				if (validDirectory) {
+					// The directory is valid, so we can create the family file.
+					familyFile = new File(directory + familyName + ".txt");
+					
+					String toWrite = "[";
+					
+					for (int i = 0; i < wikiPrefixes.size(); i++) {
+						toWrite += "{\"prefix\": \"" + wikiPrefixes.get(i) + "\", ";
+						toWrite += "\"version\": \"" + MWversions.get(i) + "\", ";
+						toWrite += "\"url\": \"" + wikiURLs.get(i) + "\"}";
+						if (i != wikiPrefixes.size()-1) {
+							toWrite += ",\n";
+						}
+					}
+					
+					toWrite += "]";
+					
+					FileUtils.writeFile(toWrite, familyFile.getAbsolutePath());
+					
+					done = true;
+				}
+			} while (!done);
 		}
 	}
 	
