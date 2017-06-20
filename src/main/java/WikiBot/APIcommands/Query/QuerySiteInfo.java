@@ -8,11 +8,8 @@ import WikiBot.APIcommands.APIcommand;
  * @Description
  * This command gets site information.
  * 
-<<<<<<< HEAD
  * Recommended not used raw.
  * 
-=======
->>>>>>> 1534d66a8cc341e06dc1a160aee52e647f25d84f
  * @RequiredRights
  * none
  * 
