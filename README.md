@@ -50,20 +50,20 @@ If a command is recommended used raw, then simply run `APIcommand(APIcommand com
 
 If a command is not recommended user raw, then use GenericBot methods.
 
-## Tips
+### Tips
 
 Coding Tips:
 * To queue a command for review, use `proposeEdit(APIcommand command)`. This requires the GUI.
 
-### Examples
+## Examples
 
 One example bot is included in the project, and it is called `InterwikiBot.java`.
 
-### Contributing
+## Contributing
 
 To contribute, make an issue or a pull request! In each Pull Request, make sure to include the situations under which your code was tested.
 
-## Project Tree
+### Project Tree
 
 Useful bot methods and bot settings may be found in various places.
 
