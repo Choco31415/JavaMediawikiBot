@@ -1286,6 +1286,13 @@ public class GenericBot extends NetworkingBase {
 		return multiContribs;
 	}
 	
+	/**
+	 * Get the site statistics for a wiki.
+	 * 
+	 * Warning: Only supported in MW v.1.11 and above!
+	 * @param language The wiki to get site statistics for.
+	 * @return A SiteStatistics containing the site statistics.
+	 */
 	public SiteStatistics getSiteStatistics(String language) {
 		// Logging
 		String userLogMessage = "Getting site statistics for wiki: " + language;
@@ -1305,6 +1312,14 @@ public class GenericBot extends NetworkingBase {
 		
 	}
 	
+	/**
+	 * Get info about a wiki's properties.
+	 * 
+	 * @param container An InfoContainer to store info in.
+	 * @param language The wiki to get site info for.
+	 * @param propertyNames The site properties to query.
+	 * @returnA The input infoContainer updated to include server output.
+	 */
 	public InfoContainer getSiteInfo(InfoContainer container, String language, ArrayList<String> propertyNames) {		
 		// Method code below
 			
