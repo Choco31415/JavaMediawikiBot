@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import WikiBot.Utils.ArrayUtils;
 
 /**
-<<<<<<< HEAD
  * This class stores user information, like their direct url, block info, ect...
-=======
- * This class stores user information, like the direct url, block info, ect...
->>>>>>> 1534d66a8cc341e06dc1a160aee52e647f25d84f
  */
 public class UserInfo extends InfoContainer {
 	
