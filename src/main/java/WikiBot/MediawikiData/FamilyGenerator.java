@@ -1,6 +1,7 @@
 package WikiBot.MediawikiData;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -9,6 +10,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import WikiBot.Core.NetworkingBase;
 import WikiBot.Utils.ArrayUtils;
@@ -44,36 +48,10 @@ public class FamilyGenerator extends NetworkingBase {
 	public void run() throws IOException, URISyntaxException {
 		setLoggerLevel(Level.INFO);
 		
-		boolean running = true;
 		System.out.println("You are running the script that makes a new wiki family.");
 		
 		//Get user input
 		br = new BufferedReader(new InputStreamReader(System.in));
-		
-		boolean legibleInput;
-		do {
-			legibleInput = true;
-			
-			//User options
-			System.out.println("b - Build a wiki family");
-			System.out.println("e - Exit");
-			
-			//Read in user input
-			input = br.readLine();
-			
-			switch (input) {
-				case "b":
-					//Meh.
-					break;
-				case "e":
-					running = false;
-					break;
-				default:
-					System.out.println("Invalid input. Please only enter: m, g, e");
-					legibleInput = false;
-					break;
-			}
-		} while (!legibleInput);
 		
 		System.out.println("What is the name of the wiki family?");
 		
@@ -82,13 +60,9 @@ public class FamilyGenerator extends NetworkingBase {
 		
 		System.out.println("Creating family " + familyName + ".");
 		
-		if (running) {
-			manuallyBuildWikiFamily();
-			writeFamily();
-			System.exit(0);
-		} else {
-			System.exit(0);
-		}
+		manuallyBuildWikiFamily();
+		writeFamily();
+		System.exit(0);
 	}
 	
 	private void manuallyBuildWikiFamily() throws IOException, URISyntaxException {
@@ -138,6 +112,7 @@ public class FamilyGenerator extends NetworkingBase {
 		//Check a few things with the user first.
 		boolean excludeDefaultInterwiki = true;
 		boolean localOnly = true;
+		boolean languageOnly = true;
 		
 		boolean legibleInput = true;
 		do {
@@ -168,6 +143,31 @@ public class FamilyGenerator extends NetworkingBase {
 			}
 		} while (!legibleInput);
 		
+		do {
+			legibleInput = true;
+			
+			//User options
+			System.out.println("Do you want to include only language wikis? y/n");
+			
+			//Read in user input
+			input = br.readLine();
+			
+			switch (input) {
+				case "y":
+					excludeDefaultInterwiki = false;
+					languageOnly = false;
+					break;
+				case "n":
+					excludeDefaultInterwiki = true;
+					languageOnly = true;
+					break;
+				default:
+					System.out.println("Invalid input. Please only enter: y, n");
+					legibleInput = false;
+					break;
+			}
+		} while (!legibleInput);
+		
 		ArrayList<String> toExclude = new ArrayList<String>();
 		if (excludeDefaultInterwiki) {
 			System.out.println("If any wikis are included by mistake, update "
@@ -187,24 +187,41 @@ public class FamilyGenerator extends NetworkingBase {
 		
 		//Get the interwiki map. MW v.1.11+ required
 		if (localOnly) {
-			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&format=xml";
+			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&format=json";
 		} else {
-			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=xml";
+			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=json";
 		}
 		
-		String serverOutput = ArrayUtils.compactArray(getURL(url, false, true));
-		ArrayList<String> lines = parseTextForItems(serverOutput, "<iw prefix", "/>", 0);
+		String serverOutput = ArrayUtils.compactArray(getURL(url, true));
+		serverOutput = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(serverOutput));
+		
+		// Read in the Json!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			System.out.println("Was expecting Json, but did not receive Json from server.");
+			return;
+		}
+		
+		JsonNode mapList = rootNode.findValue("interwikimap");
 		
 		System.out.print("Detected wikis: ");
-		for (String line : lines) {
-			if (line.contains("language")) {
-				url = parseTextForItem(line, "url=", "\"", 1, 0).replace("$", "").replace(" ", "_");
-				String prefix = parseTextForItem(line, "iw prefix", "\"");
+		for (JsonNode mapNode : mapList) {
+			if (!languageOnly || mapNode.has("language")) {
+				url = mapNode.get("url").asText();
+				String prefix = mapNode.get("prefix").asText();
 				
 				if (!wikiPrefixes.contains(prefix) && !toExclude.contains(prefix)) {
 					System.out.print(prefix + " ");
 					
-					url = getAPIurl(url);
+					try {
+						url = getAPIurl(url);
+					} catch (Exception e) {
+						System.out.println("Failed to add: " + url);
+						continue;
+					}
 					
 					wikiURLs.add(url);
 					wikiPrefixes.add(prefix);
@@ -289,91 +306,184 @@ public class FamilyGenerator extends NetworkingBase {
 	 * @throws IOException 
 	 */
 	private String getAPIurl(String url) throws URISyntaxException, IOException {
-		URI uri;
-		String host;
-		try {
-			uri = new URI(url);
-			host = uri.getHost();
-		} catch (Throwable e) {
-			//We're dealing with Russian, Japanese, or some sort of non-standard characters.
-			uri = new URI(StringEscapeUtils.escapeHtml4(url));
-			System.out.println(uri.toString());
-			host = StringEscapeUtils.unescapeHtml4(uri.getHost());
-		}
-		
+		String MediawikiURL = getMediawikiURL(url);
 		
 		//Brute force attack the api location. Can't do much better. ¯\_(ツ)_/¯ 
-		String URLbase = "http://" + host + "/w/api.php";
-		String URLheader;
-		String URLdirectory = null;
-		int responseCode = getResponseCode(URLbase);
-		
-		//Http or https?
-		if ( responseCode == 200 ) {
-			URLheader = "http://";
-		} else {
-			URLheader = "https://";
-		}
-		
 		//Is the api at /w or /wiki or something else?
 		//Let's try /w first.
-		URLbase = URLheader + host + "/w/api.php";
-		responseCode = getResponseCode(URLbase);
-		boolean isWiki = true;//Is this actually a wiki and not some other website?
+		String directory = null;
+		String APIurl = MediawikiURL + "/w/api.php";
+		int responseCode = getResponseCode(APIurl);
 		if (responseCode == 200) {
-			URLdirectory = "/w";
+			directory = "/w";
 		} else {
 			//Let's try /wiki.
-			URLbase = URLheader + host + "/wiki/api.php";
-			responseCode = getResponseCode(URLbase);
+			APIurl = MediawikiURL + "/wiki/api.php";
+			responseCode = getResponseCode(APIurl);
 			if (responseCode == 200) {
-				URLdirectory = "/wiki";
+				directory = "/wiki";
 			} else {
-				//Ask user.
-				System.out.println("The api path for this wiki could not be determined."
-						+ "\nhost: " + host
-						+ "\nPlease go to Special:Version on the wiki, and copy"
-						+ "\nthe API path here. Leave out the /api.php."
-						+ "\nIf this is not a wiki, type 'n'.");
-				
-				input = br.readLine();
-				if (input.equalsIgnoreCase("n")) {
-					isWiki = false;
+				//Let's try /
+				APIurl = MediawikiURL + "/api.php";
+				responseCode = getResponseCode(APIurl);
+				if (responseCode == 200) {
+					directory = "";
 				} else {
-					URLdirectory = input;
+					//Ask user.
+					System.out.println("The api path for this wiki could not be determined."
+							+ "\nMediawiki URL: " + MediawikiURL
+							+ "\nPlease go to Special:Version on the wiki, and copy"
+							+ "\nthe API path here. Leave out the /api.php.");
+					
+					directory = br.readLine();
 				}
 			}	
 		}
 		
-		if (isWiki) {
-			return URLheader + host + URLdirectory;
-		} else {
-			return null;
-		}
+		return MediawikiURL + directory;
 	}
 	
-	private String getMWversion(String URLapi) throws IOException {
-		String serverOutput = ArrayUtils.compactArray(getURL(URLapi + "/api.php?action=query&meta=siteinfo&format=xml", false, true));
-		String generator = parseTextForItem(serverOutput, "generator", "\"");
-		String version = generator.substring(generator.indexOf(" ")).trim();
+	/**
+	 * Brute force find the Mediawiki base URL.
+	 * @param url
+	 * @return
+	 * @throws URISyntaxException
+	 */
+	private String getMediawikiURL(String url) throws URISyntaxException {
+		URI uri;
+		String URLheader;
+		String host;
+		int port;
+		String path;
+		try {
+			uri = new URI(url);
+			URLheader = uri.getScheme() + "://";
+			host = uri.getHost();
+			port = uri.getPort();
+			path = uri.getPath();
+		} catch (Throwable e) {
+			//We're dealing with Russian, Japanese, or some sort of non-standard characters.
+			uri = new URI(StringEscapeUtils.escapeHtml4(url));
+			URLheader = StringEscapeUtils.unescapeHtml4(uri.getScheme()) + "://";
+			host = StringEscapeUtils.unescapeHtml4(uri.getHost());
+			port = uri.getPort();
+			path = StringEscapeUtils.unescapeHtml4(uri.getPath());
+		}
+		
+		String MediawikiURL;
+		if (port == -1) {
+			MediawikiURL = URLheader + host;
+		} else {
+			MediawikiURL = URLheader + host + ":" + port;
+		}
+		// Dig through the path, from the bottom up, to see when we start receiving 200's.
+		String[] pathSegments = path.split("/");
+		int segmentID = 0;
+		int responseCode = 404;
+		do {	
+			if (responseCode != 200 && segmentID < pathSegments.length) {
+				// Let's go up a directory.
+				MediawikiURL += pathSegments[segmentID]; // Try adding another path section.
+				if (segmentID != pathSegments.length-1) {
+					MediawikiURL += "/";
+				}
+			}
+			segmentID++;
+			
+			responseCode = getResponseCode(MediawikiURL);
+		} while (responseCode != 200 && segmentID <= pathSegments.length);
+		
+		if (responseCode != 200) {
+			System.out.println("Bad url provided.");
+			throw new URISyntaxException("", "");
+		}
+		if (segmentID == pathSegments.length) {
+			// URL includes query. Remove query, and strip leading "/"
+			String query = pathSegments[pathSegments.length-1];
+			int index = MediawikiURL.indexOf(query);
+			MediawikiURL = MediawikiURL.substring(0, index-1);
+		} else {
+			// Strip leading "/"
+			MediawikiURL = MediawikiURL.substring(0, MediawikiURL.length()-1);
+		}
+		
+		return MediawikiURL;
+	}
+	
+	/**
+	 * Get the MW version of an MW installation.
+	 * 
+	 * @param apiURL The MW's api url.
+	 * @return 
+	 * @throws IOException
+	 */
+	private String getMWversion(String apiURL) throws IOException {
+		String serverOutput = ArrayUtils.compactArray(getURL(apiURL + "/api.php?action=query&meta=siteinfo&format=json", true));
+		
+		// Read in the JSON!!!
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(serverOutput, JsonNode.class);
+		} catch (IOException e1) {
+			logError("Was expecting JSON, but did not receive JSON from server.");
+			return "";
+		}
+		
+		// Find generator tag.
+		JsonNode generatorTag = rootNode.findValue("generator");
+		String generatorText = generatorTag.asText();
+
+		String version = generatorText.split(" ")[1];
 		
 		return version;
 	}
 	
-	private void writeFamily() {
-		String toWrite = "";
-		
+	private void writeFamily() throws IOException {
 		if (wikiPrefixes.size() > 0) {
-			for (int i = 0; i < wikiPrefixes.size(); i++) {
-				if (i != 0) {
-					toWrite += "\n";
-				}
-				toWrite += wikiPrefixes.get(i);
-				toWrite += ":" + MWversions.get(i);
-				toWrite += ": " + wikiURLs.get(i);
-			}
+			boolean done = false;
 			
-			FileUtils.writeFile(toWrite, RESOURCES_PATH + "/Families/" + familyName + ".txt");
+			do {
+				System.out.println("Please input a directory to write the family file to.");
+				System.out.println("Please include the leading slash.");
+				System.out.println("Input blank for this project's resource folder.");
+				String directory = br.readLine();
+				
+				// Check that directory is valid.
+				boolean validDirectory = true;
+				File familyFile;
+				if (directory.length() == 0) {
+					directory = RESOURCES_PATH + "/Families/";
+				}
+				familyFile = new File(directory);
+
+				validDirectory = familyFile.isDirectory() && familyFile.canWrite();
+				if (!validDirectory) {
+					System.out.println("Invalid directory or can't write.");
+				}
+				
+				if (validDirectory) {
+					// The directory is valid, so we can create the family file.
+					familyFile = new File(directory + familyName + ".txt");
+					
+					String toWrite = "[";
+					
+					for (int i = 0; i < wikiPrefixes.size(); i++) {
+						toWrite += "{\"prefix\": \"" + wikiPrefixes.get(i) + "\", ";
+						toWrite += "\"version\": \"" + MWversions.get(i) + "\", ";
+						toWrite += "\"url\": \"" + wikiURLs.get(i) + "\"}";
+						if (i != wikiPrefixes.size()-1) {
+							toWrite += ",\n";
+						}
+					}
+					
+					toWrite += "]";
+					
+					FileUtils.writeFile(toWrite, familyFile.getAbsolutePath());
+					
+					done = true;
+				}
+			} while (!done);
 		}
 	}
 	

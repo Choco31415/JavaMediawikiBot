@@ -6,6 +6,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command moves a page.
  * 
+ * Recommended used raw.
+ * 
  * @RequiredRights
  * move
  * movefile (To move files.)

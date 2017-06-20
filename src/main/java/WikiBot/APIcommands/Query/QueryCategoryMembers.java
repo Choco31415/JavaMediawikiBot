@@ -4,6 +4,8 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets the members of a category.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -17,8 +19,6 @@ public class QueryCategoryMembers extends QueryList {
 		values.add(categoryName);
 		keys.add("cmlimit");
 		values.add("" + depth);
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.11");
 	}
@@ -34,8 +34,6 @@ public class QueryCategoryMembers extends QueryList {
 		values.add("" + depth);
 		keys.add("cmcontinue");
 		values.add(cmcontinue);
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.11");
 	}
@@ -49,8 +47,6 @@ public class QueryCategoryMembers extends QueryList {
 		values.add(categoryName);
 		keys.add("cmlimit");
 		values.add("" + 40);
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.11");
 	}

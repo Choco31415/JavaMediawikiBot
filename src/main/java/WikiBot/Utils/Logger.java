@@ -9,6 +9,8 @@ import java.util.logging.Level;
 public class Logger {
 	
 	private static Logger instance;
+	
+	private boolean propagating = false;
 
 	private ArrayList<String> logger = new ArrayList<String>();
 	private Level logLevel = Level.INFO;//Default;
@@ -79,7 +81,12 @@ public class Logger {
 	
 	public boolean log(Level level, String line) {
 		if (level.intValue() >= logLevel.intValue()) {
-			logger.add("[" + TimeUtils.getTimeStamp() + "]: " + line);
+			String message = "[" + TimeUtils.getTimeStamp() + "]: " + line;
+			logger.add(message);
+			
+			if (propagating) {
+				System.out.println(message);
+			}
 			
 			return true;
 		}
@@ -94,6 +101,14 @@ public class Logger {
 	 */
 	public void setLoggerLevel(Level level) {
 		logLevel = level;
+	}
+	
+	/**
+	 * Set if logger propagates to Stdout.
+	 * @param set A boolean.
+	 */
+	public void setPropagation(boolean set) {
+		propagating = set;
 	}
 	
 	/**
@@ -118,5 +133,15 @@ public class Logger {
 		toReturn = ArrayUtils.compactArray(logger, "\n");
 
 		return toReturn;
+	}
+	
+	/**
+	 * Print the full log.
+	 * @return
+	 */
+	public void printLog() {
+		for (String line : logger) {
+			System.out.println(line);
+		}
 	}
 }

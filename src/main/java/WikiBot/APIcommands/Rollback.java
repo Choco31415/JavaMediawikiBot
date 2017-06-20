@@ -6,6 +6,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command rolls back a user's edits on a page.
  * 
+ * Recommended used raw.
+ * 
  * @RequiredRights
  * Rollback
  * 

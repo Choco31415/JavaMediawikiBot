@@ -1,5 +1,6 @@
 package WikiBot.APIcommands;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import WikiBot.ContentRep.PageLocation;
@@ -10,18 +11,24 @@ import WikiBot.MediawikiData.MediawikiDataManager;
 import WikiBot.MediawikiData.VersionNumber;
 import WikiBot.Utils.ArrayUtils;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
+
 /**
  * @Description
  * This class is a base for making APIcommands.
  * 
  * APIcommands are commands to a wiki's API.
+ * 
+ * Only use this class to create new commands. Ex: EditPage
  */
 public class APIcommand extends PageLocationContainer {
 	
 	protected String commandName;//One or two words to summarize what this edit does.
 	
+	protected boolean requiresHttpEntity = false;
 	protected boolean requiresPOST = false;
-	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
 	
 	protected String oldTokenType = "";//Pre MW 1.24
@@ -44,7 +51,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language, boolean requiresPOST_, String oldTokenType_, String newTokenType_) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 		requiresPOST = requiresPOST_;
 		oldTokenType = oldTokenType_;
@@ -52,7 +59,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 	}
 	
@@ -97,6 +104,10 @@ public class APIcommand extends PageLocationContainer {
 		}
 	}
 	
+	public HttpEntity getHttpEntity(String token) {
+		return null;// For extended command needs only.
+	} 
+	
 	public PageLocation getPageLocation() {
 		return pl;
 	}
@@ -115,28 +126,22 @@ public class APIcommand extends PageLocationContainer {
 	
 	public String[] getKeysArray() {
 		String[] temp = new String[keys.size()];
-		for (int i = 0; i < keys.size(); i++) {
-			temp[i] = keys.get(i);
-		}
-		return temp;
+		return keys.toArray(temp);
 	}
 	
 	public String[] getValuesArray() {
 		String[] temp = new String[values.size()];
-		for (int i = 0; i < values.size(); i++) {
-			temp[i] = values.get(i);
-		}
-		return temp;
+		return values.toArray(temp);
 	}
 	
 	public String getValue(String key) {
 		return values.get(keys.indexOf(key));
 	}
 	
+	public void setRequiresEntity(boolean bool) { requiresHttpEntity = bool; }
+	public boolean requiresEntity() { return requiresHttpEntity; }
 	public void setRequiresPOST(boolean bool) { requiresPOST = bool; }
 	public boolean requiresPOST() { return requiresPOST; }
-	public void setUnescapeText(boolean bool) { unescapeText = bool; }
-	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	
@@ -161,6 +166,17 @@ public class APIcommand extends PageLocationContainer {
 		}
 		if (doesKeyExist("text")) {
 			temp += "\nText: \n" + getValue("text");
+		}
+		if (requiresEntity()) {
+			String entity;
+			try {
+				entity = EntityUtils.toString(getHttpEntity("<token>"));
+			} catch (ParseException e) {
+				entity = "Required.";
+			} catch (IOException e) {
+				entity = "Required.";
+			}
+			temp += "\nEntity: " + entity;
 		}
 		return temp;
 	}

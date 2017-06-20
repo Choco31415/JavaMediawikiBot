@@ -6,6 +6,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command gets all the pages that link to this page.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -23,7 +25,6 @@ public class QueryBackLinks extends QueryList {
 		values.add(loc.getTitle());
 		keys.add("bllimit");
 		values.add("" + 40);
-		unescapeText = true;
 		
 		enforceMWVersion("1.9");
 	}
@@ -34,7 +35,6 @@ public class QueryBackLinks extends QueryList {
 		values.add(loc.getTitle());
 		keys.add("bllimit");
 		values.add("" + depth);
-		unescapeText = true;
 		
 		enforceMWVersion("1.9");
 	}
@@ -50,8 +50,6 @@ public class QueryBackLinks extends QueryList {
 		values.add("" + depth);
 		keys.add("blcontinue");
 		values.add(blcontinue);
-		unescapeText = true;
-		unescapeHTML = false;
 		
 		enforceMWVersion("1.9");
 	}

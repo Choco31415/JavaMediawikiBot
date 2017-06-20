@@ -4,6 +4,8 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets pages with a certain prefix.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -13,8 +15,6 @@ package WikiBot.APIcommands.Query;
 public class QueryPrefix extends QueryList {
 	public QueryPrefix(String language, String prefix) {
 		super("Query prefix", language, "prefixsearch");
-		keys.add("format");
-		values.add("xml");
 		keys.add("action");
 		values.add("query");
 		keys.add("pssearch");
@@ -25,8 +25,6 @@ public class QueryPrefix extends QueryList {
 	
 	public QueryPrefix(String language, String prefix, int psoffset, int psnamespace) {
 		super("Query prefix", language, "prefixsearch");
-		keys.add("format");
-		values.add("xml");
 		keys.add("action");
 		values.add("query");
 		keys.add("pssearch");

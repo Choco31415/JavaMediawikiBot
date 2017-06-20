@@ -1,4 +1,0 @@
-homeEn:1.26.2: http://192.168.1.105:81/mediawiki
-homeEnOld:1.21.8: http://192.168.1.105:81/mediawikiOld
-homeEnSuperOld:1.16.5: http://192.168.1.105:81/mediawikiSuperOld
-en:1.23.25: https://wiki.scratch.mit.edu/w

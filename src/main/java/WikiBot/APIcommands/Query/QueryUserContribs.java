@@ -8,6 +8,8 @@ import WikiBot.ContentRep.User;
  * @Description
  * This command gets a list of a user's contributions.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -33,8 +35,7 @@ public class QueryUserContribs extends QueryList {
 		values.add(compactArray(propertiesToGet, "|"));
 		keys.add("uclimit");
 		values.add("" + uclimit);
-		unescapeText = false;
-		unescapeHTML = false;
+		unescapeHTML = true;
 		
 		enforceMWVersion("1.9");
 		

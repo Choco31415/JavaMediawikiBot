@@ -1,7 +1,0 @@
-Log:
-Getting image info for: File:Scratch Cat.png
-Loading:
-http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=File%3AScratch_Cat.png&prop=imageinfo&iiprop=url
-https://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=File%3AScratch_Cat.png&prop=imageinfo&iiprop=url%7Csize%7Cdimensions
-Getting image direct url for: File:Scratch Cat.png
-Loading: http://wiki.scratch.mit.edu/w/api.php?format=json&action=query&titles=File%3AScratch_Cat.png&prop=imageinfo&iiprop=url

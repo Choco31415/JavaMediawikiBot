@@ -5,8 +5,8 @@ public abstract class PageLocationContainer {
 
 	protected PageLocation pl;
 	
-	public PageLocationContainer(String title_, String lan_) {
-		pl = new PageLocation(title_, lan_);
+	public PageLocationContainer(String lan_, String title_) {
+		pl = new PageLocation(lan_, title_);
 	}
 	
 	public PageLocationContainer(PageLocation pl_) {

@@ -189,3 +189,9 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
+### Project Files ###
+
+src/main/resources/BotProperties.properties
+src/main/resources/Families/Test.txt
+Log.txt
+

@@ -8,19 +8,19 @@ public class PageLocation extends PageTitleContainer {
 	private String lan;
 	
 	/**
-	 * @param title_ The title of the page.
 	 * @param lan_ The language abbreviation for the wiki.
+	 * @param title_ The title of the page.
 	 */
-	public PageLocation(String title_, String lan_) {
+	public PageLocation(String lan_, String title_) {
 		super(title_);
 		lan = lan_;
 	}
 	
 	/**
-	 * @param pt The Page Title object describing the title of the page.
 	 * @param lan_ The language abbreviation for the wiki.
+	 * @param pt The Page Title object describing the title of the page.
 	 */
-	public PageLocation(PageTitle pt, String lan_) {
+	public PageLocation(String lan_, PageTitle pt) {
 		super(pt);
 		lan = lan_;
 	}

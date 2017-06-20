@@ -9,6 +9,8 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command gets the contents of a page.
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -23,7 +25,6 @@ public class QueryPageContent extends APIcommand {
 		addParameter("titles", loc.getTitle());
 		addParameter("prop", "revisions");//Gets current page revision.
 		addParameter("rvprop", "content");//Gets current page revision content.
-		unescapeText = true;
 	}
 	
 	/**
@@ -36,6 +37,5 @@ public class QueryPageContent extends APIcommand {
 		addParameter("titles", compactPLArray(locs, "|"));
 		addParameter("prop", "revisions");
 		addParameter("rvprop", "content");
-		unescapeText = true;
 	}
 }

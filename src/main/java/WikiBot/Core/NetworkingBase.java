@@ -157,6 +157,14 @@ public class NetworkingBase extends javax.swing.JPanel {
 		return logger.exportLog();
 	}
 	
+	/**
+	 * Set if logger propagates to Stdout.
+	 * @param set
+	 */
+	public void setLogPropagation(boolean set) {
+		logger.setPropagation(set);
+	}
+	
 	/*
 	 * <notice>
 	 * 
@@ -173,10 +181,9 @@ public class NetworkingBase extends javax.swing.JPanel {
 	
 	/**
 	 * @param ur The url you want to get.
-	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: & #039;
 	 */
-	protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
+	protected String[] getURL(String ur, boolean unescapeHTML4) throws IOException {
 		logFiner("Loading: " + ur);
 		
 		//This method actual fetches a web page, and turns it into a more easily use-able format.
@@ -198,9 +205,6 @@ public class NetworkingBase extends javax.swing.JPanel {
         ArrayList<String> page = new ArrayList<String>();
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
-        	if (unescapeText) {
-        		inputLine = StringEscapeUtils.unescapeJava(inputLine);
-        	}
         	if (unescapeHTML4) {
         		inputLine = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(inputLine));
         	}
@@ -215,20 +219,41 @@ public class NetworkingBase extends javax.swing.JPanel {
 	/*
 	 * A method for creating a Web POST request.
 	 */
-	protected HttpEntity getPOST(String url, String[] key, String[] value) {
+	protected HttpEntity getPOST(String url, String[] keys, String[] values) {
 		logFiner("Loading: " + url);
 		
         HttpResponse response = null;
 		
         HttpPost httpost = new HttpPost(url);
     	
+        // Attach keys and values.
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        for (int i = 0; i < key.length; i++) {
-        	nvps.add(new BasicNameValuePair(key[i], value[i]));
+        for (int i = 0; i < keys.length; i++) {
+        	nvps.add(new BasicNameValuePair(keys[i], values[i]));
         }
 
         httpost.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
-
+        
+        // Fetch the url.
+        try {
+			response = httpclient.execute(httpost, context);
+		} catch (SocketException|NoHttpResponseException e) {
+			throw new NetworkError("Cannot connect to server at: " + url);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return response.getEntity();
+	}
+	
+	protected HttpEntity getPOST(String url, HttpEntity entity) {
+		logFiner("Multipart loading: " + url);
+		
+		HttpResponse response = null;
+		
+		HttpPost httpost = new HttpPost(url);
+		httpost.setEntity(entity);
+		
+		//Fetch the url.
         try {
 			response = httpclient.execute(httpost, context);
 		} catch (SocketException|NoHttpResponseException e) {
@@ -309,37 +334,17 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * Parse text output for information
 	 */
 	
-	protected ArrayList<String> parseTextForItems(String text, String openingText, String closingText, int botBuffer) {
-		//This method takes text and parses it for data items, ex: page names.
-		ArrayList<String> output = new ArrayList<String>();
-		int j = 0;//cursor
-		int k = -1;
-
-		//Parse page for info.
-		do {
-			j = text.indexOf(openingText, k+1);
-			k = text.indexOf(closingText, j+1);
-			if (j != -1) {
-				//No errors detected.
-				output.add(text.substring(j+botBuffer, k));
-			}
-		} while(j != -1);
-		return output;
-	}
-	
-	protected String parseTextForItem(String text, String opening, String ending) {
+	protected String parseTextForItem(String text, String opening, String closing) {
 		//This method takes text and parses it for a data item
-		return parseTextForItem(text, opening, ending, 2, 0);
-	}
-	
-	protected String parseTextForItem(String text, String opening, String ending, int bufferBot, int bufferTop) {
-		//This method takes text and parses it for a data item
-		int i = 0;
-		i = text.indexOf(opening);
-		if (i == -1) {
+		int start = 0;
+		start = text.indexOf(opening);
+		if (start == -1) {
 			throw new IndexOutOfBoundsException();
 		}
-		i += opening.length() + bufferBot;
-		return text.substring(i, text.indexOf(ending, i) - bufferTop);
+		start += opening.length() + 2; // Buffer of 2 for most data formats.
+		
+		int end = text.indexOf(closing, start);
+		
+		return text.substring(start, end);
 	}
 }

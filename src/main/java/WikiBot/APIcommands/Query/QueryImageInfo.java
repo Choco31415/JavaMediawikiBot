@@ -12,6 +12,8 @@ import WikiBot.ContentRep.PageLocation;
  * All query-able properties can be found here:
  * https://www.mediawiki.org/wiki/API:Imageinfo
  * 
+ * Recommended not used raw.
+ * 
  * @RequiredRights
  * none
  * 
@@ -57,8 +59,6 @@ public class QueryImageInfo extends APIcommand {
 		values.add("imageinfo");
 		keys.add("iiprop");
 		values.add(compactArray(propertiesToGet, "|"));
-		unescapeText = true;
-		unescapeHTML = true;
 		
 		enforceMWVersion("1.11");
 		
