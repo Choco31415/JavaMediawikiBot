@@ -13,7 +13,6 @@ import WikiBot.Utils.ArrayUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -30,7 +29,6 @@ public class APIcommand extends PageLocationContainer {
 	
 	protected boolean requiresHttpEntity = false;
 	protected boolean requiresPOST = false;
-	protected boolean unescapeText = false;
 	protected boolean unescapeHTML = true;
 	
 	protected String oldTokenType = "";//Pre MW 1.24
@@ -53,7 +51,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language, boolean requiresPOST_, String oldTokenType_, String newTokenType_) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 		requiresPOST = requiresPOST_;
 		oldTokenType = oldTokenType_;
@@ -61,7 +59,7 @@ public class APIcommand extends PageLocationContainer {
 	}
 	
 	public APIcommand(String commandName_, String language) {
-		super(new PageLocation("null", language));
+		super(new PageLocation(language, "null"));
 		commandName = commandName_;
 	}
 	
@@ -144,8 +142,6 @@ public class APIcommand extends PageLocationContainer {
 	public boolean requiresEntity() { return requiresHttpEntity; }
 	public void setRequiresPOST(boolean bool) { requiresPOST = bool; }
 	public boolean requiresPOST() { return requiresPOST; }
-	public void setUnescapeText(boolean bool) { unescapeText = bool; }
-	public boolean shouldUnescapeText() { return unescapeText; }
 	public void setUnescapeHTML(boolean bool) { unescapeHTML = bool; }
 	public boolean shouldUnescapeHTML() { return unescapeHTML; }
 	

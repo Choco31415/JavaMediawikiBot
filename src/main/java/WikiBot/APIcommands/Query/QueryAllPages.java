@@ -22,7 +22,6 @@ public class QueryAllPages extends QueryList {
 		super("Query all pages", language, "allpages");
 		keys.add("aplimit");
 		values.add("" + depth);
-		unescapeText = true;
 	}
 	
 	/*
@@ -34,8 +33,6 @@ public class QueryAllPages extends QueryList {
 		values.add("" + depth);
 		keys.add("apcontinue");
 		values.add(apcontinue);
-		unescapeText = true;
-		unescapeHTML = false;
 	}
 
 	/**
@@ -50,8 +47,6 @@ public class QueryAllPages extends QueryList {
 		values.add("" + depth);
 		keys.add("apnamespace");
 		values.add("" + apnamespace);
-		unescapeText = true;
-		unescapeHTML = false;
 	}
 	
 	/*
@@ -65,7 +60,5 @@ public class QueryAllPages extends QueryList {
 		values.add(apcontinue);
 		keys.add("apnamespace");
 		values.add("" + apnamespace);
-		unescapeText = true;
-		unescapeHTML = false;
 	}
 }

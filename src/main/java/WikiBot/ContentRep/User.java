@@ -12,7 +12,7 @@ public class User {
 	 * @param username_ The user's name.
 	 * @param language_ The user's wiki.
 	 */
-	public User(String username_, String language_) {
+	public User(String language_, String username_) {
 		language = language_;
 		username = username_;
 	}

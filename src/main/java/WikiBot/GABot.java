@@ -4,11 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -108,6 +110,7 @@ public class GABot extends GenericBot {
 	private final static Map<String, String> wikiViews = new HashMap<>();
 	private static String[] GAstatNames;
 	private static String[] GAstatImageNames;
+	private static String GAstatPage;
 	
 	private static int daysTracking;
 	private static int topPageCount;
@@ -116,7 +119,7 @@ public class GABot extends GenericBot {
 	private static final int GRAPH_HEIGHT = 250;
 	
 	// For Google Analytics
-	private static final String KEY_FILE_LOCATION = "Interwiki-3c623f5c8431.json";
+	private static final String KEY_FILE_LOCATION = "/InterwikiService.json";
 	private static final String APPLICATION_NAME = "interwiki";
 	private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 	
@@ -124,7 +127,7 @@ public class GABot extends GenericBot {
 	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public GABot() {
-		super("Test", "mw26");
+		super("Scratch", "en");
 		
 		//Preferences
 		APIlimit = 30;//The amount of items to get per query call, if there are multiple items.
@@ -132,15 +135,22 @@ public class GABot extends GenericBot {
 		
 		APIthrottle = 0.5;//Minimum time between any API commands.
 		
-		setLoggerLevel(Level.FINEST);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
+		setLoggerLevel(Level.FINE);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
 		
 		botPropFile = "/BotProperties.properties";
 		
 		defaultStatsFile = "/GAPageDefault.txt";
 
-		wikiViews.put("mw26", "63671826");
-		GAstatNames = new String[]{"ga:pageviews", "ga:sessions"};
-		GAstatImageNames = new String[]{"InterwikiBot_GA_Pageviews.png", "InterwikiBot_GA_Sessions.png"};
+		wikiViews.put("de", "63671826");//wiki to GA view id
+		wikiViews.put("fr", "153835435");
+		wikiViews.put("hu", "153842565");
+		wikiViews.put("id", "153876466");
+		wikiViews.put("ja", "153760467");
+		wikiViews.put("nl", "153846344");
+		//wikiViews.put("ru", "153914983");
+		wikiViews.put("test", "150479279");
+		GAstatNames = new String[]{"ga:pageviews", "ga:sessions"}; // GA statistics to collect.
+		GAstatImageNames = new String[]{"InterwikiBot_GA_Pageviews.png", "InterwikiBot_GA_Sessions.png"}; // image names for statistics.
 		
 		daysTracking = 7;
 		topPageCount = 50;
@@ -186,15 +196,20 @@ public class GABot extends GenericBot {
 	 * @throws GeneralSecurityException 
 	 */
 	public void run() throws GeneralSecurityException, IOException {
+		// Load username and password.
 		loadPropFile();
 		
+		// Last minute configuration changes.
+		GAstatPage = "User:" + username + "/GA Stats";
+		
+		// Run.
 		AnalyticsReporting service = initializeAnalyticsReporting(KEY_FILE_LOCATION);
 		String defaultStatsPage = readGAPageDefault();
 		
 		for (String wiki : wikiViews.keySet()) {
 			try {
 				// Log in.
-				User user = new User(username, wiki);
+				User user = new User(wiki, username);
 				boolean loggedIn = logIn(user, password);
 				
 				if (!loggedIn) {
@@ -204,7 +219,7 @@ public class GABot extends GenericBot {
 					String viewID = wikiViews.get(wiki);
 					
 					// Initialize stats page, if needed.
-					PageLocation statsPageLoc = new PageLocation("User:" + username + "/GA Stats", wiki);
+					PageLocation statsPageLoc = new PageLocation(wiki, GAstatPage);
 					if (!this.doesPageExist(statsPageLoc)) {
 						// Create the GA page.
 						EditPage command = new EditPage(statsPageLoc, defaultStatsPage, "Creating page.");
@@ -221,7 +236,7 @@ public class GABot extends GenericBot {
 						String imageName = GAstatImageNames[i];
 						
 						Path path = Paths.get(filename);
-						PageLocation uploadTo = new PageLocation(imageName, wiki);
+						PageLocation uploadTo = new PageLocation(wiki, imageName);
 						
 						this.uploadFile(uploadTo, path, "Updating statistic.", "A wiki statistic chart.");
 						logInfo("Upload file " + filename + " to wiki " + wiki + ".");
@@ -263,12 +278,14 @@ public class GABot extends GenericBot {
 					PageViewTuple[] pvt = getPopularPages(topPageCount, viewID, service);
 					
 					String sectionText = "== Popular Pages ==\n"
-							+ "Warning: Page view counts are for the most recent 30 day period.";
+							+ "Note: Page view counts are for the most recent 30 day period.\n";
 					for (PageViewTuple tuple : pvt) {
-						if (tuple.name.contains(".php")) {
-							sectionText += "\n#  " + tuple.name + " (" + tuple.viewCount + " views)";
-						} else {
-							sectionText += "\n#  [[" + tuple.name + "]] (" + tuple.viewCount + " views)";
+						if (tuple != null) {
+							if (tuple.name.contains(".php")) {
+								sectionText += "\n#  " + tuple.name + " (" + tuple.viewCount + " views)";
+							} else {
+								sectionText += "\n#  [[" + tuple.name + "]] (" + tuple.viewCount + " views)";
+							}
 						}
 					}
 					
@@ -327,7 +344,6 @@ public class GABot extends GenericBot {
 		// Generate our dataset.
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-		XYSeries series = new XYSeries(statName, true, false);
 		Calendar then = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")); // For getting the date.
 		then.add(Calendar.DAY_OF_MONTH, -days); // Go to the beginning.
 		for (int datapoint : data) {
@@ -412,7 +428,7 @@ public class GABot extends GenericBot {
 
 	    HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 	    GoogleCredential credential = GoogleCredential
-	        .fromStream(new FileInputStream(keyFileLocation))
+	        .fromStream(FileUtils.class.getResourceAsStream(keyFileLocation))
 	        .createScoped(AnalyticsReportingScopes.all());
 
 	    // Construct the Analytics Reporting service object.
@@ -444,7 +460,7 @@ public class GABot extends GenericBot {
 					.setExpression(statistic); // Get this statistic.
 			metrics.add(metric);
 		}
-		
+		GAstatPage = "User:" + username + "/GA Stats";
 		// Get statistics organized by day.
 		Dimension pages = new Dimension()
 		    		.setName("ga:nthDay");
@@ -470,14 +486,16 @@ public class GABot extends GenericBot {
 		Report report = response.getReports().get(0);
 		List<ReportRow> rows = report.getData().getRows();
 		  
-		for (int i = 0; i < days; i++) {
+		int reportedDays = rows.size();
+		int missingDays = days - reportedDays;
+		for (int i = 0; i < reportedDays; i++) {
 			ReportRow row = rows.get(i);
 			    
 			List<DateRangeValues> metricsTag = row.getMetrics();
 			    
 			DateRangeValues values = metricsTag.get(0);
 			for (int statID = 0; statID < statistics.length; statID++) {
-				toReturn[statID][i] = Integer.parseInt(values.getValues().get(statID));
+				toReturn[statID][i+missingDays] = Integer.parseInt(values.getValues().get(statID));
 			}
 		}
 		  
@@ -535,7 +553,7 @@ public class GABot extends GenericBot {
 	        .setMetrics(Arrays.asList(metric, nMetric))
 	        .setDimensions(Arrays.asList(pages))
 	        .setOrderBys(Arrays.asList(order))
-	        .setFiltersExpression("ga:pageViews>4;ga:PagePath!@&"); // Pageviews > 4 and pagePath !contains &
+	        .setFiltersExpression("ga:PagePath!@&"); // pagePath !contains &
 
 	    ArrayList<ReportRequest> requests = new ArrayList<ReportRequest>();
 	    requests.add(request);
@@ -553,7 +571,7 @@ public class GABot extends GenericBot {
 	    List<ReportRow> rows = report.getData().getRows();
 	  
 	    int rowID = 0;
-	    int pvtID = 0;
+	    int pvtID = 0;//pvt = PageViewTuple
 	    while (pvtID < count) {
 	    	if (rowID < rows.size()) {
 			    ReportRow row = rows.get(rowID);
@@ -565,8 +583,12 @@ public class GABot extends GenericBot {
 			    String path = dimensions.get(0);
 			    if (!path.equals("/")) {
 			    	//It's safe to split the page name out of the path.
-			    	String[] directories = path.split("/");
-				    pvt.name = directories[directories.length-1];
+			    	String[] halves = path.split("wiki/");
+				    if (halves.length == 1) {
+				    	pvt.name = path;
+				    } else {
+				    	pvt.name = halves[1];
+				    }
 				    DateRangeValues values = metrics.get(0);
 				    pvt.viewCount = Integer.parseInt(values.getValues().get(0));
 				  

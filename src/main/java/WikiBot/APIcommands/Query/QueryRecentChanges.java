@@ -19,7 +19,6 @@ public class QueryRecentChanges extends QueryList {
 		values.add("timestamp|title|user|comment|flags");
 		keys.add("rclimit");
 		values.add("" + revisionLimit);
-		unescapeText = true;
 		unescapeHTML = true;
 		
 		enforceMWVersion("1.9");
@@ -36,7 +35,6 @@ public class QueryRecentChanges extends QueryList {
 		values.add("" + revisionLimit);
 		keys.add("rccontinue");
 		values.add(rccontinue);
-		unescapeText = true;
 		unescapeHTML = true;
 		
 		enforceMWVersion("1.9");

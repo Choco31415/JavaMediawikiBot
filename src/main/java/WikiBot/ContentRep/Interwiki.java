@@ -6,8 +6,8 @@ public class Interwiki extends PageLocationContainer {
 	private int openPos;
 	private int closePos;
 	
-	public Interwiki(String pageName_, String lan_, int openPos_, int closePos_) {
-		super(pageName_, lan_);
+	public Interwiki(String lan_, String pageName_, int openPos_, int closePos_) {
+		super(lan_, pageName_);
 		openPos = openPos_;
 		closePos = closePos_;
 	}

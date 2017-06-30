@@ -62,6 +62,9 @@ public class NetworkingBase extends javax.swing.JPanel {
     private HttpClient httpclient;
 	private HttpClientContext context;
 	
+	//Special characters.
+	private static final String UTF8_BOM = "\uFEFF";
+	
 	//Instantiation.
 	public NetworkingBase() {
 		httpclient = HttpClientBuilder.create().build();
@@ -182,10 +185,9 @@ public class NetworkingBase extends javax.swing.JPanel {
 	
 	/**
 	 * @param ur The url you want to get.
-	 * @param unescapeText Unescapes string literals. Ex: \n, \s, \ u
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: & #039;
 	 */
-	protected String[] getURL(String ur, boolean unescapeText, boolean unescapeHTML4) throws IOException {
+	protected String[] getURL(String ur, boolean unescapeHTML4) throws IOException {
 		logFiner("Loading: " + ur);
 		
 		//This method actual fetches a web page, and turns it into a more easily use-able format.
@@ -207,12 +209,10 @@ public class NetworkingBase extends javax.swing.JPanel {
         ArrayList<String> page = new ArrayList<String>();
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
-        	if (unescapeText) {
-        		inputLine = StringEscapeUtils.unescapeJava(inputLine);
-        	}
         	if (unescapeHTML4) {
         		inputLine = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(inputLine));
         	}
+        	inputLine = removeBOM(inputLine);
         	
             page.add(inputLine);
         }
@@ -318,6 +318,16 @@ public class NetworkingBase extends javax.swing.JPanel {
 		}
 	}
 	
+	public String removeBOM(String text) {
+		String toReturn = text;
+		
+		if (text.startsWith(UTF8_BOM)) {
+			toReturn = toReturn.substring(1);
+		}
+		
+		return toReturn;
+	}
+	
 	/**
 	 * Log these cookies using the log() method.
 	 * @param cookies
@@ -339,37 +349,17 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * Parse text output for information
 	 */
 	
-	protected ArrayList<String> parseTextForItems(String text, String openingText, String closingText, int botBuffer) {
-		//This method takes text and parses it for data items, ex: page names.
-		ArrayList<String> output = new ArrayList<String>();
-		int j = 0;//cursor
-		int k = -1;
-
-		//Parse page for info.
-		do {
-			j = text.indexOf(openingText, k+1);
-			k = text.indexOf(closingText, j+1);
-			if (j != -1) {
-				//No errors detected.
-				output.add(text.substring(j+botBuffer, k));
-			}
-		} while(j != -1);
-		return output;
-	}
-	
-	protected String parseTextForItem(String text, String opening, String ending) {
+	protected String parseTextForItem(String text, String opening, String closing) {
 		//This method takes text and parses it for a data item
-		return parseTextForItem(text, opening, ending, 2, 0);
-	}
-	
-	protected String parseTextForItem(String text, String opening, String ending, int bufferBot, int bufferTop) {
-		//This method takes text and parses it for a data item
-		int i = 0;
-		i = text.indexOf(opening);
-		if (i == -1) {
+		int start = 0;
+		start = text.indexOf(opening);
+		if (start == -1) {
 			throw new IndexOutOfBoundsException();
 		}
-		i += opening.length() + bufferBot;
-		return text.substring(i, text.indexOf(ending, i) - bufferTop);
+		start += opening.length() + 2; // Buffer of 2 for most data formats.
+		
+		int end = text.indexOf(closing, start);
+		
+		return text.substring(start, end);
 	}
 }

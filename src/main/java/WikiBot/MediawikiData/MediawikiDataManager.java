@@ -1,6 +1,11 @@
 package WikiBot.MediawikiData;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import WikiBot.Utils.FileUtils;
 
@@ -54,21 +59,35 @@ public class MediawikiDataManager {
 		return instance;
 	}
 	
-	public void readFamily(String family, int commentBufferLineCount) {
-		ArrayList<String> lines = FileUtils.readFileAsList("/Families/" + family + ".txt", commentBufferLineCount, false, true);
+	public void readDefaultFamily(String family, int commentBufferLineCount) {
+		readFamily(new File("/Families/" + family + ".txt"), commentBufferLineCount);
+	}
+	
+	public void readFamily(File family, int commentBufferLineCount) {
+		String familyFile = FileUtils.readFile(family.getAbsolutePath());
 		
-		// Gather array size
+		// Initialize variables.
 		WikiPrefix = new ArrayList<String>();
 		WikiURL = new ArrayList<String>();
 		
-		for (String line : lines) {
-			if (!line.equals("")) {
-				int index = line.indexOf(":");
-				int index2 = line.indexOf(":", index+1);
-				WikiPrefix.add(line.substring(0, index).trim());
-				WikiMWVersion.add(new VersionNumber(line.substring(index+1, index2).trim()));
-				WikiURL.add(line.substring(index2+1).trim());
-			}
+		// Read in family file.
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readValue(familyFile, JsonNode.class);
+		} catch (IOException e1) {
+			// Dangerous to just return.
+			throw new Error("Was expecting Json, but did not receive Json from server.");
+		}
+		
+		for (JsonNode wiki : rootNode) {
+			String prefix = wiki.get("prefix").asText();
+			String version = wiki.get("version").asText();
+			String url = wiki.get("url").asText();
+			
+			WikiPrefix.add(prefix);
+			WikiMWVersion.add(new VersionNumber(version));
+			WikiURL.add(url);
 		}
 	}
 	

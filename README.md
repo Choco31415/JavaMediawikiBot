@@ -23,23 +23,47 @@ This can be done via your IDE (console required), or through the command line:
 To create a Mediawiki bot, create a Java class. It will need to extend either one of
 these two classes:
 
-`src/WikiBot/core/BotPanel.java`
-
-* Extending from this class gives access to a GUI as well as better control over edits
-to a wiki. Please note, you will have to update `core/BotFrame.java` for your bot to run.
-Your bot's main method will also be in `core/BotFrame.java`. All bot code should be
-in the bot class under the required method named `code()`.
-
 `src/WikiBot/core/GenericBot.java`
 
-* Extending this class does not give a GUI. You will have to create
-a main method to run bot code.
+* Extending this class gives access to a plethora of methods for interfacing with Mediawiki.
 
-### Examples
+`src/WikiBot/core/BotPanel.java`
+
+* Extending this class gives access to GenericBot's methods, plus a GUI for better control of the bot's edit flow. Please note, the bot's main method will have to instantiate itself for the GUI to appear. See `InterwikiBot.java` for an example.
+
+When extending a class, the constructor must include either:
+
+`
+super(String family, String homeWikiLanguage)
+super(File family, String homeWikiLanguage)
+`
+
+`family` specifies a wiki family file. A bot may then access the wikis in the family file. A String `family` refers to a default included wiki family, and must be "Scratch", "DwarfFortress", or "Wikipedia". A File `family` simply must point to a wiki family file.
+
+`homeWikiLanguage` specifies the default wiki of a bot.
+
+### Coding the bot.
+
+Half of the API commands are recommended used raw, half are not. This can be checked in the command's class documentation.
+
+If a command is recommended used raw, then simply run `APIcommand(APIcommand command)`.
+
+If a command is not recommended user raw, then use GenericBot methods.
+
+### Tips
+
+Coding Tips:
+* To queue a command for review, use `proposeEdit(APIcommand command)`. This requires the GUI.
+
+## Examples
 
 One example bot is included in the project, and it is called `InterwikiBot.java`.
 
-## Project Tree
+## Contributing
+
+To contribute, make an issue or a pull request! In each Pull Request, make sure to include the situations under which your code was tested.
+
+### Project Tree
 
 Useful bot methods and bot settings may be found in various places.
 
@@ -68,9 +92,3 @@ JavaMediawikiBot uses several classes to store data. A few classes that store ge
 `src/WikiBot/ContentRep/PageLocation.java`
 
 * This class stores information on how to find a page. Spefically, it contains the page title and wiki.
-
-## Tips
-
-Coding tips:
-* To queue a command for review, use `proposeEdit(APIcommand command)`. This requires the GUI.
-* To automatically push a command, use `APIcommand(APIcommand command)`.

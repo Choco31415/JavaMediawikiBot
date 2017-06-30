@@ -59,8 +59,6 @@ public class QueryImageInfo extends APIcommand {
 		values.add("imageinfo");
 		keys.add("iiprop");
 		values.add(compactArray(propertiesToGet, "|"));
-		unescapeText = true;
-		unescapeHTML = true;
 		
 		enforceMWVersion("1.11");
 		

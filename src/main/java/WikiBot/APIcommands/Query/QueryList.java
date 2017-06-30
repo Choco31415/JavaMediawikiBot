@@ -14,12 +14,11 @@ public class QueryList extends APIcommand {
 	public QueryList(String shortSummary_, String language, String list) {
 		super(shortSummary_, language);
 		keys.add("format");
-		values.add("xml");
+		values.add("json");
 		keys.add("action");
 		values.add("query");
 		keys.add("list");
 		values.add(list);
-		unescapeText = true;
 		unescapeHTML = true;
 	}
 	
@@ -31,7 +30,6 @@ public class QueryList extends APIcommand {
 		values.add("query");
 		keys.add("list");
 		values.add(list);
-		unescapeText = true;
 		unescapeHTML = true;
 	}
 }

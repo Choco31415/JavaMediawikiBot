@@ -1,305 +1,308 @@
-aa:1.28.0-wmf.9: https://aa.wikipedia.org/w
-ab:1.28.0-wmf.9: https://ab.wikipedia.org/w
-ace:1.28.0-wmf.9: https://ace.wikipedia.org/w
-ady:1.28.0-wmf.9: https://ady.wikipedia.org/w
-af:1.28.0-wmf.9: https://af.wikipedia.org/w
-ak:1.28.0-wmf.9: https://ak.wikipedia.org/w
-als:1.28.0-wmf.9: https://als.wikipedia.org/w
-am:1.28.0-wmf.9: https://am.wikipedia.org/w
-an:1.28.0-wmf.9: https://an.wikipedia.org/w
-ang:1.28.0-wmf.9: https://ang.wikipedia.org/w
-ar:1.28.0-wmf.9: https://ar.wikipedia.org/w
-arc:1.28.0-wmf.9: https://arc.wikipedia.org/w
-arz:1.28.0-wmf.9: https://arz.wikipedia.org/w
-as:1.28.0-wmf.9: https://as.wikipedia.org/w
-ast:1.28.0-wmf.9: https://ast.wikipedia.org/w
-av:1.28.0-wmf.9: https://av.wikipedia.org/w
-ay:1.28.0-wmf.9: https://ay.wikipedia.org/w
-az:1.28.0-wmf.9: https://az.wikipedia.org/w
-azb:1.28.0-wmf.9: https://azb.wikipedia.org/w
-ba:1.28.0-wmf.9: https://ba.wikipedia.org/w
-bar:1.28.0-wmf.9: https://bar.wikipedia.org/w
-bat-smg:1.28.0-wmf.9: https://bat-smg.wikipedia.org/w
-bcl:1.28.0-wmf.9: https://bcl.wikipedia.org/w
-be:1.28.0-wmf.9: https://be.wikipedia.org/w
-be-tarask:1.28.0-wmf.9: https://be-x-old.wikipedia.org/w
-be-x-old:1.28.0-wmf.9: https://be-x-old.wikipedia.org/w
-bg:1.28.0-wmf.9: https://bg.wikipedia.org/w
-bh:1.28.0-wmf.9: https://bh.wikipedia.org/w
-bi:1.28.0-wmf.9: https://bi.wikipedia.org/w
-bjn:1.28.0-wmf.9: https://bjn.wikipedia.org/w
-bm:1.28.0-wmf.9: https://bm.wikipedia.org/w
-bn:1.28.0-wmf.9: https://bn.wikipedia.org/w
-bo:1.28.0-wmf.9: https://bo.wikipedia.org/w
-bpy:1.28.0-wmf.9: https://bpy.wikipedia.org/w
-br:1.28.0-wmf.9: https://br.wikipedia.org/w
-bs:1.28.0-wmf.9: https://bs.wikipedia.org/w
-bug:1.28.0-wmf.9: https://bug.wikipedia.org/w
-bxr:1.28.0-wmf.9: https://bxr.wikipedia.org/w
-ca:1.28.0-wmf.9: https://ca.wikipedia.org/w
-cbk-zam:1.28.0-wmf.9: https://cbk-zam.wikipedia.org/w
-cdo:1.28.0-wmf.9: https://cdo.wikipedia.org/w
-ce:1.28.0-wmf.9: https://ce.wikipedia.org/w
-ceb:1.28.0-wmf.9: https://ceb.wikipedia.org/w
-ch:1.28.0-wmf.9: https://ch.wikipedia.org/w
-cho:1.28.0-wmf.9: https://cho.wikipedia.org/w
-chr:1.28.0-wmf.9: https://chr.wikipedia.org/w
-chy:1.28.0-wmf.9: https://chy.wikipedia.org/w
-ckb:1.28.0-wmf.9: https://ckb.wikipedia.org/w
-co:1.28.0-wmf.9: https://co.wikipedia.org/w
-cr:1.28.0-wmf.9: https://cr.wikipedia.org/w
-crh:1.28.0-wmf.9: https://crh.wikipedia.org/w
-cs:1.28.0-wmf.9: https://cs.wikipedia.org/w
-csb:1.28.0-wmf.9: https://csb.wikipedia.org/w
-cu:1.28.0-wmf.9: https://cu.wikipedia.org/w
-cv:1.28.0-wmf.9: https://cv.wikipedia.org/w
-cy:1.28.0-wmf.9: https://cy.wikipedia.org/w
-da:1.28.0-wmf.9: https://da.wikipedia.org/w
-de:1.28.0-wmf.9: https://de.wikipedia.org/w
-diq:1.28.0-wmf.9: https://diq.wikipedia.org/w
-dsb:1.28.0-wmf.9: https://dsb.wikipedia.org/w
-dv:1.28.0-wmf.9: https://dv.wikipedia.org/w
-dz:1.28.0-wmf.9: https://dz.wikipedia.org/w
-ee:1.28.0-wmf.9: https://ee.wikipedia.org/w
-egl:1.28.0-wmf.9: https://eml.wikipedia.org/w
-el:1.28.0-wmf.9: https://el.wikipedia.org/w
-eml:1.28.0-wmf.9: https://eml.wikipedia.org/w
-en:1.28.0-wmf.9: https://en.wikipedia.org/w
-eo:1.28.0-wmf.9: https://eo.wikipedia.org/w
-es:1.28.0-wmf.9: https://es.wikipedia.org/w
-et:1.28.0-wmf.9: https://et.wikipedia.org/w
-eu:1.28.0-wmf.9: https://eu.wikipedia.org/w
-ext:1.28.0-wmf.9: https://ext.wikipedia.org/w
-fa:1.28.0-wmf.9: https://fa.wikipedia.org/w
-ff:1.28.0-wmf.9: https://ff.wikipedia.org/w
-fi:1.28.0-wmf.9: https://fi.wikipedia.org/w
-fiu-vro:1.28.0-wmf.9: https://fiu-vro.wikipedia.org/w
-fj:1.28.0-wmf.9: https://fj.wikipedia.org/w
-fo:1.28.0-wmf.9: https://fo.wikipedia.org/w
-fr:1.28.0-wmf.9: https://fr.wikipedia.org/w
-frp:1.28.0-wmf.9: https://frp.wikipedia.org/w
-frr:1.28.0-wmf.9: https://frr.wikipedia.org/w
-fur:1.28.0-wmf.9: https://fur.wikipedia.org/w
-fy:1.28.0-wmf.9: https://fy.wikipedia.org/w
-ga:1.28.0-wmf.9: https://ga.wikipedia.org/w
-gag:1.28.0-wmf.9: https://gag.wikipedia.org/w
-gan:1.28.0-wmf.9: https://gan.wikipedia.org/w
-gd:1.28.0-wmf.9: https://gd.wikipedia.org/w
-gl:1.28.0-wmf.9: https://gl.wikipedia.org/w
-glk:1.28.0-wmf.9: https://glk.wikipedia.org/w
-gn:1.28.0-wmf.9: https://gn.wikipedia.org/w
-gom:1.28.0-wmf.9: https://gom.wikipedia.org/w
-got:1.28.0-wmf.9: https://got.wikipedia.org/w
-gsw:1.28.0-wmf.9: https://als.wikipedia.org/w
-gu:1.28.0-wmf.9: https://gu.wikipedia.org/w
-gv:1.28.0-wmf.9: https://gv.wikipedia.org/w
-ha:1.28.0-wmf.9: https://ha.wikipedia.org/w
-hak:1.28.0-wmf.9: https://hak.wikipedia.org/w
-haw:1.28.0-wmf.9: https://haw.wikipedia.org/w
-he:1.28.0-wmf.9: https://he.wikipedia.org/w
-hi:1.28.0-wmf.9: https://hi.wikipedia.org/w
-hif:1.28.0-wmf.9: https://hif.wikipedia.org/w
-ho:1.28.0-wmf.9: https://ho.wikipedia.org/w
-hr:1.28.0-wmf.9: https://hr.wikipedia.org/w
-hsb:1.28.0-wmf.9: https://hsb.wikipedia.org/w
-ht:1.28.0-wmf.9: https://ht.wikipedia.org/w
-hu:1.28.0-wmf.9: https://hu.wikipedia.org/w
-hy:1.28.0-wmf.9: https://hy.wikipedia.org/w
-hz:1.28.0-wmf.9: https://hz.wikipedia.org/w
-ia:1.28.0-wmf.9: https://ia.wikipedia.org/w
-id:1.28.0-wmf.9: https://id.wikipedia.org/w
-ie:1.28.0-wmf.9: https://ie.wikipedia.org/w
-ig:1.28.0-wmf.9: https://ig.wikipedia.org/w
-ii:1.28.0-wmf.9: https://ii.wikipedia.org/w
-ik:1.28.0-wmf.9: https://ik.wikipedia.org/w
-ilo:1.28.0-wmf.9: https://ilo.wikipedia.org/w
-io:1.28.0-wmf.9: https://io.wikipedia.org/w
-is:1.28.0-wmf.9: https://is.wikipedia.org/w
-it:1.28.0-wmf.9: https://it.wikipedia.org/w
-iu:1.28.0-wmf.9: https://iu.wikipedia.org/w
-ja:1.28.0-wmf.9: https://ja.wikipedia.org/w
-jam:1.28.0-wmf.9: https://jam.wikipedia.org/w
-jbo:1.28.0-wmf.9: https://jbo.wikipedia.org/w
-jv:1.28.0-wmf.9: https://jv.wikipedia.org/w
-ka:1.28.0-wmf.9: https://ka.wikipedia.org/w
-kaa:1.28.0-wmf.9: https://kaa.wikipedia.org/w
-kab:1.28.0-wmf.9: https://kab.wikipedia.org/w
-kbd:1.28.0-wmf.9: https://kbd.wikipedia.org/w
-kg:1.28.0-wmf.9: https://kg.wikipedia.org/w
-ki:1.28.0-wmf.9: https://ki.wikipedia.org/w
-kj:1.28.0-wmf.9: https://kj.wikipedia.org/w
-kk:1.28.0-wmf.9: https://kk.wikipedia.org/w
-kl:1.28.0-wmf.9: https://kl.wikipedia.org/w
-km:1.28.0-wmf.9: https://km.wikipedia.org/w
-kn:1.28.0-wmf.9: https://kn.wikipedia.org/w
-ko:1.28.0-wmf.9: https://ko.wikipedia.org/w
-koi:1.28.0-wmf.9: https://koi.wikipedia.org/w
-kr:1.28.0-wmf.9: https://kr.wikipedia.org/w
-krc:1.28.0-wmf.9: https://krc.wikipedia.org/w
-ks:1.28.0-wmf.9: https://ks.wikipedia.org/w
-ksh:1.28.0-wmf.9: https://ksh.wikipedia.org/w
-ku:1.28.0-wmf.9: https://ku.wikipedia.org/w
-kv:1.28.0-wmf.9: https://kv.wikipedia.org/w
-kw:1.28.0-wmf.9: https://kw.wikipedia.org/w
-ky:1.28.0-wmf.9: https://ky.wikipedia.org/w
-la:1.28.0-wmf.9: https://la.wikipedia.org/w
-lad:1.28.0-wmf.9: https://lad.wikipedia.org/w
-lb:1.28.0-wmf.9: https://lb.wikipedia.org/w
-lbe:1.28.0-wmf.9: https://lbe.wikipedia.org/w
-lez:1.28.0-wmf.9: https://lez.wikipedia.org/w
-lg:1.28.0-wmf.9: https://lg.wikipedia.org/w
-li:1.28.0-wmf.9: https://li.wikipedia.org/w
-lij:1.28.0-wmf.9: https://lij.wikipedia.org/w
-lmo:1.28.0-wmf.9: https://lmo.wikipedia.org/w
-ln:1.28.0-wmf.9: https://ln.wikipedia.org/w
-lo:1.28.0-wmf.9: https://lo.wikipedia.org/w
-lrc:1.28.0-wmf.9: https://lrc.wikipedia.org/w
-lt:1.28.0-wmf.9: https://lt.wikipedia.org/w
-ltg:1.28.0-wmf.9: https://ltg.wikipedia.org/w
-lv:1.28.0-wmf.9: https://lv.wikipedia.org/w
-lzh:1.28.0-wmf.9: https://zh-classical.wikipedia.org/w
-mai:1.28.0-wmf.9: https://mai.wikipedia.org/w
-map-bms:1.28.0-wmf.9: https://map-bms.wikipedia.org/w
-mdf:1.28.0-wmf.9: https://mdf.wikipedia.org/w
-mg:1.28.0-wmf.9: https://mg.wikipedia.org/w
-mh:1.28.0-wmf.9: https://mh.wikipedia.org/w
-mhr:1.28.0-wmf.9: https://mhr.wikipedia.org/w
-mi:1.28.0-wmf.9: https://mi.wikipedia.org/w
-min:1.28.0-wmf.9: https://min.wikipedia.org/w
-mk:1.28.0-wmf.9: https://mk.wikipedia.org/w
-ml:1.28.0-wmf.9: https://ml.wikipedia.org/w
-mn:1.28.0-wmf.9: https://mn.wikipedia.org/w
-mo:1.28.0-wmf.9: https://mo.wikipedia.org/w
-mr:1.28.0-wmf.9: https://mr.wikipedia.org/w
-mrj:1.28.0-wmf.9: https://mrj.wikipedia.org/w
-ms:1.28.0-wmf.9: https://ms.wikipedia.org/w
-mt:1.28.0-wmf.9: https://mt.wikipedia.org/w
-mus:1.28.0-wmf.9: https://mus.wikipedia.org/w
-mwl:1.28.0-wmf.9: https://mwl.wikipedia.org/w
-my:1.28.0-wmf.9: https://my.wikipedia.org/w
-myv:1.28.0-wmf.9: https://myv.wikipedia.org/w
-mzn:1.28.0-wmf.9: https://mzn.wikipedia.org/w
-na:1.28.0-wmf.9: https://na.wikipedia.org/w
-nah:1.28.0-wmf.9: https://nah.wikipedia.org/w
-nan:1.28.0-wmf.9: https://zh-min-nan.wikipedia.org/w
-nap:1.28.0-wmf.9: https://nap.wikipedia.org/w
-nb:1.28.0-wmf.9: https://no.wikipedia.org/w
-nds:1.28.0-wmf.9: https://nds.wikipedia.org/w
-nds-nl:1.28.0-wmf.9: https://nds-nl.wikipedia.org/w
-ne:1.28.0-wmf.9: https://ne.wikipedia.org/w
-new:1.28.0-wmf.9: https://new.wikipedia.org/w
-ng:1.28.0-wmf.9: https://ng.wikipedia.org/w
-nl:1.28.0-wmf.9: https://nl.wikipedia.org/w
-nn:1.28.0-wmf.9: https://nn.wikipedia.org/w
-no:1.28.0-wmf.9: https://no.wikipedia.org/w
-nov:1.28.0-wmf.9: https://nov.wikipedia.org/w
-nrm:1.28.0-wmf.9: https://nrm.wikipedia.org/w
-nso:1.28.0-wmf.9: https://nso.wikipedia.org/w
-nv:1.28.0-wmf.9: https://nv.wikipedia.org/w
-ny:1.28.0-wmf.9: https://ny.wikipedia.org/w
-oc:1.28.0-wmf.9: https://oc.wikipedia.org/w
-om:1.28.0-wmf.9: https://om.wikipedia.org/w
-or:1.28.0-wmf.9: https://or.wikipedia.org/w
-os:1.28.0-wmf.9: https://os.wikipedia.org/w
-pa:1.28.0-wmf.9: https://pa.wikipedia.org/w
-pag:1.28.0-wmf.9: https://pag.wikipedia.org/w
-pam:1.28.0-wmf.9: https://pam.wikipedia.org/w
-pap:1.28.0-wmf.9: https://pap.wikipedia.org/w
-pcd:1.28.0-wmf.9: https://pcd.wikipedia.org/w
-pdc:1.28.0-wmf.9: https://pdc.wikipedia.org/w
-pfl:1.28.0-wmf.9: https://pfl.wikipedia.org/w
-pi:1.28.0-wmf.9: https://pi.wikipedia.org/w
-pih:1.28.0-wmf.9: https://pih.wikipedia.org/w
-pl:1.28.0-wmf.9: https://pl.wikipedia.org/w
-pms:1.28.0-wmf.9: https://pms.wikipedia.org/w
-pnb:1.28.0-wmf.9: https://pnb.wikipedia.org/w
-pnt:1.28.0-wmf.9: https://pnt.wikipedia.org/w
-ps:1.28.0-wmf.9: https://ps.wikipedia.org/w
-pt:1.28.0-wmf.9: https://pt.wikipedia.org/w
-qu:1.28.0-wmf.9: https://qu.wikipedia.org/w
-rm:1.28.0-wmf.9: https://rm.wikipedia.org/w
-rmy:1.28.0-wmf.9: https://rmy.wikipedia.org/w
-rn:1.28.0-wmf.9: https://rn.wikipedia.org/w
-ro:1.28.0-wmf.9: https://ro.wikipedia.org/w
-roa-rup:1.28.0-wmf.9: https://roa-rup.wikipedia.org/w
-roa-tara:1.28.0-wmf.9: https://roa-tara.wikipedia.org/w
-ru:1.28.0-wmf.9: https://ru.wikipedia.org/w
-rue:1.28.0-wmf.9: https://rue.wikipedia.org/w
-rup:1.28.0-wmf.9: https://roa-rup.wikipedia.org/w
-rw:1.28.0-wmf.9: https://rw.wikipedia.org/w
-sa:1.28.0-wmf.9: https://sa.wikipedia.org/w
-sah:1.28.0-wmf.9: https://sah.wikipedia.org/w
-sc:1.28.0-wmf.9: https://sc.wikipedia.org/w
-scn:1.28.0-wmf.9: https://scn.wikipedia.org/w
-sco:1.28.0-wmf.9: https://sco.wikipedia.org/w
-sd:1.28.0-wmf.9: https://sd.wikipedia.org/w
-se:1.28.0-wmf.9: https://se.wikipedia.org/w
-sg:1.28.0-wmf.9: https://sg.wikipedia.org/w
-sgs:1.28.0-wmf.9: https://bat-smg.wikipedia.org/w
-sh:1.28.0-wmf.9: https://sh.wikipedia.org/w
-si:1.28.0-wmf.9: https://si.wikipedia.org/w
-simple:1.28.0-wmf.9: https://simple.wikipedia.org/w
-sk:1.28.0-wmf.9: https://sk.wikipedia.org/w
-sl:1.28.0-wmf.9: https://sl.wikipedia.org/w
-sm:1.28.0-wmf.9: https://sm.wikipedia.org/w
-sn:1.28.0-wmf.9: https://sn.wikipedia.org/w
-so:1.28.0-wmf.9: https://so.wikipedia.org/w
-sq:1.28.0-wmf.9: https://sq.wikipedia.org/w
-sr:1.28.0-wmf.9: https://sr.wikipedia.org/w
-srn:1.28.0-wmf.9: https://srn.wikipedia.org/w
-ss:1.28.0-wmf.9: https://ss.wikipedia.org/w
-st:1.28.0-wmf.9: https://st.wikipedia.org/w
-stq:1.28.0-wmf.9: https://stq.wikipedia.org/w
-su:1.28.0-wmf.9: https://su.wikipedia.org/w
-sv:1.28.0-wmf.9: https://sv.wikipedia.org/w
-sw:1.28.0-wmf.9: https://sw.wikipedia.org/w
-szl:1.28.0-wmf.9: https://szl.wikipedia.org/w
-ta:1.28.0-wmf.9: https://ta.wikipedia.org/w
-te:1.28.0-wmf.9: https://te.wikipedia.org/w
-tet:1.28.0-wmf.9: https://tet.wikipedia.org/w
-tg:1.28.0-wmf.9: https://tg.wikipedia.org/w
-th:1.28.0-wmf.9: https://th.wikipedia.org/w
-ti:1.28.0-wmf.9: https://ti.wikipedia.org/w
-tk:1.28.0-wmf.9: https://tk.wikipedia.org/w
-tl:1.28.0-wmf.9: https://tl.wikipedia.org/w
-tn:1.28.0-wmf.9: https://tn.wikipedia.org/w
-to:1.28.0-wmf.9: https://to.wikipedia.org/w
-tpi:1.28.0-wmf.9: https://tpi.wikipedia.org/w
-tr:1.28.0-wmf.9: https://tr.wikipedia.org/w
-ts:1.28.0-wmf.9: https://ts.wikipedia.org/w
-tt:1.28.0-wmf.9: https://tt.wikipedia.org/w
-tum:1.28.0-wmf.9: https://tum.wikipedia.org/w
-tw:1.28.0-wmf.9: https://tw.wikipedia.org/w
-ty:1.28.0-wmf.9: https://ty.wikipedia.org/w
-tyv:1.28.0-wmf.9: https://tyv.wikipedia.org/w
-udm:1.28.0-wmf.9: https://udm.wikipedia.org/w
-ug:1.28.0-wmf.9: https://ug.wikipedia.org/w
-uk:1.28.0-wmf.9: https://uk.wikipedia.org/w
-ur:1.28.0-wmf.9: https://ur.wikipedia.org/w
-uz:1.28.0-wmf.9: https://uz.wikipedia.org/w
-ve:1.28.0-wmf.9: https://ve.wikipedia.org/w
-vec:1.28.0-wmf.9: https://vec.wikipedia.org/w
-vep:1.28.0-wmf.9: https://vep.wikipedia.org/w
-vi:1.28.0-wmf.9: https://vi.wikipedia.org/w
-vls:1.28.0-wmf.9: https://vls.wikipedia.org/w
-vo:1.28.0-wmf.9: https://vo.wikipedia.org/w
-vro:1.28.0-wmf.9: https://fiu-vro.wikipedia.org/w
-wa:1.28.0-wmf.9: https://wa.wikipedia.org/w
-war:1.28.0-wmf.9: https://war.wikipedia.org/w
-wo:1.28.0-wmf.9: https://wo.wikipedia.org/w
-wuu:1.28.0-wmf.9: https://wuu.wikipedia.org/w
-xal:1.28.0-wmf.9: https://xal.wikipedia.org/w
-xh:1.28.0-wmf.9: https://xh.wikipedia.org/w
-xmf:1.28.0-wmf.9: https://xmf.wikipedia.org/w
-yi:1.28.0-wmf.9: https://yi.wikipedia.org/w
-yo:1.28.0-wmf.9: https://yo.wikipedia.org/w
-yue:1.28.0-wmf.9: https://zh-yue.wikipedia.org/w
-za:1.28.0-wmf.9: https://za.wikipedia.org/w
-zea:1.28.0-wmf.9: https://zea.wikipedia.org/w
-zh:1.28.0-wmf.9: https://zh.wikipedia.org/w
-zh-classical:1.28.0-wmf.9: https://zh-classical.wikipedia.org/w
-zh-cn:1.28.0-wmf.9: https://zh.wikipedia.org/w
-zh-min-nan:1.28.0-wmf.9: https://zh-min-nan.wikipedia.org/w
-zh-tw:1.28.0-wmf.9: https://zh.wikipedia.org/w
-zh-yue:1.28.0-wmf.9: https://zh-yue.wikipedia.org/w
-zu:1.28.0-wmf.9: https://zu.wikipedia.org/w
+[{"prefix": "aa", "version": "1.30.0-wmf.5", "url": "https://aa.wikipedia.org/w"},
+{"prefix": "ab", "version": "1.30.0-wmf.5", "url": "https://ab.wikipedia.org/w"},
+{"prefix": "ace", "version": "1.30.0-wmf.5", "url": "https://ace.wikipedia.org/w"},
+{"prefix": "ady", "version": "1.30.0-wmf.5", "url": "https://ady.wikipedia.org/w"},
+{"prefix": "af", "version": "1.30.0-wmf.5", "url": "https://af.wikipedia.org/w"},
+{"prefix": "ak", "version": "1.30.0-wmf.5", "url": "https://ak.wikipedia.org/w"},
+{"prefix": "als", "version": "1.30.0-wmf.5", "url": "https://als.wikipedia.org/w"},
+{"prefix": "am", "version": "1.30.0-wmf.5", "url": "https://am.wikipedia.org/w"},
+{"prefix": "an", "version": "1.30.0-wmf.5", "url": "https://an.wikipedia.org/w"},
+{"prefix": "ang", "version": "1.30.0-wmf.5", "url": "https://ang.wikipedia.org/w"},
+{"prefix": "ar", "version": "1.30.0-wmf.5", "url": "https://ar.wikipedia.org/w"},
+{"prefix": "arc", "version": "1.30.0-wmf.5", "url": "https://arc.wikipedia.org/w"},
+{"prefix": "arz", "version": "1.30.0-wmf.5", "url": "https://arz.wikipedia.org/w"},
+{"prefix": "as", "version": "1.30.0-wmf.5", "url": "https://as.wikipedia.org/w"},
+{"prefix": "ast", "version": "1.30.0-wmf.5", "url": "https://ast.wikipedia.org/w"},
+{"prefix": "atj", "version": "1.30.0-wmf.5", "url": "https://atj.wikipedia.org/w"},
+{"prefix": "av", "version": "1.30.0-wmf.5", "url": "https://av.wikipedia.org/w"},
+{"prefix": "ay", "version": "1.30.0-wmf.5", "url": "https://ay.wikipedia.org/w"},
+{"prefix": "az", "version": "1.30.0-wmf.5", "url": "https://az.wikipedia.org/w"},
+{"prefix": "azb", "version": "1.30.0-wmf.5", "url": "https://azb.wikipedia.org/w"},
+{"prefix": "ba", "version": "1.30.0-wmf.5", "url": "https://ba.wikipedia.org/w"},
+{"prefix": "bar", "version": "1.30.0-wmf.5", "url": "https://bar.wikipedia.org/w"},
+{"prefix": "bat-smg", "version": "1.30.0-wmf.5", "url": "https://bat-smg.wikipedia.org/w"},
+{"prefix": "bcl", "version": "1.30.0-wmf.5", "url": "https://bcl.wikipedia.org/w"},
+{"prefix": "be", "version": "1.30.0-wmf.5", "url": "https://be.wikipedia.org/w"},
+{"prefix": "be-x-old", "version": "1.30.0-wmf.5", "url": "https://be-x-old.wikipedia.org/w"},
+{"prefix": "bg", "version": "1.30.0-wmf.5", "url": "https://bg.wikipedia.org/w"},
+{"prefix": "bh", "version": "1.30.0-wmf.5", "url": "https://bh.wikipedia.org/w"},
+{"prefix": "bi", "version": "1.30.0-wmf.5", "url": "https://bi.wikipedia.org/w"},
+{"prefix": "bjn", "version": "1.30.0-wmf.5", "url": "https://bjn.wikipedia.org/w"},
+{"prefix": "bm", "version": "1.30.0-wmf.5", "url": "https://bm.wikipedia.org/w"},
+{"prefix": "bn", "version": "1.30.0-wmf.5", "url": "https://bn.wikipedia.org/w"},
+{"prefix": "bo", "version": "1.30.0-wmf.5", "url": "https://bo.wikipedia.org/w"},
+{"prefix": "bpy", "version": "1.30.0-wmf.5", "url": "https://bpy.wikipedia.org/w"},
+{"prefix": "br", "version": "1.30.0-wmf.5", "url": "https://br.wikipedia.org/w"},
+{"prefix": "bs", "version": "1.30.0-wmf.5", "url": "https://bs.wikipedia.org/w"},
+{"prefix": "bug", "version": "1.30.0-wmf.5", "url": "https://bug.wikipedia.org/w"},
+{"prefix": "bxr", "version": "1.30.0-wmf.5", "url": "https://bxr.wikipedia.org/w"},
+{"prefix": "ca", "version": "1.30.0-wmf.5", "url": "https://ca.wikipedia.org/w"},
+{"prefix": "cbk-zam", "version": "1.30.0-wmf.5", "url": "https://cbk-zam.wikipedia.org/w"},
+{"prefix": "cdo", "version": "1.30.0-wmf.5", "url": "https://cdo.wikipedia.org/w"},
+{"prefix": "ce", "version": "1.30.0-wmf.5", "url": "https://ce.wikipedia.org/w"},
+{"prefix": "ceb", "version": "1.30.0-wmf.5", "url": "https://ceb.wikipedia.org/w"},
+{"prefix": "ch", "version": "1.30.0-wmf.5", "url": "https://ch.wikipedia.org/w"},
+{"prefix": "cho", "version": "1.30.0-wmf.5", "url": "https://cho.wikipedia.org/w"},
+{"prefix": "chr", "version": "1.30.0-wmf.5", "url": "https://chr.wikipedia.org/w"},
+{"prefix": "chy", "version": "1.30.0-wmf.5", "url": "https://chy.wikipedia.org/w"},
+{"prefix": "ckb", "version": "1.30.0-wmf.5", "url": "https://ckb.wikipedia.org/w"},
+{"prefix": "co", "version": "1.30.0-wmf.5", "url": "https://co.wikipedia.org/w"},
+{"prefix": "cr", "version": "1.30.0-wmf.5", "url": "https://cr.wikipedia.org/w"},
+{"prefix": "crh", "version": "1.30.0-wmf.5", "url": "https://crh.wikipedia.org/w"},
+{"prefix": "cs", "version": "1.30.0-wmf.5", "url": "https://cs.wikipedia.org/w"},
+{"prefix": "csb", "version": "1.30.0-wmf.5", "url": "https://csb.wikipedia.org/w"},
+{"prefix": "cu", "version": "1.30.0-wmf.5", "url": "https://cu.wikipedia.org/w"},
+{"prefix": "cv", "version": "1.30.0-wmf.5", "url": "https://cv.wikipedia.org/w"},
+{"prefix": "cy", "version": "1.30.0-wmf.5", "url": "https://cy.wikipedia.org/w"},
+{"prefix": "da", "version": "1.30.0-wmf.5", "url": "https://da.wikipedia.org/w"},
+{"prefix": "de", "version": "1.30.0-wmf.5", "url": "https://de.wikipedia.org/w"},
+{"prefix": "diq", "version": "1.30.0-wmf.5", "url": "https://diq.wikipedia.org/w"},
+{"prefix": "dsb", "version": "1.30.0-wmf.5", "url": "https://dsb.wikipedia.org/w"},
+{"prefix": "dty", "version": "1.30.0-wmf.5", "url": "https://dty.wikipedia.org/w"},
+{"prefix": "dv", "version": "1.30.0-wmf.5", "url": "https://dv.wikipedia.org/w"},
+{"prefix": "dz", "version": "1.30.0-wmf.5", "url": "https://dz.wikipedia.org/w"},
+{"prefix": "ee", "version": "1.30.0-wmf.5", "url": "https://ee.wikipedia.org/w"},
+{"prefix": "el", "version": "1.30.0-wmf.5", "url": "https://el.wikipedia.org/w"},
+{"prefix": "eml", "version": "1.30.0-wmf.5", "url": "https://eml.wikipedia.org/w"},
+{"prefix": "en", "version": "1.30.0-wmf.5", "url": "https://en.wikipedia.org/w"},
+{"prefix": "eo", "version": "1.30.0-wmf.5", "url": "https://eo.wikipedia.org/w"},
+{"prefix": "es", "version": "1.30.0-wmf.5", "url": "https://es.wikipedia.org/w"},
+{"prefix": "et", "version": "1.30.0-wmf.5", "url": "https://et.wikipedia.org/w"},
+{"prefix": "eu", "version": "1.30.0-wmf.5", "url": "https://eu.wikipedia.org/w"},
+{"prefix": "ext", "version": "1.30.0-wmf.5", "url": "https://ext.wikipedia.org/w"},
+{"prefix": "fa", "version": "1.30.0-wmf.5", "url": "https://fa.wikipedia.org/w"},
+{"prefix": "ff", "version": "1.30.0-wmf.5", "url": "https://ff.wikipedia.org/w"},
+{"prefix": "fi", "version": "1.30.0-wmf.5", "url": "https://fi.wikipedia.org/w"},
+{"prefix": "fiu-vro", "version": "1.30.0-wmf.5", "url": "https://fiu-vro.wikipedia.org/w"},
+{"prefix": "fj", "version": "1.30.0-wmf.5", "url": "https://fj.wikipedia.org/w"},
+{"prefix": "fo", "version": "1.30.0-wmf.5", "url": "https://fo.wikipedia.org/w"},
+{"prefix": "fr", "version": "1.30.0-wmf.5", "url": "https://fr.wikipedia.org/w"},
+{"prefix": "frp", "version": "1.30.0-wmf.5", "url": "https://frp.wikipedia.org/w"},
+{"prefix": "frr", "version": "1.30.0-wmf.5", "url": "https://frr.wikipedia.org/w"},
+{"prefix": "fur", "version": "1.30.0-wmf.5", "url": "https://fur.wikipedia.org/w"},
+{"prefix": "fy", "version": "1.30.0-wmf.5", "url": "https://fy.wikipedia.org/w"},
+{"prefix": "ga", "version": "1.30.0-wmf.5", "url": "https://ga.wikipedia.org/w"},
+{"prefix": "gag", "version": "1.30.0-wmf.5", "url": "https://gag.wikipedia.org/w"},
+{"prefix": "gan", "version": "1.30.0-wmf.5", "url": "https://gan.wikipedia.org/w"},
+{"prefix": "gd", "version": "1.30.0-wmf.5", "url": "https://gd.wikipedia.org/w"},
+{"prefix": "gl", "version": "1.30.0-wmf.5", "url": "https://gl.wikipedia.org/w"},
+{"prefix": "glk", "version": "1.30.0-wmf.5", "url": "https://glk.wikipedia.org/w"},
+{"prefix": "gn", "version": "1.30.0-wmf.5", "url": "https://gn.wikipedia.org/w"},
+{"prefix": "gom", "version": "1.30.0-wmf.5", "url": "https://gom.wikipedia.org/w"},
+{"prefix": "got", "version": "1.30.0-wmf.5", "url": "https://got.wikipedia.org/w"},
+{"prefix": "gu", "version": "1.30.0-wmf.5", "url": "https://gu.wikipedia.org/w"},
+{"prefix": "gv", "version": "1.30.0-wmf.5", "url": "https://gv.wikipedia.org/w"},
+{"prefix": "ha", "version": "1.30.0-wmf.5", "url": "https://ha.wikipedia.org/w"},
+{"prefix": "hak", "version": "1.30.0-wmf.5", "url": "https://hak.wikipedia.org/w"},
+{"prefix": "haw", "version": "1.30.0-wmf.5", "url": "https://haw.wikipedia.org/w"},
+{"prefix": "he", "version": "1.30.0-wmf.5", "url": "https://he.wikipedia.org/w"},
+{"prefix": "hi", "version": "1.30.0-wmf.5", "url": "https://hi.wikipedia.org/w"},
+{"prefix": "hif", "version": "1.30.0-wmf.5", "url": "https://hif.wikipedia.org/w"},
+{"prefix": "ho", "version": "1.30.0-wmf.5", "url": "https://ho.wikipedia.org/w"},
+{"prefix": "hr", "version": "1.30.0-wmf.5", "url": "https://hr.wikipedia.org/w"},
+{"prefix": "hsb", "version": "1.30.0-wmf.5", "url": "https://hsb.wikipedia.org/w"},
+{"prefix": "ht", "version": "1.30.0-wmf.5", "url": "https://ht.wikipedia.org/w"},
+{"prefix": "hu", "version": "1.30.0-wmf.5", "url": "https://hu.wikipedia.org/w"},
+{"prefix": "hy", "version": "1.30.0-wmf.5", "url": "https://hy.wikipedia.org/w"},
+{"prefix": "hz", "version": "1.30.0-wmf.5", "url": "https://hz.wikipedia.org/w"},
+{"prefix": "ia", "version": "1.30.0-wmf.5", "url": "https://ia.wikipedia.org/w"},
+{"prefix": "id", "version": "1.30.0-wmf.5", "url": "https://id.wikipedia.org/w"},
+{"prefix": "ie", "version": "1.30.0-wmf.5", "url": "https://ie.wikipedia.org/w"},
+{"prefix": "ig", "version": "1.30.0-wmf.5", "url": "https://ig.wikipedia.org/w"},
+{"prefix": "ik", "version": "1.30.0-wmf.5", "url": "https://ik.wikipedia.org/w"},
+{"prefix": "ilo", "version": "1.30.0-wmf.5", "url": "https://ilo.wikipedia.org/w"},
+{"prefix": "io", "version": "1.30.0-wmf.5", "url": "https://io.wikipedia.org/w"},
+{"prefix": "is", "version": "1.30.0-wmf.5", "url": "https://is.wikipedia.org/w"},
+{"prefix": "it", "version": "1.30.0-wmf.5", "url": "https://it.wikipedia.org/w"},
+{"prefix": "iu", "version": "1.30.0-wmf.5", "url": "https://iu.wikipedia.org/w"},
+{"prefix": "ja", "version": "1.30.0-wmf.5", "url": "https://ja.wikipedia.org/w"},
+{"prefix": "jam", "version": "1.30.0-wmf.5", "url": "https://jam.wikipedia.org/w"},
+{"prefix": "jbo", "version": "1.30.0-wmf.5", "url": "https://jbo.wikipedia.org/w"},
+{"prefix": "jv", "version": "1.30.0-wmf.5", "url": "https://jv.wikipedia.org/w"},
+{"prefix": "ka", "version": "1.30.0-wmf.5", "url": "https://ka.wikipedia.org/w"},
+{"prefix": "kaa", "version": "1.30.0-wmf.5", "url": "https://kaa.wikipedia.org/w"},
+{"prefix": "kab", "version": "1.30.0-wmf.5", "url": "https://kab.wikipedia.org/w"},
+{"prefix": "kbd", "version": "1.30.0-wmf.5", "url": "https://kbd.wikipedia.org/w"},
+{"prefix": "kg", "version": "1.30.0-wmf.5", "url": "https://kg.wikipedia.org/w"},
+{"prefix": "ki", "version": "1.30.0-wmf.5", "url": "https://ki.wikipedia.org/w"},
+{"prefix": "kj", "version": "1.30.0-wmf.5", "url": "https://kj.wikipedia.org/w"},
+{"prefix": "kk", "version": "1.30.0-wmf.5", "url": "https://kk.wikipedia.org/w"},
+{"prefix": "kl", "version": "1.30.0-wmf.5", "url": "https://kl.wikipedia.org/w"},
+{"prefix": "km", "version": "1.30.0-wmf.5", "url": "https://km.wikipedia.org/w"},
+{"prefix": "kn", "version": "1.30.0-wmf.5", "url": "https://kn.wikipedia.org/w"},
+{"prefix": "ko", "version": "1.30.0-wmf.5", "url": "https://ko.wikipedia.org/w"},
+{"prefix": "koi", "version": "1.30.0-wmf.5", "url": "https://koi.wikipedia.org/w"},
+{"prefix": "kr", "version": "1.30.0-wmf.5", "url": "https://kr.wikipedia.org/w"},
+{"prefix": "krc", "version": "1.30.0-wmf.5", "url": "https://krc.wikipedia.org/w"},
+{"prefix": "ks", "version": "1.30.0-wmf.5", "url": "https://ks.wikipedia.org/w"},
+{"prefix": "ksh", "version": "1.30.0-wmf.5", "url": "https://ksh.wikipedia.org/w"},
+{"prefix": "ku", "version": "1.30.0-wmf.5", "url": "https://ku.wikipedia.org/w"},
+{"prefix": "kv", "version": "1.30.0-wmf.5", "url": "https://kv.wikipedia.org/w"},
+{"prefix": "kw", "version": "1.30.0-wmf.5", "url": "https://kw.wikipedia.org/w"},
+{"prefix": "ky", "version": "1.30.0-wmf.5", "url": "https://ky.wikipedia.org/w"},
+{"prefix": "la", "version": "1.30.0-wmf.5", "url": "https://la.wikipedia.org/w"},
+{"prefix": "lad", "version": "1.30.0-wmf.5", "url": "https://lad.wikipedia.org/w"},
+{"prefix": "lb", "version": "1.30.0-wmf.5", "url": "https://lb.wikipedia.org/w"},
+{"prefix": "lbe", "version": "1.30.0-wmf.5", "url": "https://lbe.wikipedia.org/w"},
+{"prefix": "lez", "version": "1.30.0-wmf.5", "url": "https://lez.wikipedia.org/w"},
+{"prefix": "lg", "version": "1.30.0-wmf.5", "url": "https://lg.wikipedia.org/w"},
+{"prefix": "li", "version": "1.30.0-wmf.5", "url": "https://li.wikipedia.org/w"},
+{"prefix": "lij", "version": "1.30.0-wmf.5", "url": "https://lij.wikipedia.org/w"},
+{"prefix": "lmo", "version": "1.30.0-wmf.5", "url": "https://lmo.wikipedia.org/w"},
+{"prefix": "ln", "version": "1.30.0-wmf.5", "url": "https://ln.wikipedia.org/w"},
+{"prefix": "lo", "version": "1.30.0-wmf.5", "url": "https://lo.wikipedia.org/w"},
+{"prefix": "lrc", "version": "1.30.0-wmf.5", "url": "https://lrc.wikipedia.org/w"},
+{"prefix": "lt", "version": "1.30.0-wmf.5", "url": "https://lt.wikipedia.org/w"},
+{"prefix": "ltg", "version": "1.30.0-wmf.5", "url": "https://ltg.wikipedia.org/w"},
+{"prefix": "lv", "version": "1.30.0-wmf.5", "url": "https://lv.wikipedia.org/w"},
+{"prefix": "mai", "version": "1.30.0-wmf.5", "url": "https://mai.wikipedia.org/w"},
+{"prefix": "map-bms", "version": "1.30.0-wmf.5", "url": "https://map-bms.wikipedia.org/w"},
+{"prefix": "mdf", "version": "1.30.0-wmf.5", "url": "https://mdf.wikipedia.org/w"},
+{"prefix": "mg", "version": "1.30.0-wmf.5", "url": "https://mg.wikipedia.org/w"},
+{"prefix": "mh", "version": "1.30.0-wmf.5", "url": "https://mh.wikipedia.org/w"},
+{"prefix": "mhr", "version": "1.30.0-wmf.5", "url": "https://mhr.wikipedia.org/w"},
+{"prefix": "mi", "version": "1.30.0-wmf.5", "url": "https://mi.wikipedia.org/w"},
+{"prefix": "min", "version": "1.30.0-wmf.5", "url": "https://min.wikipedia.org/w"},
+{"prefix": "mk", "version": "1.30.0-wmf.5", "url": "https://mk.wikipedia.org/w"},
+{"prefix": "ml", "version": "1.30.0-wmf.5", "url": "https://ml.wikipedia.org/w"},
+{"prefix": "mn", "version": "1.30.0-wmf.5", "url": "https://mn.wikipedia.org/w"},
+{"prefix": "mo", "version": "1.30.0-wmf.5", "url": "https://mo.wikipedia.org/w"},
+{"prefix": "mr", "version": "1.30.0-wmf.5", "url": "https://mr.wikipedia.org/w"},
+{"prefix": "mrj", "version": "1.30.0-wmf.5", "url": "https://mrj.wikipedia.org/w"},
+{"prefix": "ms", "version": "1.30.0-wmf.5", "url": "https://ms.wikipedia.org/w"},
+{"prefix": "mt", "version": "1.30.0-wmf.5", "url": "https://mt.wikipedia.org/w"},
+{"prefix": "mus", "version": "1.30.0-wmf.5", "url": "https://mus.wikipedia.org/w"},
+{"prefix": "mwl", "version": "1.30.0-wmf.5", "url": "https://mwl.wikipedia.org/w"},
+{"prefix": "my", "version": "1.30.0-wmf.5", "url": "https://my.wikipedia.org/w"},
+{"prefix": "myv", "version": "1.30.0-wmf.5", "url": "https://myv.wikipedia.org/w"},
+{"prefix": "mzn", "version": "1.30.0-wmf.5", "url": "https://mzn.wikipedia.org/w"},
+{"prefix": "na", "version": "1.30.0-wmf.5", "url": "https://na.wikipedia.org/w"},
+{"prefix": "nah", "version": "1.30.0-wmf.5", "url": "https://nah.wikipedia.org/w"},
+{"prefix": "nap", "version": "1.30.0-wmf.5", "url": "https://nap.wikipedia.org/w"},
+{"prefix": "nds", "version": "1.30.0-wmf.5", "url": "https://nds.wikipedia.org/w"},
+{"prefix": "nds-nl", "version": "1.30.0-wmf.5", "url": "https://nds-nl.wikipedia.org/w"},
+{"prefix": "ne", "version": "1.30.0-wmf.5", "url": "https://ne.wikipedia.org/w"},
+{"prefix": "new", "version": "1.30.0-wmf.5", "url": "https://new.wikipedia.org/w"},
+{"prefix": "ng", "version": "1.30.0-wmf.5", "url": "https://ng.wikipedia.org/w"},
+{"prefix": "nl", "version": "1.30.0-wmf.5", "url": "https://nl.wikipedia.org/w"},
+{"prefix": "nn", "version": "1.30.0-wmf.5", "url": "https://nn.wikipedia.org/w"},
+{"prefix": "no", "version": "1.30.0-wmf.5", "url": "https://no.wikipedia.org/w"},
+{"prefix": "nov", "version": "1.30.0-wmf.5", "url": "https://nov.wikipedia.org/w"},
+{"prefix": "nrm", "version": "1.30.0-wmf.5", "url": "https://nrm.wikipedia.org/w"},
+{"prefix": "nso", "version": "1.30.0-wmf.5", "url": "https://nso.wikipedia.org/w"},
+{"prefix": "nv", "version": "1.30.0-wmf.5", "url": "https://nv.wikipedia.org/w"},
+{"prefix": "ny", "version": "1.30.0-wmf.5", "url": "https://ny.wikipedia.org/w"},
+{"prefix": "oc", "version": "1.30.0-wmf.5", "url": "https://oc.wikipedia.org/w"},
+{"prefix": "olo", "version": "1.30.0-wmf.5", "url": "https://olo.wikipedia.org/w"},
+{"prefix": "om", "version": "1.30.0-wmf.5", "url": "https://om.wikipedia.org/w"},
+{"prefix": "or", "version": "1.30.0-wmf.5", "url": "https://or.wikipedia.org/w"},
+{"prefix": "os", "version": "1.30.0-wmf.5", "url": "https://os.wikipedia.org/w"},
+{"prefix": "pa", "version": "1.30.0-wmf.5", "url": "https://pa.wikipedia.org/w"},
+{"prefix": "pag", "version": "1.30.0-wmf.5", "url": "https://pag.wikipedia.org/w"},
+{"prefix": "pam", "version": "1.30.0-wmf.5", "url": "https://pam.wikipedia.org/w"},
+{"prefix": "pap", "version": "1.30.0-wmf.5", "url": "https://pap.wikipedia.org/w"},
+{"prefix": "pcd", "version": "1.30.0-wmf.5", "url": "https://pcd.wikipedia.org/w"},
+{"prefix": "pdc", "version": "1.30.0-wmf.5", "url": "https://pdc.wikipedia.org/w"},
+{"prefix": "pfl", "version": "1.30.0-wmf.5", "url": "https://pfl.wikipedia.org/w"},
+{"prefix": "pi", "version": "1.30.0-wmf.5", "url": "https://pi.wikipedia.org/w"},
+{"prefix": "pih", "version": "1.30.0-wmf.5", "url": "https://pih.wikipedia.org/w"},
+{"prefix": "pl", "version": "1.30.0-wmf.5", "url": "https://pl.wikipedia.org/w"},
+{"prefix": "pms", "version": "1.30.0-wmf.5", "url": "https://pms.wikipedia.org/w"},
+{"prefix": "pnt", "version": "1.30.0-wmf.5", "url": "https://pnt.wikipedia.org/w"},
+{"prefix": "pnb", "version": "1.30.0-wmf.5", "url": "https://pnb.wikipedia.org/w"},
+{"prefix": "ps", "version": "1.30.0-wmf.5", "url": "https://ps.wikipedia.org/w"},
+{"prefix": "pt", "version": "1.30.0-wmf.5", "url": "https://pt.wikipedia.org/w"},
+{"prefix": "qu", "version": "1.30.0-wmf.5", "url": "https://qu.wikipedia.org/w"},
+{"prefix": "rm", "version": "1.30.0-wmf.5", "url": "https://rm.wikipedia.org/w"},
+{"prefix": "rmy", "version": "1.30.0-wmf.5", "url": "https://rmy.wikipedia.org/w"},
+{"prefix": "rn", "version": "1.30.0-wmf.5", "url": "https://rn.wikipedia.org/w"},
+{"prefix": "ro", "version": "1.30.0-wmf.5", "url": "https://ro.wikipedia.org/w"},
+{"prefix": "roa-rup", "version": "1.30.0-wmf.5", "url": "https://roa-rup.wikipedia.org/w"},
+{"prefix": "roa-tara", "version": "1.30.0-wmf.5", "url": "https://roa-tara.wikipedia.org/w"},
+{"prefix": "ru", "version": "1.30.0-wmf.5", "url": "https://ru.wikipedia.org/w"},
+{"prefix": "rue", "version": "1.30.0-wmf.5", "url": "https://rue.wikipedia.org/w"},
+{"prefix": "rw", "version": "1.30.0-wmf.5", "url": "https://rw.wikipedia.org/w"},
+{"prefix": "sa", "version": "1.30.0-wmf.5", "url": "https://sa.wikipedia.org/w"},
+{"prefix": "sah", "version": "1.30.0-wmf.5", "url": "https://sah.wikipedia.org/w"},
+{"prefix": "sc", "version": "1.30.0-wmf.5", "url": "https://sc.wikipedia.org/w"},
+{"prefix": "scn", "version": "1.30.0-wmf.5", "url": "https://scn.wikipedia.org/w"},
+{"prefix": "sco", "version": "1.30.0-wmf.5", "url": "https://sco.wikipedia.org/w"},
+{"prefix": "sd", "version": "1.30.0-wmf.5", "url": "https://sd.wikipedia.org/w"},
+{"prefix": "se", "version": "1.30.0-wmf.5", "url": "https://se.wikipedia.org/w"},
+{"prefix": "sg", "version": "1.30.0-wmf.5", "url": "https://sg.wikipedia.org/w"},
+{"prefix": "sh", "version": "1.30.0-wmf.5", "url": "https://sh.wikipedia.org/w"},
+{"prefix": "si", "version": "1.30.0-wmf.5", "url": "https://si.wikipedia.org/w"},
+{"prefix": "simple", "version": "1.30.0-wmf.5", "url": "https://simple.wikipedia.org/w"},
+{"prefix": "sk", "version": "1.30.0-wmf.5", "url": "https://sk.wikipedia.org/w"},
+{"prefix": "sl", "version": "1.30.0-wmf.5", "url": "https://sl.wikipedia.org/w"},
+{"prefix": "sm", "version": "1.30.0-wmf.5", "url": "https://sm.wikipedia.org/w"},
+{"prefix": "sn", "version": "1.30.0-wmf.5", "url": "https://sn.wikipedia.org/w"},
+{"prefix": "so", "version": "1.30.0-wmf.5", "url": "https://so.wikipedia.org/w"},
+{"prefix": "sq", "version": "1.30.0-wmf.5", "url": "https://sq.wikipedia.org/w"},
+{"prefix": "sr", "version": "1.30.0-wmf.5", "url": "https://sr.wikipedia.org/w"},
+{"prefix": "srn", "version": "1.30.0-wmf.5", "url": "https://srn.wikipedia.org/w"},
+{"prefix": "ss", "version": "1.30.0-wmf.5", "url": "https://ss.wikipedia.org/w"},
+{"prefix": "st", "version": "1.30.0-wmf.5", "url": "https://st.wikipedia.org/w"},
+{"prefix": "stq", "version": "1.30.0-wmf.5", "url": "https://stq.wikipedia.org/w"},
+{"prefix": "su", "version": "1.30.0-wmf.5", "url": "https://su.wikipedia.org/w"},
+{"prefix": "sv", "version": "1.30.0-wmf.5", "url": "https://sv.wikipedia.org/w"},
+{"prefix": "sw", "version": "1.30.0-wmf.5", "url": "https://sw.wikipedia.org/w"},
+{"prefix": "szl", "version": "1.30.0-wmf.5", "url": "https://szl.wikipedia.org/w"},
+{"prefix": "ta", "version": "1.30.0-wmf.5", "url": "https://ta.wikipedia.org/w"},
+{"prefix": "tcy", "version": "1.30.0-wmf.5", "url": "https://tcy.wikipedia.org/w"},
+{"prefix": "te", "version": "1.30.0-wmf.5", "url": "https://te.wikipedia.org/w"},
+{"prefix": "tet", "version": "1.30.0-wmf.5", "url": "https://tet.wikipedia.org/w"},
+{"prefix": "tg", "version": "1.30.0-wmf.5", "url": "https://tg.wikipedia.org/w"},
+{"prefix": "th", "version": "1.30.0-wmf.5", "url": "https://th.wikipedia.org/w"},
+{"prefix": "ti", "version": "1.30.0-wmf.5", "url": "https://ti.wikipedia.org/w"},
+{"prefix": "tk", "version": "1.30.0-wmf.5", "url": "https://tk.wikipedia.org/w"},
+{"prefix": "tl", "version": "1.30.0-wmf.5", "url": "https://tl.wikipedia.org/w"},
+{"prefix": "tn", "version": "1.30.0-wmf.5", "url": "https://tn.wikipedia.org/w"},
+{"prefix": "to", "version": "1.30.0-wmf.5", "url": "https://to.wikipedia.org/w"},
+{"prefix": "tpi", "version": "1.30.0-wmf.5", "url": "https://tpi.wikipedia.org/w"},
+{"prefix": "tr", "version": "1.30.0-wmf.5", "url": "https://tr.wikipedia.org/w"},
+{"prefix": "ts", "version": "1.30.0-wmf.5", "url": "https://ts.wikipedia.org/w"},
+{"prefix": "tt", "version": "1.30.0-wmf.5", "url": "https://tt.wikipedia.org/w"},
+{"prefix": "tum", "version": "1.30.0-wmf.5", "url": "https://tum.wikipedia.org/w"},
+{"prefix": "tw", "version": "1.30.0-wmf.5", "url": "https://tw.wikipedia.org/w"},
+{"prefix": "ty", "version": "1.30.0-wmf.5", "url": "https://ty.wikipedia.org/w"},
+{"prefix": "tyv", "version": "1.30.0-wmf.5", "url": "https://tyv.wikipedia.org/w"},
+{"prefix": "udm", "version": "1.30.0-wmf.5", "url": "https://udm.wikipedia.org/w"},
+{"prefix": "ug", "version": "1.30.0-wmf.5", "url": "https://ug.wikipedia.org/w"},
+{"prefix": "uk", "version": "1.30.0-wmf.5", "url": "https://uk.wikipedia.org/w"},
+{"prefix": "ur", "version": "1.30.0-wmf.5", "url": "https://ur.wikipedia.org/w"},
+{"prefix": "uz", "version": "1.30.0-wmf.5", "url": "https://uz.wikipedia.org/w"},
+{"prefix": "ve", "version": "1.30.0-wmf.5", "url": "https://ve.wikipedia.org/w"},
+{"prefix": "vec", "version": "1.30.0-wmf.5", "url": "https://vec.wikipedia.org/w"},
+{"prefix": "vep", "version": "1.30.0-wmf.5", "url": "https://vep.wikipedia.org/w"},
+{"prefix": "vi", "version": "1.30.0-wmf.5", "url": "https://vi.wikipedia.org/w"},
+{"prefix": "vls", "version": "1.30.0-wmf.5", "url": "https://vls.wikipedia.org/w"},
+{"prefix": "vo", "version": "1.30.0-wmf.5", "url": "https://vo.wikipedia.org/w"},
+{"prefix": "wa", "version": "1.30.0-wmf.5", "url": "https://wa.wikipedia.org/w"},
+{"prefix": "war", "version": "1.30.0-wmf.5", "url": "https://war.wikipedia.org/w"},
+{"prefix": "wo", "version": "1.30.0-wmf.5", "url": "https://wo.wikipedia.org/w"},
+{"prefix": "wuu", "version": "1.30.0-wmf.5", "url": "https://wuu.wikipedia.org/w"},
+{"prefix": "xal", "version": "1.30.0-wmf.5", "url": "https://xal.wikipedia.org/w"},
+{"prefix": "xh", "version": "1.30.0-wmf.5", "url": "https://xh.wikipedia.org/w"},
+{"prefix": "xmf", "version": "1.30.0-wmf.5", "url": "https://xmf.wikipedia.org/w"},
+{"prefix": "yi", "version": "1.30.0-wmf.5", "url": "https://yi.wikipedia.org/w"},
+{"prefix": "yo", "version": "1.30.0-wmf.5", "url": "https://yo.wikipedia.org/w"},
+{"prefix": "za", "version": "1.30.0-wmf.5", "url": "https://za.wikipedia.org/w"},
+{"prefix": "zea", "version": "1.30.0-wmf.5", "url": "https://zea.wikipedia.org/w"},
+{"prefix": "zh", "version": "1.30.0-wmf.5", "url": "https://zh.wikipedia.org/w"},
+{"prefix": "zh-classical", "version": "1.30.0-wmf.5", "url": "https://zh-classical.wikipedia.org/w"},
+{"prefix": "zh-min-nan", "version": "1.30.0-wmf.5", "url": "https://zh-min-nan.wikipedia.org/w"},
+{"prefix": "zh-yue", "version": "1.30.0-wmf.5", "url": "https://zh-yue.wikipedia.org/w"},
+{"prefix": "zu", "version": "1.30.0-wmf.5", "url": "https://zu.wikipedia.org/w"},
+{"prefix": "nb", "version": "1.30.0-wmf.5", "url": "https://no.wikipedia.org/w"},
+{"prefix": "zh-cn", "version": "1.30.0-wmf.5", "url": "https://zh.wikipedia.org/w"},
+{"prefix": "zh-tw", "version": "1.30.0-wmf.5", "url": "https://zh.wikipedia.org/w"},
+{"prefix": "nan", "version": "1.30.0-wmf.5", "url": "https://zh-min-nan.wikipedia.org/w"},
+{"prefix": "vro", "version": "1.30.0-wmf.5", "url": "https://fiu-vro.wikipedia.org/w"},
+{"prefix": "lzh", "version": "1.30.0-wmf.5", "url": "https://zh-classical.wikipedia.org/w"},
+{"prefix": "yue", "version": "1.30.0-wmf.5", "url": "https://zh-yue.wikipedia.org/w"},
+{"prefix": "rup", "version": "1.30.0-wmf.5", "url": "https://roa-rup.wikipedia.org/w"},
+{"prefix": "gsw", "version": "1.30.0-wmf.5", "url": "https://als.wikipedia.org/w"},
+{"prefix": "be-tarask", "version": "1.30.0-wmf.5", "url": "https://be-x-old.wikipedia.org/w"},
+{"prefix": "sgs", "version": "1.30.0-wmf.5", "url": "https://bat-smg.wikipedia.org/w"},
+{"prefix": "egl", "version": "1.30.0-wmf.5", "url": "https://eml.wikipedia.org/w"}]

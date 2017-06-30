@@ -102,6 +102,38 @@ public class FileUtils {
 	}
 	
 	/**
+	 * Read in a text file.
+	 * @param file File path.
+	 */
+	public static String readFile(String path) {
+		StringBuilder file = new StringBuilder("");
+		
+		try {
+			// Read in the file!
+			InputStream in = FileUtils.class.getResourceAsStream(path);
+			BufferedReader br = new BufferedReader(
+						new InputStreamReader(in)
+					);
+			
+			// Parse file array into java int array
+			String line;
+			line = br.readLine();
+			do {
+				file.append(line + "\n");
+				line = br.readLine();
+			} while (line != null);
+			
+			in.close();
+			br.close();
+			
+		} catch (IOException e) {
+			logger.logError("Error reading in list.");
+		}
+		
+		return file.toString();
+	}
+	
+	/**
 	 * Read in an image.
 	 * @param path The path to the image
 	 * @return
