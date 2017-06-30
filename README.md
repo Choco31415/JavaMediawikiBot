@@ -51,15 +51,11 @@ Objects. For example:
 
 ```
 APIcommand command = new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ ");
-proposeEdit(command);
+proposeEdit(command); // Propose command for later review, requires GUI.
+APIcommand(command); // Push the command now.
 ```
 
 Half of the API commands are recommended used raw, half are not. This can be checked in the command's class documentation. If not recommended used raw, use GenericBot methods instead.
-
-### Tips
-
-Coding Tips:
-* To queue a command for review, use `proposeEdit(APIcommand command)`. This requires the GUI.
 
 ## Examples
 
