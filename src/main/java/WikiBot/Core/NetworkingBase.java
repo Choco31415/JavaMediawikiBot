@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -60,6 +61,9 @@ public class NetworkingBase extends javax.swing.JPanel {
 	//These variables are used for networking purposes (GET and POST requests).
     private HttpClient httpclient;
 	private HttpClientContext context;
+	
+	//Special characters.
+	private static final String UTF8_BOM = "\uFEFF";
 	
 	//Instantiation.
 	public NetworkingBase() {
@@ -208,6 +212,7 @@ public class NetworkingBase extends javax.swing.JPanel {
         	if (unescapeHTML4) {
         		inputLine = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(inputLine));
         	}
+        	inputLine = removeBOM(inputLine);
         	
             page.add(inputLine);
         }
@@ -311,6 +316,16 @@ public class NetworkingBase extends javax.swing.JPanel {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public String removeBOM(String text) {
+		String toReturn = text;
+		
+		if (text.startsWith(UTF8_BOM)) {
+			toReturn = toReturn.substring(1);
+		}
+		
+		return toReturn;
 	}
 	
 	/**
