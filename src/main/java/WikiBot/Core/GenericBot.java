@@ -164,7 +164,7 @@ public class GenericBot extends NetworkingBase {
 	public boolean doesPageExist(PageLocation loc) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		
-		return !serverOutput.has("missing");
+		return serverOutput.findValue("missing") == null; // If contains missing tag, the page is missing.
 	}
 	
 	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
@@ -1696,7 +1696,7 @@ public class GenericBot extends NetworkingBase {
 		//Send the command!
         response = getPOST(baseURL + "/api.php?", keys, values);
         try {
-			String serverOutput = EntityUtils.toString(response);
+			String serverOutput = removeBOM(EntityUtils.toString(response));
 			
 			return serverOutput;
 		} catch (org.apache.http.ParseException | IOException e) {
@@ -1726,7 +1726,7 @@ public class GenericBot extends NetworkingBase {
 		HttpEntity response = getPOST(url, entity);
 		
 		try {
-			String serverOutput = EntityUtils.toString(response);
+			String serverOutput = removeBOM(EntityUtils.toString(response));
 			
 			return serverOutput;
 		} catch (org.apache.http.ParseException | IOException e) {
@@ -1786,7 +1786,7 @@ public class GenericBot extends NetworkingBase {
         
 		String token = "";
 		try {
-			String serverOutput = EntityUtils.toString(entity);
+			String serverOutput = removeBOM(EntityUtils.toString(entity));
 			
 			logFinest("Received token response: " + serverOutput);
 
