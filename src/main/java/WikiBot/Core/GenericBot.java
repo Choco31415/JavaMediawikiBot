@@ -136,11 +136,17 @@ public class GenericBot extends NetworkingBase {
 	 * @return A Page.
 	 */
 	public Page getWikiPage(PageLocation loc) {
+		Page toReturn = null;
+		
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		JsonNode pages = serverOutput.findValue("pages");
 		JsonNode page = pages.elements().next();
 		
-		return parseWikiPage(page);
+		if (checkIfPageExists(page)) {
+			toReturn = parseWikiPage(page);
+		}
+		
+		return toReturn;
 	}
 	
 	/**
@@ -149,11 +155,17 @@ public class GenericBot extends NetworkingBase {
 	 * @return A SimplePage.
 	 */
 	public SimplePage getWikiSimplePage(PageLocation loc) {
+		SimplePage toReturn = null;
+		
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		JsonNode pages = serverOutput.findValue("pages");
 		JsonNode page = pages.elements().next();
 		
-		return parseWikiSimplePage(page);
+		if (checkIfPageExists(page)) {
+			toReturn = parseWikiSimplePage(page);
+		}
+		
+		return toReturn;
 	}
 	
 	/**
@@ -164,7 +176,13 @@ public class GenericBot extends NetworkingBase {
 	public boolean doesPageExist(PageLocation loc) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		
-		return serverOutput.findValue("missing") == null; // If contains missing tag, the page is missing.
+		return checkIfPageExists(serverOutput);
+		
+		
+	}
+	
+	private boolean checkIfPageExists(JsonNode code) {
+		return code.findValue("missing") == null && code.findValue("invalid") == null; // If contains missing tag, the page is missing. Same with invalid.
 	}
 	
 	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
@@ -210,9 +228,10 @@ public class GenericBot extends NetworkingBase {
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
 			for (JsonNode pageNode : pageNodes) {
-				pages.add(parseWikiPage(pageNode));
+				if (checkIfPageExists(pageNode)) {
+					pages.add(parseWikiPage(pageNode));
+				}
 			}
-
 		}
 		
 		return pages;
@@ -241,7 +260,9 @@ public class GenericBot extends NetworkingBase {
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
 			for (JsonNode pageNode : pageNodes) {
-				simplePages.add(parseWikiSimplePage(pageNode));
+				if (checkIfPageExists(pageNode)) {
+					simplePages.add(parseWikiSimplePage(pageNode));
+				}
 			}
 		}
 		
@@ -315,15 +336,20 @@ public class GenericBot extends NetworkingBase {
 		
 		Page newPage = null;
 		
-		//Parse out page information
-		String title = code.get("title").asText();
-		int pageid = code.get("pageid").asInt();
-		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
-		
-		//Initialize the SimplePage object with this info.
-		newPage = new Page(wikiPrefix, title, pageid);
-		String rawText = code.findValue("*").asText();
-		newPage.setRawText(rawText);
+		try {
+			//Parse out page information
+			String title = code.get("title").asText();
+			int pageid = code.get("pageid").asInt();
+			String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
+			
+			//Initialize the SimplePage object with this info.
+			newPage = new Page(wikiPrefix, title, pageid);
+			String rawText = code.findValue("*").asText();
+			newPage.setRawText(rawText);
+		} catch (NullPointerException e) {
+			System.out.println(code.toString());
+			throw new Error("What");
+		}
 		
 		//Get revisions, if needed.
 		getPageRevisions(newPage);

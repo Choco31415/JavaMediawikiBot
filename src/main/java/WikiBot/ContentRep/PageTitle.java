@@ -30,6 +30,11 @@ public class PageTitle {
 	
 	@Override
 	public String toString() {
-		return "\nPageTitle: " + title;
+		return "PageTitle: " + title;
+	}
+	
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }

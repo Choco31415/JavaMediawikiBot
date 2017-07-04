@@ -54,7 +54,7 @@ public class PageLocation extends PageTitleContainer {
 		}
 		if (obj.getClass().equals(PageLocation.class)) {
 			PageLocation pg = (PageLocation)obj;
-			return pg.getTitle().equalsIgnoreCase(titleObject.getTitle()) && lan.equals(pg.getLanguage());
+			return pg.getTitle().equals(titleObject.getTitle()) && lan.equals(pg.getLanguage());
 		}
 		return false;
 	}
@@ -62,5 +62,10 @@ public class PageLocation extends PageTitleContainer {
 	@Override
 	public String toString() {
 		return "PageLocation: " + lan + ": " + titleObject.getTitle();
+	}
+	
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }
