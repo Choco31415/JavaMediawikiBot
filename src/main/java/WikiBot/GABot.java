@@ -3,14 +3,8 @@ package WikiBot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -18,48 +12,26 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.ConcurrentModificationException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-import javax.swing.SortOrder;
-
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.SymbolAxis;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.renderer.AreaRendererEndType;
 import org.jfree.chart.renderer.category.AreaRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.StackedXYAreaRenderer;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DatasetUtilities;
-import org.jfree.data.xy.DefaultTableXYDataset;
-import org.jfree.data.xy.TableXYDataset;
-import org.jfree.data.xy.XYDataItem;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -70,29 +42,22 @@ import com.google.api.client.json.gson.GsonFactory;
 
 import com.google.api.services.analyticsreporting.v4.AnalyticsReportingScopes;
 import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
-import com.google.api.services.analyticsreporting.v4.model.ColumnHeader;
 import com.google.api.services.analyticsreporting.v4.model.DateRange;
 import com.google.api.services.analyticsreporting.v4.model.DateRangeValues;
 import com.google.api.services.analyticsreporting.v4.model.Dimension;
 import com.google.api.services.analyticsreporting.v4.model.GetReportsRequest;
 import com.google.api.services.analyticsreporting.v4.model.GetReportsResponse;
 import com.google.api.services.analyticsreporting.v4.model.Metric;
-import com.google.api.services.analyticsreporting.v4.model.MetricHeaderEntry;
 import com.google.api.services.analyticsreporting.v4.model.OrderBy;
 import com.google.api.services.analyticsreporting.v4.model.Report;
 import com.google.api.services.analyticsreporting.v4.model.ReportRequest;
 import com.google.api.services.analyticsreporting.v4.model.ReportRow;
-import com.google.common.base.CaseFormat;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
 
 import WikiBot.APIcommands.EditPage;
 import WikiBot.APIcommands.EditSection;
 import WikiBot.ContentRep.*;
-import WikiBot.ContentRep.SiteInfo.SiteStatistics;
 import WikiBot.Core.GenericBot;
 import WikiBot.Utils.FileUtils;
-import WikiBot.APIcommands.APIcommand;
 
 
 public class GABot extends GenericBot {
@@ -101,22 +66,24 @@ public class GABot extends GenericBot {
 
 	private static String username;
 	private static String password;
-	private static String botPropFile;
+	private static String botPropFile; // Where username + password are stored.
 	
-	private static GABot instance;
+	private static GABot instance; // Bot instantiates itself to avoid making every method static.
 	
-	private static String defaultStatsFile;
+	private final static Map<String, String> wikiViews = new HashMap<>(); //  Maps wiki to view id
+	private static String[] GAvisualStats; // stats to track visually
+	private static String[] GAvisualStatsFilenames; // images names of stast to track visually
 	
-	private final static Map<String, String> wikiViews = new HashMap<>();
-	private static String[] GAstatNames;
-	private static String[] GAstatImageNames;
-	private static String GAstatPage;
-	
-	private static int daysTracking;
-	private static int topPageCount;
+	private static int daysTracking; // Number of days to track
+	private static int topPageCount; // Number of top pages to track.
 	
 	private static final int GRAPH_WIDTH = 700;
 	private static final int GRAPH_HEIGHT = 250;
+	
+	private static String defaultStatsPage; // Default page for new stats page on a wiki.
+	private static String GAstatPage; // Page name for stats page on a wiki
+	
+	private static String timezone;
 	
 	// For Google Analytics
 	private static final String KEY_FILE_LOCATION = "/InterwikiService.json";
@@ -139,21 +106,23 @@ public class GABot extends GenericBot {
 		
 		botPropFile = "/BotProperties.properties";
 		
-		defaultStatsFile = "/GAPageDefault.txt";
+		defaultStatsPage = "/GAPageDefault.txt";
 
-		wikiViews.put("de", "63671826");//wiki to GA view id
+		wikiViews.put("de", "63671826");// wiki and its corresponding view id.
 		wikiViews.put("fr", "153835435");
 		wikiViews.put("hu", "153842565");
 		wikiViews.put("id", "153876466");
 		wikiViews.put("ja", "153760467");
 		wikiViews.put("nl", "153846344");
-		//wikiViews.put("ru", "153914983");
+		//wikiViews.put("ru", "153914983"); No RU otherwise there will be wikian rebellion.
 		wikiViews.put("test", "150479279");
-		GAstatNames = new String[]{"ga:pageviews", "ga:sessions"}; // GA statistics to collect.
-		GAstatImageNames = new String[]{"InterwikiBot_GA_Pageviews.png", "InterwikiBot_GA_Sessions.png"}; // image names for statistics.
+		GAvisualStats = new String[]{"ga:pageviews", "ga:sessions"}; 
+		GAvisualStatsFilenames = new String[]{"InterwikiBot_GA_Pageviews.png", "InterwikiBot_GA_Sessions.png"}; 
 		
 		daysTracking = 7;
 		topPageCount = 50;
+		
+		timezone = "Europe/Berlin";
 		
 		setLogPropagation(true);
 		
@@ -166,8 +135,6 @@ public class GABot extends GenericBot {
 	
 	/**
 	 * Get an instance of GenericBot.
-	 * If GenericBot has not been instantiated yet, the
-	 * family and homeWikiLanguage are both set to null.
 	 * @return
 	 */
 	public static GABot getInstance() {
@@ -178,9 +145,6 @@ public class GABot extends GenericBot {
 		return instance;
 	}
 	
-	/*
-	 * This is where I read in the bot password and create an instance.
-	 */
 	public static void main(String[] args) throws GeneralSecurityException, IOException, CloneNotSupportedException {
 		GABot b = getInstance();
 		
@@ -194,112 +158,116 @@ public class GABot extends GenericBot {
 	 * @param delay The amount of seconds to delay checks.
 	 * @throws IOException 
 	 * @throws GeneralSecurityException 
+	 * @throws CloneNotSupportedException 
 	 */
-	public void run() throws GeneralSecurityException, IOException {
+	public void run() throws GeneralSecurityException, IOException, CloneNotSupportedException {
 		// Load username and password.
 		loadPropFile();
 		
-		// Last minute configuration changes.
+		// Last minute configuration changes. Done here due to username requirement.
 		GAstatPage = "User:" + username + "/GA Stats";
 		
 		// Run.
 		AnalyticsReporting service = initializeAnalyticsReporting(KEY_FILE_LOCATION);
-		String defaultStatsPage = readGAPageDefault();
+		String newStatsPageText = readGApageDefault();
 		
+		// For each wiki...
 		for (String wiki : wikiViews.keySet()) {
-			try {
-				// Log in.
-				User user = new User(wiki, username);
-				boolean loggedIn = logIn(user, password);
+			// Log in.
+			User user = new User(wiki, username);
+			boolean loggedIn = logIn(user, password);
+			
+			if (!loggedIn) {
+				throw new Error("Didn't log into wiki: " + wiki);
+			} else {
+				String viewID = wikiViews.get(wiki);
 				
-				if (!loggedIn) {
-					throw new Error("Didn't log into wiki: " + wiki);
-				} else {
-					// Start querying and editing.
-					String viewID = wikiViews.get(wiki);
-					
-					// Initialize stats page, if needed.
-					PageLocation statsPageLoc = new PageLocation(wiki, GAstatPage);
-					if (!this.doesPageExist(statsPageLoc)) {
-						// Create the GA page.
-						EditPage command = new EditPage(statsPageLoc, defaultStatsPage, "Creating page.");
-						APIcommand(command);
-						logInfo("Initialized page on wiki " + wiki + ".");
-					}
-					Page statsPage = getWikiPage(statsPageLoc);
-					
-					// Upload charts.
-					String[] filenames = outputSiteStatisticsCharts(daysTracking, viewID, service);
-					
-					for (int i = 0; i < filenames.length; i++) {
-						String filename = filenames[i];
-						String imageName = GAstatImageNames[i];
-						
-						Path path = Paths.get(filename);
-						PageLocation uploadTo = new PageLocation(wiki, imageName);
-						
-						this.uploadFile(uploadTo, path, "Updating statistic.", "A wiki statistic chart.");
-						logInfo("Upload file " + filename + " to wiki " + wiki + ".");
-					}
-					
-					// Check that the GA page has all necessary images.
-					boolean hasImages = true;
-					ArrayList<Image> images = statsPage.getImagesRecursive();
-					int i = 0;
-					while (hasImages && i < GAstatImageNames.length) {
-						boolean hasImage = false;
-						String imageName = GAstatImageNames[i];
-						
-						for (Image image : images) {
-							if (image.getImageName().equals("File:" + imageName)) {
-								hasImage = true;
-							}
-						}
-						
-						if (!hasImage) {
-							hasImages = false;
-						}
-						i++;
-					}
-					
-					if (!hasImages) {
-						String sectionText = "== Site Statistics ==\n";
-						
-						for (String imageName : GAstatImageNames) {
-							sectionText += "[[File:" + imageName + "]]\n\n";
-						}
-						
-						EditSection command = new EditSection(statsPageLoc, 1, sectionText, "Editing statistics tracked.");
-						APIcommand(command);
-						logInfo("Edited statistics images on wiki " + wiki + ".");
-					}
-					
-					// Append popular pages.
-					PageViewTuple[] pvt = getPopularPages(topPageCount, viewID, service);
-					
-					String sectionText = "== Popular Pages ==\n"
-							+ "Note: Page view counts are for the most recent 30 day period.\n";
-					for (PageViewTuple tuple : pvt) {
-						if (tuple != null) {
-							if (tuple.name.contains(".php")) {
-								sectionText += "\n#  " + tuple.name + " (" + tuple.viewCount + " views)";
-							} else {
-								sectionText += "\n#  [[" + tuple.name + "]] (" + tuple.viewCount + " views)";
-							}
-						}
-					}
-					
-					EditSection command = new EditSection(statsPageLoc, 2, sectionText, "Updating popular pages.");
+				// Initialize stats page, if needed.
+				PageLocation statsPageLoc = new PageLocation(wiki, GAstatPage);
+				if (!this.doesPageExist(statsPageLoc)) {
+					// Create the GA page.
+					EditPage command = new EditPage(statsPageLoc, newStatsPageText, "Creating page.");
 					APIcommand(command);
-					logInfo("Updated popular pages on wiki " + wiki + ".");
+					logInfo("Initialized page on wiki " + wiki + ".");
 				}
 				
-			} catch (Exception e) {
-			    e.printStackTrace();
+				// Read in page for updating.
+				Page statsPage = getWikiPage(statsPageLoc);
+				
+				// Upload charts.
+				String[] filenames = gatherSiteStatisticsCharts(daysTracking, viewID, service);
+				
+				for (int i = 0; i < filenames.length; i++) {
+					String localFilename = filenames[i];
+					String wikiFilename = GAvisualStatsFilenames[i];
+					
+					Path path = Paths.get(localFilename);
+					PageLocation uploadTo = new PageLocation(wiki, wikiFilename);
+					
+					this.uploadFile(uploadTo, path, "Updating statistic.", "A wiki statistic chart.");
+					logInfo("Upload file " + localFilename + " to wiki " + wiki + ".");
+				}
+				
+				// Check that the GA page has all necessary images.
+				boolean hasImages = true;
+				ArrayList<Image> images = statsPage.getImagesRecursive();
+				int i = 0;
+				while (hasImages && i < GAvisualStatsFilenames.length) {
+					// Search page for image GAvisualStatsFilenames[i]
+					boolean hasImage = false;
+					String imageName = GAvisualStatsFilenames[i];
+					
+					for (Image image : images) {
+						if (image.getImageName().equals("File:" + imageName)) {
+							hasImage = true;
+						}
+					}
+					
+					if (!hasImage) {
+						// Image not found.
+						hasImages = false;
+					}
+					i++;
+				}
+				
+				if (!hasImages) {
+					// Missing image(s) detected. Replace section 1.
+					String sectionText = "== Site Statistics ==\n";
+					
+					for (String imageName : GAvisualStatsFilenames) {
+						sectionText += "[[File:" + imageName + "]]\n\n";
+					}
+					
+					EditSection command = new EditSection(statsPageLoc, 1, sectionText, "Editing statistics tracked.");
+					APIcommand(command);
+					logInfo("Edited statistics images on wiki " + wiki + ".");
+				}
+				
+				// Append popular pages.
+				PageViewTuple[] pvt = getPopularPages(topPageCount, viewID, service);
+				
+				String sectionText = "== Popular Pages ==\n"
+						+ "Note: Page view counts are for the most recent 30 day period.\n";
+				for (PageViewTuple tuple : pvt) {
+					if (tuple != null) {
+						if (tuple.name.contains(".php")) {
+							sectionText += "\n#  " + tuple.name + " (" + tuple.viewCount + " views)";
+						} else {
+							sectionText += "\n#  [[" + tuple.name + "]] (" + tuple.viewCount + " views)";
+						}
+					}
+				}
+				
+				EditSection command = new EditSection(statsPageLoc, 2, sectionText, "Updating popular pages.");
+				APIcommand(command);
+				logInfo("Updated popular pages on wiki " + wiki + ".");
 			}
 		}
 	}
 	
+	/**
+	 * Load the bot properties file. Contains username and password.
+	 */
 	public void loadPropFile() {
 		ArrayList<String> properties = new ArrayList<>();
 		properties.add("username");
@@ -311,10 +279,14 @@ public class GABot extends GenericBot {
 		password = values.get(1);
 	}
 	
-	public String readGAPageDefault() {
+	/**
+	 * Read in the default GA wiki page text.
+	 * @return
+	 */
+	public String readGApageDefault() {
 		String text = "";
 		
-		ArrayList<String> defaultTextArray = FileUtils.readFileAsList(defaultStatsFile, 0, false, false);
+		ArrayList<String> defaultTextArray = FileUtils.readFileAsList(defaultStatsPage, 0, false, false);
 		
 		for (String line : defaultTextArray) {
 			text += line + "\n";
@@ -323,13 +295,22 @@ public class GABot extends GenericBot {
 		return text;
 	}
 
-	private String[] outputSiteStatisticsCharts(int days, String viewID, AnalyticsReporting service) throws IOException, CloneNotSupportedException {
-		String[] filenames = new String[GAstatNames.length];
+	/***
+	 * From the given {@code service} and {@code viewID}, graph GAvisualStats for the past {@code days} days.
+	 * @param days Days to graph for.
+	 * @param viewID ViewID to collect stats on.
+	 * @param service Service with access to given viewID.
+	 * @return Filenames of graphs.
+	 * @throws IOException
+	 * @throws CloneNotSupportedException
+	 */
+	private String[] gatherSiteStatisticsCharts(int days, String viewID, AnalyticsReporting service) throws IOException, CloneNotSupportedException {
+		String[] filenames = new String[GAvisualStats.length];
 		
-		int[][] statData = getSiteStatisticsByDay(GAstatNames, days, viewID, service);
+		int[][] statData = getSiteStatisticsByDay(GAvisualStats, days, viewID, service);
 		
-		for (int i = 0; i < GAstatNames.length; i++) {
-			String statName = GAstatNames[i].substring(3);
+		for (int i = 0; i < GAvisualStats.length; i++) {
+			String statName = GAvisualStats[i].substring(3);
 			statName = statName.substring(0, 1).toUpperCase() + statName.substring(1);
 			int[] data = statData[i];
 			
@@ -340,11 +321,21 @@ public class GABot extends GenericBot {
 		return filenames;
 	}
 	
+	/**
+	 * Given {@code data}, where a stat {@code statName} is tracked for the past {@code days} days, graph it.
+	 * @param days The number of days the stat {@code statName} is tracked.
+	 * @param data The data.
+	 * @param statName The stat being tracked.
+	 * @return A filename of the graph.
+	 * @throws IOException
+	 * @throws CloneNotSupportedException
+	 */
 	private String outputSiteStatisticChart(int days, int[] data, String statName) throws IOException, CloneNotSupportedException {
-		// Generate our dataset.
+		// Generate the graph dataset.
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-		Calendar then = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin")); // For getting the date.
+		// Input data to dataset.
+		Calendar then = Calendar.getInstance(TimeZone.getTimeZone(timezone)); // For getting the date.
 		then.add(Calendar.DAY_OF_MONTH, -days); // Go to the beginning.
 		for (int datapoint : data) {
 			String date = new SimpleDateFormat("MMM dd").format(then.getTime());
@@ -352,15 +343,16 @@ public class GABot extends GenericBot {
 			then.add(Calendar.DAY_OF_MONTH, 1); // Advance a day.
 		}
 
+		// Create chart based on dataset.
 		JFreeChart lineChartObject = ChartFactory.createLineChart(
 		         statName,
 		         "","",
 		         dataset,
 		         PlotOrientation.VERTICAL,
 		         true,true,false);
-		lineChartObject.removeLegend();
+		lineChartObject.removeLegend(); // Annoying.
 
-		// Start configuring apperances.
+		// Start configuring appearances.
 		CategoryPlot plot = (CategoryPlot) lineChartObject.getPlot();	
 		plot.setDataset(1, dataset); // For area renderer.
 		
@@ -371,13 +363,13 @@ public class GABot extends GenericBot {
 		plot.setRangeGridlinesVisible(true);
 		
 		/*
-		 * JFreeChart wants labels to not overlap.
-		 * So we add padding to each label to reomve labels.
+		 * JFreeChart doesn't space y-axis labels nicely.
+		 * So we add padding to each label.
 		 */
 		NumberAxis range = (NumberAxis) plot.getRangeAxis();
 		range.setTickLabelInsets(new RectangleInsets(0, 0, 16, 0));
 		
-		// Alter marins. Category margin specifically messes with the area fill.
+		// Alter margins. Category margin specifically messes with the area fill.
 		CategoryAxis domain = plot.getDomainAxis();
 		domain.setCategoryMargin(0);
 		domain.setLowerMargin(-0.05); // Left margin
@@ -396,16 +388,15 @@ public class GABot extends GenericBot {
 		lineR.setSeriesPaint(0, new Color(5, 141, 199)); 
 		lineR.setSeriesStroke(0, new BasicStroke(4));
 		
-		// Markers
+		// Circle markers
 		((LineAndShapeRenderer) lineR).setSeriesShapesVisible(0, true);
-		int radius = 9;
-		lineR.setSeriesShape(0, new Ellipse2D.Double(-radius/2, -radius/2, radius, radius));
+		int diameter = 9;
+		lineR.setSeriesShape(0, new Ellipse2D.Double(-diameter/2, -diameter/2, diameter, diameter));
 		
-		// Set renderer
+		// Set dual renderers
 		plot.setRenderer(0, areaR);
 		plot.setRenderer(1, lineR);
 		plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
-		
 		
 		// Export!!
 		int width = GRAPH_WIDTH;    /* Width of the image */
@@ -502,6 +493,11 @@ public class GABot extends GenericBot {
 		return toReturn;
 	}
 	  
+	/**
+	 * A class for combining page name with its view count.
+	 * @author ErnieParke
+	 *
+	 */
 	static class PageViewTuple {
 		private PageViewTuple() {
 			  
@@ -512,7 +508,7 @@ public class GABot extends GenericBot {
 		    
 		@Override
 		public String toString(){
-			return name + ": " + viewCount + " views";
+			return name + " : " + viewCount + " views";
 		}
 	}
 	  
