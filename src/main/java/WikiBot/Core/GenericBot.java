@@ -164,7 +164,7 @@ public class GenericBot extends NetworkingBase {
 	public boolean doesPageExist(PageLocation loc) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		
-		return serverOutput.findValue("missing") == null; // If contains missing tag, the page is missing.
+		return serverOutput.findValue("missing") == null || serverOutput.findValue("invalid") == null; // If contains missing tag, the page is missing.
 	}
 	
 	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
@@ -1658,13 +1658,13 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		
-		//Follor the url!
+		//Follow the url!
 		try {
-			String[] output = getURL(url, command.shouldUnescapeHTML());
+			String output = removeBOM(EntityUtils.toString(getURL(url)));
 			if (output == null) {
 				throw new NetworkError("Cannot connect to server at: " + baseURL);
 			} else {
-				return ArrayUtils.compactArray(output, "\n");
+				return output;
 			}
 		} catch (IOException e) {
 			throw new Error(e);
