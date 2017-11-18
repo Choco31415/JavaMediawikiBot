@@ -1658,13 +1658,13 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		
-		//Follor the url!
+		//Follow the url!
 		try {
-			String[] output = getURL(url, command.shouldUnescapeHTML());
+			String output = removeBOM(EntityUtils.toString(getURL(url)));
 			if (output == null) {
 				throw new NetworkError("Cannot connect to server at: " + baseURL);
 			} else {
-				return ArrayUtils.compactArray(output, "\n");
+				return output;
 			}
 		} catch (IOException e) {
 			throw new Error(e);
