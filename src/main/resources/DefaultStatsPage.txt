@@ -1,0 +1,22 @@
+<!--Initialized-->
+{| style = "margin: 0 auto; float:right"
+! style = "padding:15px" | [[File:Gobo1.png|right|x120px]]
+
+|<center>Welcome to the international wiki statistics page! Here, you can see statistics for every international Scratch wiki. New data is added weekly.
+
+If there is an issue, please contact the [[User:{{User:InterwikiBot/Owner}}|bot's owner]].
+
+This code is made with the bot's [[User:InterwikiBot#Documentation#Java|Java framework]].
+
+All times are in the format: YYYY/MM/DD hh:mm</center>
+
+! style = "padding:15px" |[[File:Wiki.png|right|x120px]]
+|}
+
+== Definitions ==
+
+Are you wondering what some of the terms mean? Look below!
+
+* Article - A page that discusses Scratch content.
+* Active User - A user who has edited in the past 30 days.
+* Admin - A user with special administration rights.
