@@ -41,6 +41,11 @@ public class PageTitle {
 	}
 	
 	@Override
+    public int hashCode() {
+		return title.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return "\nPageTitle: " + title;
 	}

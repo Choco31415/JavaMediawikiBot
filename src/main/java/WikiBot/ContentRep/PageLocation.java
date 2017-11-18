@@ -63,6 +63,11 @@ public class PageLocation extends PageTitleContainer {
 	}
 	
 	@Override
+    public int hashCode() {
+		return lan.hashCode() + getTitle().hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return "PageLocation: " + lan + ": " + titleObject.getTitle();
 	}
