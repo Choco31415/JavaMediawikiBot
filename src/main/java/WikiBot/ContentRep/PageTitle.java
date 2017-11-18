@@ -29,6 +29,23 @@ public class PageTitle {
 	public String getTitleWithoutNameSpace() { return titleWithoutNameSpace; }
 	
 	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj.getClass().equals(PageLocation.class)) {
+			PageTitle pt = (PageTitle)obj;
+			return getTitle().substring(0).equalsIgnoreCase(pt.getTitle().substring(0));
+		}
+		return false;
+	}
+	
+	@Override
+    public int hashCode() {
+		return title.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return "\nPageTitle: " + title;
 	}
