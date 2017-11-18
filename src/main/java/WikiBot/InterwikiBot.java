@@ -57,7 +57,7 @@ public class InterwikiBot extends BotPanel {
 		 * The edit summary will be "This page needs an interwiki. ^.^ "
 		 * The bot GUI will show an edit summary of "Interwiki"
 		 */
-		PageLocation loc = new PageLocation("id", "Scratch");
+		PageLocation loc = new PageLocation("id", "Scfewfewratch");
 		Page page = getWikiPage(loc);
 		System.out.println(page);
 	}
