@@ -475,7 +475,7 @@ public class GenericBot extends NetworkingBase {
 			} else {
 				rccontinue = null;
 			}
-		} while (rccontinue != null && revisionsNeeded > 0);
+		} while (rccontinue != null && toReturn.size() < depth);
 		 
 		 return toReturn;
 	}
@@ -660,7 +660,7 @@ public class GenericBot extends NetworkingBase {
 			} else {
 				blcontinue = null;
 			}
-		} while (blcontinue != null && backlinksNeeded > 0);
+		} while (blcontinue != null && toReturn.size() < depth);
 		
 		return toReturn;
 	}
