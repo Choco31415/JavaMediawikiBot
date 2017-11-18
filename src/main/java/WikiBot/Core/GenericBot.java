@@ -351,7 +351,8 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
 		ArrayList<Revision> toReturn = new ArrayList<>();
 		
-		String serverOutput = APIcommand(new QueryPageRevisions(loc, Math.min(localRevisionDepth, APIlimit), getContent));
+		int revDepth = Math.min(localRevisionDepth, APIlimit);
+		String serverOutput = APIcommand(new QueryPageRevisions(loc, revDepth, getContent));
 		
 		
 		// Read in the Json!!!
@@ -416,7 +417,8 @@ public class GenericBot extends NetworkingBase {
 		
 		int revisionsNeeded = depth;
 		do {
-			int batchSize = Math.min(Math.min(30, APIlimit), revisionsNeeded);
+			revisionsNeeded = depth - toReturn.size();
+			int batchSize = Math.min(APIlimit, revisionsNeeded);
 			
 			//Make a query call.
 			String serverOutput;
@@ -465,8 +467,6 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(revision);
 			}
 			
-			revisionsNeeded -= batchSize;
-			
 			//Try continuing the query.
 			if (rootNode.findValue("rccontinue") != null) {
 				rccontinue = rootNode.findValue("rccontinue").asText();
@@ -475,7 +475,7 @@ public class GenericBot extends NetworkingBase {
 			} else {
 				rccontinue = null;
 			}
-		} while (rccontinue != null && revisionsNeeded != 0);
+		} while (rccontinue != null && revisionsNeeded > 0);
 		 
 		 return toReturn;
 	}
@@ -618,9 +618,10 @@ public class GenericBot extends NetworkingBase {
 		
 		logFine("Getting pages that link to: "  + loc.getTitle());
 		
-		int backlinksNeeded = depth;
+		int backlinksNeeded;
 		do {
 			//Make a query call.
+			backlinksNeeded = depth - toReturn.size();
 			int batchSize = Math.min(Math.min(30, APIlimit), backlinksNeeded);
 			
 			String serverOutput;
@@ -651,8 +652,6 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(backlinkLoc);
 			}
 			
-			backlinksNeeded -= batchSize;
-			
 			//Try continuing the query.
 			if (rootNode.findValue("blcontinue") != null) {
 				blcontinue = rootNode.findValue("blcontinue").asText();
@@ -661,7 +660,7 @@ public class GenericBot extends NetworkingBase {
 			} else {
 				blcontinue = null;
 			}
-		} while (blcontinue != null && backlinksNeeded != 0);
+		} while (blcontinue != null && backlinksNeeded > 0);
 		
 		return toReturn;
 	}
@@ -705,26 +704,28 @@ public class GenericBot extends NetworkingBase {
 		
 		do {
 			//Make query call.
+			int pagesNeeded = toReturn.size() - depth;
+			int batchSize = Math.min(APIlimit, pagesNeeded);
 			String serverOutput;
 			if (apnamespace == null) {
 				if (apcontinue == null) {
 					if (from != null) {
-						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, from));
+						serverOutput = APIcommand(new QueryAllPages(language, batchSize, from));
 					} else {
-						serverOutput = APIcommand(new QueryAllPages(language, APIlimit));
+						serverOutput = APIcommand(new QueryAllPages(language, batchSize));
 					}
 				} else {
-					serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apcontinue));
+					serverOutput = APIcommand(new QueryAllPages(language, batchSize, apcontinue));
 				}
 			} else {
 				if (apcontinue == null) {
 					if (from != null) {
-						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, from, apnamespace));
+						serverOutput = APIcommand(new QueryAllPages(language, batchSize, from, apnamespace));
 					} else {
-						serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apnamespace));
+						serverOutput = APIcommand(new QueryAllPages(language, batchSize, apnamespace));
 					}
 				} else {
-					serverOutput = APIcommand(new QueryAllPages(language, APIlimit, apcontinue, apnamespace));
+					serverOutput = APIcommand(new QueryAllPages(language, batchSize, apcontinue, apnamespace));
 				}
 			}
 			
@@ -757,7 +758,7 @@ public class GenericBot extends NetworkingBase {
 			} else {
 				apcontinue = null;
 			}
-		} while (apcontinue != null && toReturn.size() != depth);
+		} while (apcontinue != null && toReturn.size() < depth);
 		
 		return toReturn;
 	}
@@ -1206,17 +1207,12 @@ public class GenericBot extends NetworkingBase {
 			User user = users.get(u);
 			
 			//Query user's contributions.
-			int rev = 0;
 			boolean moreRevisionsExist = true;
 			String queryContinue = null; // User for continuing queries.
-			while (rev < depth && moreRevisionsExist) {
+			while (multiContribs.get(u).size() < depth && moreRevisionsExist) {
 				//Query the server.
-				int querySize = -1;
-				if (rev + maxQuerySize < depth) {
-					querySize = maxQuerySize;
-				} else {
-					querySize = depth - rev;
-				}
+				int querySize = Math.min(maxQuerySize, depth - multiContribs.get(u).size());
+
 				APIcommand queryUserContribs = new QueryUserContribs(user, properties, querySize);
 				if (queryContinue != null) {
 					queryUserContribs.addParameter("ucstart", queryContinue);
@@ -1236,8 +1232,6 @@ public class GenericBot extends NetworkingBase {
 				}
 				
 				//Parse Json for contribs
-				ArrayList<Revision> contribs = new ArrayList<Revision>();
-				
 				JsonNode queryNode = rootNode.findValue("query");
 				JsonNode userContribs = queryNode.findValue("usercontribs");
 				
@@ -1265,12 +1259,8 @@ public class GenericBot extends NetworkingBase {
 					}
 					
 					//Package and ship the revision! Then have it sink due to a bunyip and cucumber sandwiches.
-					contribs.add(new Revision(loc, userName, comment, date, flags));
+					multiContribs.get(u).add(new Revision(loc, userName, comment, date, flags));
 				}
-				
-				multiContribs.add(contribs);
-				
-				rev += querySize;
 				
 				//Parse for query continue
 				JsonNode queryContinueNode = rootNode.findValue("query-continue");
