@@ -1189,7 +1189,7 @@ public class GenericBot extends NetworkingBase {
 		logFine(userLogMessage);
 		
 		//Method code below
-		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<ArrayList<Revision>>();
+		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<>();
 		
 		String language = users.get(0).getLanguage();
 		
@@ -1207,6 +1207,7 @@ public class GenericBot extends NetworkingBase {
 			User user = users.get(u);
 			
 			//Query user's contributions.
+			multiContribs.add(new ArrayList<Revision>());
 			boolean moreRevisionsExist = true;
 			String queryContinue = null; // User for continuing queries.
 			while (multiContribs.get(u).size() < depth && moreRevisionsExist) {
