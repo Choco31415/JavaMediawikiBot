@@ -164,7 +164,7 @@ public class GenericBot extends NetworkingBase {
 	public boolean doesPageExist(PageLocation loc) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		
-		return serverOutput.findValue("missing") == null || serverOutput.findValue("invalid") == null; // If contains missing tag, the page is missing.
+		return serverOutput.findValue("missing") == null && serverOutput.findValue("invalid") == null; // If contains missing tag, the page is missing.
 	}
 	
 	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
