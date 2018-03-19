@@ -1,9 +1,9 @@
 [{"prefix": "de", "version": "1.26.3", "url": "https://scratch-dach.info/w"},
-{"prefix": "en", "version": "1.22.7", "url": "https://wiki.scratch.mit.edu/w"},
+{"prefix": "en", "version": "1.26.3", "url": "http://en.scratch-wiki.info/w"},
 {"prefix": "fr", "version": "1.26.3", "url": "https://fr.scratch-wiki.info/w"},
 {"prefix": "hu", "version": "1.26.3", "url": "https://hu.scratch-wiki.info/w"},
 {"prefix": "id", "version": "1.26.3", "url": "https://scratch-indo.info/w"},
 {"prefix": "ja", "version": "1.26.3", "url": "https://jp.scratch-wiki.info/w"},
 {"prefix": "nl", "version": "1.26.3", "url": "https://nl.scratch-wiki.info/w"},
 {"prefix": "ru", "version": "1.26.3", "url": "https://scratch-ru.info/w"},
-{"prefix": "test", "version": "1.25.3", "url": "https://test.scratch-wiki.info/w"}]
+{"prefix": "test", "version": "1.26.3", "url": "https://test.scratch-wiki.info/w"}]
