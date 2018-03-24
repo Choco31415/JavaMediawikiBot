@@ -582,6 +582,8 @@ public class GABot extends GenericBot {
 			    	String[] halves = path.split("wiki/");
 				    if (halves.length == 1) {
 				    	pvt.name = path;
+				    	
+				    	rowID++; // disabled
 				    	continue; // disabled
 				    } else {
 				    	pvt.name = halves[1];
