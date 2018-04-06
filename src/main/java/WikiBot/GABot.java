@@ -109,6 +109,7 @@ public class GABot extends GenericBot {
 		defaultStatsPage = "/GAPageDefault.txt";
 
 		wikiViews.put("de", "63671826");// wiki and its corresponding view id.
+		wikiViews.put("en", "172738445");
 		wikiViews.put("fr", "153835435");
 		wikiViews.put("hu", "153842565");
 		wikiViews.put("id", "153876466");
