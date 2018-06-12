@@ -1,5 +1,5 @@
 [{"prefix": "de", "version": "1.26.3", "url": "https://scratch-dach.info/w"},
-{"prefix": "en", "version": "1.26.3", "url": "http://en.scratch-wiki.info/w"},
+{"prefix": "en", "version": "1.26.3", "url": "https://en.scratch-wiki.info/w"},
 {"prefix": "fr", "version": "1.26.3", "url": "https://fr.scratch-wiki.info/w"},
 {"prefix": "hu", "version": "1.26.3", "url": "https://hu.scratch-wiki.info/w"},
 {"prefix": "id", "version": "1.26.3", "url": "https://scratch-indo.info/w"},
