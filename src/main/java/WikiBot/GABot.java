@@ -115,7 +115,7 @@ public class GABot extends GenericBot {
 		wikiViews.put("id", "153876466");
 		wikiViews.put("ja", "153760467");
 		wikiViews.put("nl", "153846344");
-		wikiViews.put("ru", "153914983");
+		wikiViews.put("ru", "154005849");
 		wikiViews.put("test", "150479279");
 		GAvisualStats = new String[]{"ga:pageviews", "ga:sessions"}; 
 		GAvisualStatsFilenames = new String[]{"InterwikiBot_GA_Pageviews.png", "InterwikiBot_GA_Sessions.png"}; 
