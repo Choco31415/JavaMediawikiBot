@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import WikiBot.Core.NetworkingBase;
-import WikiBot.Utils.ArrayUtils;
 import WikiBot.Utils.FileUtils;
 
 public class FamilyGenerator extends NetworkingBase {
@@ -192,7 +192,7 @@ public class FamilyGenerator extends NetworkingBase {
 			url = URLapi + "/api.php?action=query&meta=siteinfo&siprop=interwikimap&sifilteriw=local&format=json";
 		}
 		
-		String serverOutput = ArrayUtils.compactArray(getURL(url, true));
+		String serverOutput = removeBOM(EntityUtils.toString(getURL(url)));
 		serverOutput = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(serverOutput));
 		
 		// Read in the Json!!!
@@ -418,7 +418,7 @@ public class FamilyGenerator extends NetworkingBase {
 	 * @throws IOException
 	 */
 	private String getMWversion(String apiURL) throws IOException {
-		String serverOutput = ArrayUtils.compactArray(getURL(apiURL + "/api.php?action=query&meta=siteinfo&format=json", true));
+		String serverOutput = removeBOM(EntityUtils.toString(getURL(apiURL + "/api.php?action=query&meta=siteinfo&format=json")));
 		
 		// Read in the JSON!!!
 		ObjectMapper mapper = new ObjectMapper();

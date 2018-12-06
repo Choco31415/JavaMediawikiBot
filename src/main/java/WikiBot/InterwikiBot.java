@@ -20,60 +20,65 @@ import WikiBot.Core.BotPanel;
 
 @SuppressWarnings("unused")
 public class InterwikiBot extends BotPanel {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	public BufferPool<String, PLtoCG> downloadBuffer;
-	
+
 	int batchSize = 25;
 	
+	
+
 	private final class PLtoCG {
 		private ConnectionGraph cg;
 		private PageLocation pageLocation;
 	}
-	
+
 	/*
 	 * This is where I initialize my custom Mediawiki bot.
 	 */
 	public InterwikiBot() {
 		super("Scratch", "nl");
-		
-		//Preferences
+
+		// Preferences
 		setPanelName("InterwikiBot");
-		
+
 		botUsername = "InterwikiBot";
-		
-		APIlimit = batchSize;//The amount of items to get per query call, if there are multiple items.
-		getRevisions = false;//Don't get page revisions.
-		
-		APIthrottle = 0.5;//Minimum time between any API commands.
-		waitTimeBetweenProposedCommands = 12;//Minimum time between edits.
-		
-		setLoggerLevel(Level.FINE);//How fine should the logger be? Visit NetworkingBase.java for logger level info.
-		
+
+		APIlimit = batchSize;// The amount of items to get per query call, if
+								// there are multiple items.
+		getRevisions = false;// Don't get page revisions.
+
+		APIthrottle = 0.5;// Minimum time between any API commands.
+		waitTimeBetweenProposedCommands = 12;// Minimum time between edits.
+
+		setLoggerLevel(Level.FINE);// How fine should the logger be? Visit
+									// NetworkingBase.java for logger level
+									// info.
+
 		downloadBuffer = new BufferPool<>(batchSize);
 	}
-	
+
 	public static void main(String[] args) {
 		InterwikiBot bot = new InterwikiBot(); // Start GUI
 	}
-	
+
 	/*
 	 * This is where I put my bot code.
 	 */
 	@Override
 	public void code() {
 		String cursor = "!"; // Get pages starting from this point.
-		
+
 		ArrayList<PageLocation> allPages;
 		do {
 			// Get a batch of pages...
 			allPages = this.getAllPages(homeWikiLanguage, batchSize, cursor);
-			cursor = allPages.get(allPages.size()-1).getTitle();
-			
+			cursor = allPages.get(allPages.size() - 1).getTitle();
+
 			instantiateConnectionGraphs(allPages);
 			logInfo("Downloaded another batch.");
-			
+
 			// ... and process pages until we don't have enough buffer filled.
 			while (downloadBuffer.needsFlushed()) {
 				logInfo("Flushing buffer.");
@@ -83,7 +88,7 @@ public class InterwikiBot extends BotPanel {
 			}
 			logInfo("Finished processing pages so far.");
 		} while (allPages.size() >= batchSize);
-		
+
 		// Empty the buffer to finish processing.
 		while (!downloadBuffer.isEmpty()) {
 			String language = downloadBuffer.getLargestBufferKey();
@@ -91,20 +96,23 @@ public class InterwikiBot extends BotPanel {
 			processPages(buffer);
 		}
 	}
-	
+
 	/**
 	 * For each page location in {@code pls}, make a connection graph.
-	 * @param pls A series of page locations to make connection graphs for.
+	 * 
+	 * @param pls
+	 *            A series of page locations to make connection graphs for.
 	 */
 	public void instantiateConnectionGraphs(ArrayList<PageLocation> pls) {
 		try {
 			ArrayList<Page> pages = getWikiPages(pls);
-			
+
 			for (Page page : pages) {
 				// Process each page individually.
 				ConnectionGraph cg = new ConnectionGraph();
-				
-				// Look at the page's interwikis, and add them to the page's connection graph.
+
+				// Look at the page's interwikis, and add them to the page's
+				// connection graph.
 				ArrayList<Interwiki> interwikis = page.getInterwikis();
 				ArrayList<PageLocation> linksTo = new ArrayList<>();
 				for (Interwiki inter : interwikis) {
@@ -112,9 +120,9 @@ public class InterwikiBot extends BotPanel {
 						linksTo.add(inter.getPageLocation());
 					}
 				}
-				
+
 				cg.addPage(page.getPageLocation(), linksTo);
-				
+
 				// See which pages wee need to investigate, and add them.
 				for (PageLocation needed : cg.getNonincludedLinkedPages()) {
 					PLtoCG pc = new PLtoCG();
@@ -127,7 +135,7 @@ public class InterwikiBot extends BotPanel {
 			logError("Couldn't instantiate several graphs due to bad server API response.");
 		}
 	}
-	
+
 	public void processPages(Queue<PLtoCG> toProcess) {
 		// Download the pages.
 		ArrayList<PageLocation> pls = new ArrayList<>();
@@ -139,29 +147,32 @@ public class InterwikiBot extends BotPanel {
 		logInfo("Processing pages. Includes: " + pls.get(0));
 		ArrayList<Page> pages = getWikiPages(pls);
 		additionalProcessing(pages);
-		
+
 		for (int i = 0; i < pages.size(); i++) {
 			// Now process each page individually.
 			Page page = pages.get(i);
 			PageLocation originalLoc = page.getPageLocation();
-			
+
 			// If page is redirect, follow it.
 			while (page.getRawText().substring(0, 9).equals("#REDIRECT")) {
 				Link linkTo = page.getLinks().get(0);
 				page = getWikiPage(new PageLocation(page.getLanguage(), linkTo.getDestination()));
 			}
-			
+
 			for (PLtoCG pc : toProcess) {
-				// Check each PLtoCG to see which one generated this page request.
+				// Check each PLtoCG to see which one generated this page
+				// request.
 				if (pc.pageLocation.equals(page.getPageLocation()) | toProcess.size() == 1) {
-					ConnectionGraph cg = pc.cg; // The connection graph this page is a part of.
-					
+					ConnectionGraph cg = pc.cg; // The connection graph this
+												// page is a part of.
+
 					// If there have been redirects, mark them.
 					if (!originalLoc.equals(page.getPageLocation())) {
 						cg.markAsRedirect(originalLoc, page.getPageLocation());
 					}
-					
-					// Look at the page's interwikis, and add them to the page's connection graph.
+
+					// Look at the page's interwikis, and add them to the page's
+					// connection graph.
 					ArrayList<Interwiki> interwikis = page.getInterwikis();
 					ArrayList<PageLocation> linksTo = new ArrayList<>();
 					for (Interwiki inter : interwikis) {
@@ -169,9 +180,9 @@ public class InterwikiBot extends BotPanel {
 							linksTo.add(inter.getPageLocation());
 						}
 					}
-					
+
 					cg.addPage(page.getPageLocation(), linksTo);
-					
+
 					// See which pages wee need to investigate, and add them.
 					for (PageLocation needed : cg.getNonincludedLinkedPages()) {
 						PLtoCG pc2 = new PLtoCG();
@@ -179,8 +190,9 @@ public class InterwikiBot extends BotPanel {
 						pc2.pageLocation = needed;
 						downloadBuffer.addToBuffer(needed.getLanguage(), pc2);
 					}
-					
-					// Check if connection graph is completed. If yes, check for any editing needed.
+
+					// Check if connection graph is completed. If yes, check for
+					// any editing needed.
 					if (cg.isComplete()) {
 						System.out.println(cg);
 						processCompletedConnectionGraph(cg);
@@ -200,24 +212,24 @@ public class InterwikiBot extends BotPanel {
 			// Go to each incomplete page and append the missing interwikis.
 			ArrayList<PageLocation> incomplete = cg.getIncompletePages();
 			Set<PageLocation> knownPages = cg.getKnownPages();
-			
+
 			for (PageLocation pl : incomplete) {
 				String appendText = "";
 				ArrayList<PageLocation> linksTo = cg.getPageLinks(pl);
-				
+
 				for (PageLocation knownPage : knownPages) {
 					if (!linksTo.contains(knownPage) && knownPage.getLanguage() != pl.getLanguage()) {
 						appendText += "[[" + knownPage.getLanguage() + ":" + knownPage.getTitle() + "]]";
 					}
 				}
-				
+
 				APIcommand command = new AppendText(pl, appendText, "Adding interwikis.");
 				proposeEdit(command);
 			}
-			
+
 		}
 	}
-	
+
 	public void additionalProcessing(ArrayList<Page> pages) {
 		for (Page page : pages) {
 			if (page.getLanguage().equals("de")) {

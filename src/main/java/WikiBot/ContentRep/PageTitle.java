@@ -25,16 +25,29 @@ public class PageTitle {
 	}
 	
 	public String getTitle() { return title; }
+	public String getNormalizedTitle() { return nameSpace + ":" + titleWithoutNameSpace.substring(0, 1).toUpperCase() + titleWithoutNameSpace.substring(1).replace(" ", "_"); }
 	public String getNameSpace() { return nameSpace; }
 	public String getTitleWithoutNameSpace() { return titleWithoutNameSpace; }
 	
 	@Override
-	public String toString() {
-		return "PageTitle: " + title;
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj.getClass().equals(PageTitle.class)) {
+			PageTitle pt = (PageTitle)obj;
+			return getNormalizedTitle().equals(pt.getNormalizedTitle());
+		}
+		return false;
 	}
 	
 	@Override
-	public int hashCode() {
-		return toString().hashCode();
+    public int hashCode() {
+		return getNormalizedTitle().hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return "PageTitle: " + getNormalizedTitle();
 	}
 }

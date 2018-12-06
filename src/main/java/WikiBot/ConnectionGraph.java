@@ -87,14 +87,12 @@ public class ConnectionGraph {
 	}
 	
 	public void markAsRedirect(PageLocation from, PageLocation to) {
-		if (unknownPages.contains(from) && !knownPagesToLinks.keySet().contains(to)) {
+		if (unknownPages.contains(from) && !knownPagesToLinks.keySet().contains(to) && !unknownPages.contains(to)) {
 			unknownPages.add(to);
 		}
-		while (unknownPages.contains(from)) {
-			// Remove all of the redirect.
+		if (unknownPages.contains(from)) {
 			unknownPages.remove(from);
 		}
-		
 		
 		for (ArrayList<PageLocation> linksTo : knownPagesToLinks.values()) {
 			// Check each known page's links.			

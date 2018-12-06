@@ -1,9 +1,12 @@
 package WikiBot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+
+import WikiBot.ContentRep.PageLocation;
 
 public class BufferPool<U, V> {
 	Map<U, Queue<V>> bufferPool;
@@ -105,4 +108,25 @@ public class BufferPool<U, V> {
 	public boolean contains(U key, V value) {
 		return bufferPool.containsKey(key) && bufferPool.get(key).contains(value);
 	}
+	
+//	@Override
+//	public String toString() {
+//		String toReturn = "BufferPool\n";
+//		for (PageLocation page : knownPagesToLinks.keySet()) {
+//			// Get this page.
+//			ArrayList<PageLocation> linksTo = knownPagesToLinks.get(page);
+//			
+//			// Format this page
+//			toReturn += page + " -> ";
+//			for (PageLocation link : linksTo) {
+//				toReturn += link + ",";
+//			}
+//			toReturn += "\n";
+//		}
+//		toReturn += "unknown -> ";
+//		for (PageLocation unknown : unknownPages) {
+//			toReturn += unknown + ", ";
+//		}
+//		return toReturn;
+//	}
 }

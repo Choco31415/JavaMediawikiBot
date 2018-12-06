@@ -1,10 +1,6 @@
 package WikiBot.Core;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -14,21 +10,31 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
@@ -65,9 +71,53 @@ public class NetworkingBase extends javax.swing.JPanel {
 	//Special characters.
 	private static final String UTF8_BOM = "\uFEFF";
 	
+		// One-off SSL trust manager class.
+		public class HttpsTrustManager implements X509TrustManager {
+			@Override
+			public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+				// TODO Auto-generated method stub
+				
+			}
+	
+			@Override
+			public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+				// TODO Auto-generated method stub
+				
+			}
+	
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				// TODO Auto-generated method stub
+				return new X509Certificate[]{};
+			}
+	
+		}
+	
+	private void setupSSLclient() {
+		// Handle SSL
+		SSLContext sslcontext = null;
+		SSLConnectionSocketFactory factory = null;
+
+			
+			try {
+				sslcontext = SSLContexts.custom().useProtocol("SSL").build();
+				sslcontext.init(null, new X509TrustManager[]{new HttpsTrustManager()}, new SecureRandom());
+		        factory = new SSLConnectionSocketFactory(sslcontext, new NoopHostnameVerifier());
+			} catch (KeyManagementException | NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				logError("Could not create SSL context. Entering fail state.");
+				throw new Error(e.getMessage());
+			}
+
+
+			    
+		// Create client and context for web stuff.
+		httpclient = HttpClientBuilder.create().setSSLSocketFactory(factory).build();
+	}
+		
 	//Instantiation.
 	public NetworkingBase() {
-		httpclient = HttpClientBuilder.create().build();
+		setupSSLclient();
 		context =  HttpClientContext.create();
 	}
 	
@@ -187,38 +237,22 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @param ur The url you want to get.
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: & #039;
 	 */
-	protected String[] getURL(String ur, boolean unescapeHTML4) throws IOException {
+	protected HttpEntity getURL(String ur) throws IOException {
 		logFiner("Loading: " + ur);
+	  		
+  		//This method actual fetches a web page, and turns it into a more easily use-able format.		  		//This method actual fetches a web page, and turns it into a more easily use-able format.
+		HttpResponse response = null;
+	 	HttpGet httpost = new HttpGet(ur);
 		
-		//This method actual fetches a web page, and turns it into a more easily use-able format.
-        URL oracle = null;
+		// Fetch the url.
 		try {
-			oracle = new URL(ur);
-		} catch (MalformedURLException e) {
-			System.err.println(e.getMessage());
+			response = httpclient.execute(httpost, context);
+		} catch (SocketException|NoHttpResponseException e) {
+			throw new NetworkError("Cannot connect to server at: " + ur);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-
-		BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(oracle.openStream(), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-        	logError("Connection cannot be opened.");
-        	return null;
-        }
-        
-        ArrayList<String> page = new ArrayList<String>();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-        	if (unescapeHTML4) {
-        		inputLine = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(inputLine));
-        	}
-        	inputLine = removeBOM(inputLine);
-        	
-            page.add(inputLine);
-        }
-        in.close();
-        
-        return page.toArray(new String[page.size()]);
+		return response.getEntity();
 	}
 
 	/*

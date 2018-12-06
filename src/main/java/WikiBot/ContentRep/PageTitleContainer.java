@@ -18,6 +18,10 @@ public abstract class PageTitleContainer {
 		return titleObject.getTitle();
 	}
 	
+	public String getNormalizedTitle() {
+		return titleObject.getNormalizedTitle();
+	}
+	
 	public PageTitle getTitleObject() {
 		return titleObject;
 	}
