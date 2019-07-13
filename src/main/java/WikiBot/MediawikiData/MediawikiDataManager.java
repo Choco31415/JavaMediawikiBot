@@ -121,7 +121,6 @@ public class MediawikiDataManager {
 	}
 	
 	public String getWikiURL(String wikiPrefix) {
-		System.out.println(wikiPrefix);
 		int index = WikiPrefix.indexOf(wikiPrefix);
 		
 		return WikiURL.get(index);
