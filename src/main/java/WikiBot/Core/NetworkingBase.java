@@ -98,18 +98,15 @@ public class NetworkingBase extends javax.swing.JPanel {
 		SSLContext sslcontext = null;
 		SSLConnectionSocketFactory factory = null;
 
-			
-			try {
-				sslcontext = SSLContexts.custom().useProtocol("SSL").build();
-				sslcontext.init(null, new X509TrustManager[]{new HttpsTrustManager()}, new SecureRandom());
-		        factory = new SSLConnectionSocketFactory(sslcontext, new NoopHostnameVerifier());
-			} catch (KeyManagementException | NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				logError("Could not create SSL context. Entering fail state.");
-				throw new Error(e.getMessage());
-			}
-
-
+		try {
+			sslcontext = SSLContext.getInstance("TLSv1.2");
+			sslcontext.init(null, new X509TrustManager[]{new HttpsTrustManager()}, new SecureRandom());
+	        factory = new SSLConnectionSocketFactory(sslcontext, new NoopHostnameVerifier());
+		} catch (KeyManagementException | NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			logError("Could not create SSL context. Entering fail state.");
+			throw new Error(e.getMessage());
+		}
 			    
 		// Create client and context for web stuff.
 		httpclient = HttpClientBuilder.create().setSSLSocketFactory(factory).build();
@@ -118,7 +115,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	//Instantiation.
 	public NetworkingBase() {
 		setupSSLclient();
-		context =  HttpClientContext.create();
+		context = HttpClientContext.create();
 	}
 	
 	/*

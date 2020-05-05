@@ -94,7 +94,7 @@ public class BufferPool<U, V> {
 	 * @param key The buffer's key.
 	 * @return The buffer associated with {@code key}.
 	 */
-	public Queue<V> flushPool(String key) {
+	public Queue<V> flushPool(U key) {
 		return bufferPool.remove(key);
 	}
 	

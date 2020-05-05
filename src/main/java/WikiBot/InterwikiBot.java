@@ -17,6 +17,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import WikiBot.APIcommands.*;
 import WikiBot.ContentRep.*;
 import WikiBot.Core.BotPanel;
+import WikiBot.MediawikiData.MediawikiDataManager;
 
 @SuppressWarnings("unused")
 public class InterwikiBot extends BotPanel {
@@ -26,8 +27,6 @@ public class InterwikiBot extends BotPanel {
 	public BufferPool<String, PLtoCG> downloadBuffer;
 
 	int batchSize = 25;
-	
-	
 
 	private final class PLtoCG {
 		private ConnectionGraph cg;
@@ -55,8 +54,6 @@ public class InterwikiBot extends BotPanel {
 		setLoggerLevel(Level.FINE);// How fine should the logger be? Visit
 									// NetworkingBase.java for logger level
 									// info.
-
-		downloadBuffer = new BufferPool<>(batchSize);
 	}
 
 	public static void main(String[] args) {
@@ -67,33 +64,50 @@ public class InterwikiBot extends BotPanel {
 	 * This is where I put my bot code.
 	 */
 	@Override
-	public void code() {
-		String cursor = "!"; // Get pages starting from this point.
-
-		ArrayList<PageLocation> allPages;
-		do {
-			// Get a batch of pages...
-			allPages = this.getAllPages(homeWikiLanguage, batchSize, cursor);
-			cursor = allPages.get(allPages.size() - 1).getTitle();
-
-			instantiateConnectionGraphs(allPages);
-			logInfo("Downloaded another batch.");
-
-			// ... and process pages until we don't have enough buffer filled.
-			while (downloadBuffer.needsFlushed()) {
-				logInfo("Flushing buffer.");
+	public void code() {		
+		for (String wikiToProcess: MediawikiDataManager.instance.getWikiPrefixes()) {
+			logInfo("Starting scan of all articles for wiki " + wikiToProcess + ".");
+			
+			String cursor = "" + ((char) 0); // Get pages starting from this point.
+			ArrayList<PageLocation> allPages;
+			downloadBuffer = new BufferPool<>(batchSize);
+			
+			do {
+				// Get a batch of pages...
+				allPages = this.getAllPages(wikiToProcess, batchSize, cursor);
+				if (allPages == null) {
+					// Handle error gracefully, hate for program to crash half way through
+					logError("Could not download batch. Logging error, moving on.");
+					Level prevLogLevel = logLevel;
+					setLoggerLevel(Level.FINEST);
+					allPages = this.getAllPages(wikiToProcess, batchSize, cursor);
+					setLoggerLevel(prevLogLevel);
+				} else {
+					// Process batch
+					cursor = allPages.get(allPages.size() - 1).getTitle();
+		
+					instantiateConnectionGraphs(allPages);
+					logInfo("Downloaded a new batch.");
+		
+					// ... and process pages until we don't have enough buffer filled.
+					while (downloadBuffer.needsFlushed()) {
+						logInfo("Flushing buffer.");
+						String language = downloadBuffer.getLargestBufferKey();
+						Queue<PLtoCG> buffer = downloadBuffer.flushPool(language);
+						processPages(buffer);
+					}
+				}
+				logInfo("Finished processing pages so far.");
+			} while (allPages != null && allPages.size() >= batchSize);
+	
+			// Empty the buffer to finish processing.
+			while (!downloadBuffer.isEmpty()) {
 				String language = downloadBuffer.getLargestBufferKey();
 				Queue<PLtoCG> buffer = downloadBuffer.flushPool(language);
 				processPages(buffer);
 			}
-			logInfo("Finished processing pages so far.");
-		} while (allPages.size() >= batchSize);
-
-		// Empty the buffer to finish processing.
-		while (!downloadBuffer.isEmpty()) {
-			String language = downloadBuffer.getLargestBufferKey();
-			Queue<PLtoCG> buffer = downloadBuffer.flushPool(language);
-			processPages(buffer);
+			
+			logInfo("Finished scanning all articles for wiki " + wikiToProcess + ".");
 		}
 	}
 
@@ -124,7 +138,7 @@ public class InterwikiBot extends BotPanel {
 				cg.addPage(page.getPageLocation(), linksTo);
 
 				// See which pages wee need to investigate, and add them.
-				for (PageLocation needed : cg.getNonincludedLinkedPages()) {
+				for (PageLocation needed : cg.pagesToDownload()) {
 					PLtoCG pc = new PLtoCG();
 					pc.cg = cg;
 					pc.pageLocation = needed;
@@ -184,7 +198,7 @@ public class InterwikiBot extends BotPanel {
 					cg.addPage(page.getPageLocation(), linksTo);
 
 					// See which pages wee need to investigate, and add them.
-					for (PageLocation needed : cg.getNonincludedLinkedPages()) {
+					for (PageLocation needed : cg.pagesToDownload()) {
 						PLtoCG pc2 = new PLtoCG();
 						pc2.cg = cg;
 						pc2.pageLocation = needed;

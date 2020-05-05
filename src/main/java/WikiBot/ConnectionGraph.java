@@ -8,12 +8,12 @@ import java.util.Set;
 import WikiBot.ContentRep.PageLocation;
 
 public class ConnectionGraph {
-	Map<PageLocation, ArrayList<PageLocation>> knownPagesToLinks;
+	Map<PageLocation, ArrayList<PageLocation>> knownConnections;
 	ArrayList<PageLocation> unknownPages;
 	boolean hasOverlappingLanguages = false;
 	
 	public ConnectionGraph() {
-		knownPagesToLinks = new HashMap<>();
+		knownConnections = new HashMap<>();
 		unknownPages = new ArrayList<>();
 	}
 	
@@ -23,16 +23,17 @@ public class ConnectionGraph {
 	 * @param connections
 	 */
 	public void addPage(PageLocation pl, ArrayList<PageLocation> linksTo) {
-		if (!knownPagesToLinks.keySet().contains(pl)) {
-			// Check if page overlaps with others
-			for (PageLocation knownPage : knownPagesToLinks.keySet()) {
+		// Avoid duplicate add
+		if (!knownConnections.keySet().contains(pl)) {
+			// Check if page language overlaps with others
+			for (PageLocation knownPage : knownConnections.keySet()) {
 				if (pl.getLanguage().equals(knownPage.getLanguage())) {
 					hasOverlappingLanguages = true;
 				}
 			}
 			
 			// Add the page to our graph.
-			knownPagesToLinks.put(pl, linksTo);
+			knownConnections.put(pl, linksTo);
 			
 			// Remove page from unknown.
 			if (unknownPages.contains(pl)) {
@@ -41,7 +42,7 @@ public class ConnectionGraph {
 			
 			// Add unknown connections.
 			for (PageLocation connection : linksTo) {
-				if (!knownPagesToLinks.keySet().contains(connection)) {
+				if (!knownConnections.keySet().contains(connection)) {
 					if (!unknownPages.contains(connection)) {
 						unknownPages.add(connection);
 					}
@@ -51,10 +52,10 @@ public class ConnectionGraph {
 	}
 	
 	/**
-	 * Returns a linked to page that is not yet included in this graph.
+	 * Returns a list of pages missing data in the ConnectionGraph.
 	 * @return
 	 */
-	public ArrayList<PageLocation> getNonincludedLinkedPages() {
+	public ArrayList<PageLocation> pagesToDownload() {
 		return unknownPages;
 	}
 	
@@ -79,22 +80,22 @@ public class ConnectionGraph {
 	 * @return The known pages.
 	 */
 	public Set<PageLocation> getKnownPages() {
-		return knownPagesToLinks.keySet();
+		return knownConnections.keySet();
 	}
 	
 	public ArrayList<PageLocation> getPageLinks(PageLocation pl) {
-		return knownPagesToLinks.get(pl);
+		return knownConnections.get(pl);
 	}
 	
 	public void markAsRedirect(PageLocation from, PageLocation to) {
-		if (unknownPages.contains(from) && !knownPagesToLinks.keySet().contains(to) && !unknownPages.contains(to)) {
+		if (unknownPages.contains(from) && !knownConnections.keySet().contains(to) && !unknownPages.contains(to)) {
 			unknownPages.add(to);
 		}
 		if (unknownPages.contains(from)) {
 			unknownPages.remove(from);
 		}
 		
-		for (ArrayList<PageLocation> linksTo : knownPagesToLinks.values()) {
+		for (ArrayList<PageLocation> linksTo : knownConnections.values()) {
 			// Check each known page's links.			
 			if (linksTo.contains(from)) {
 				linksTo.remove(from);
@@ -110,11 +111,11 @@ public class ConnectionGraph {
 	public ArrayList<PageLocation> getIncompletePages() {
 		ArrayList<PageLocation> incomplete = new ArrayList<>();
 		
-		for (PageLocation page : knownPagesToLinks.keySet()) {
+		for (PageLocation page : knownConnections.keySet()) {
 			// Check each known page.
-			ArrayList<PageLocation> linksTo = knownPagesToLinks.get(page);
+			ArrayList<PageLocation> linksTo = knownConnections.get(page);
 			
-			if (linksTo.size() < knownPagesToLinks.size() - 1) {
+			if (linksTo.size() < knownConnections.size() - 1) {
 				// This page does not have all possible links.
 				incomplete.add(page);
 			}
@@ -126,9 +127,9 @@ public class ConnectionGraph {
 	@Override
 	public String toString() {
 		String toReturn = "Connection Graph\n";
-		for (PageLocation page : knownPagesToLinks.keySet()) {
+		for (PageLocation page : knownConnections.keySet()) {
 			// Get this page.
-			ArrayList<PageLocation> linksTo = knownPagesToLinks.get(page);
+			ArrayList<PageLocation> linksTo = knownConnections.get(page);
 			
 			// Format this page
 			toReturn += page + " -> ";
