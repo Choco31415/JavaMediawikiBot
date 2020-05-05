@@ -36,3 +36,8 @@ dependencies {
     compile group: 'org.jfree', name: 'jfreechart', version: '1.0.19'
     testCompile 'junit:junit:4.+'
 }
+
+task copyDependencies(type: Copy) {
+   from configurations.compile   
+   into 'dependencies'
+}
