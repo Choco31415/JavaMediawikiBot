@@ -975,7 +975,7 @@ public class GenericBot extends NetworkingBase {
 	 * Also, banned and invalid user will be returned as null.
 	 * 
 	 * Warning: Only supported in MW v.1.12 and above!
-	 * @param loc The pageLocation of the file.
+	 * @param user The user to check on.
 	 * @param propertyNames The list of properties you are querying for.
 	 * @return An ArrayList of ImageInfo
 	 */

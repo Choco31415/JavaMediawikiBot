@@ -1,82 +1,84 @@
+[![Discord Profile](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://www.discordapp.com/users/244908008155512832)
+
 ## Description
 
-JavaMediawikiBot (JMB) is a bot designed to interface with MediaWiki (MW).
-It communicates with MediaWiki through the web API. JMB also optionally parses
-MW pages into its various core components.
+JavaMediawikiBot is a JAva library meant for interfacing with the Mediawiki web API.
+
+The library comes with an experimental, if thoroughly tested, page parser and editor.
 
 ## Set Up
 
-To set up JavaMediawikiBot for an IDE, run `./gradlew eclipse` or `./gradlew idea`.
+All bots requires some setup in order to run properly.
 
-### Making a Wiki Family
+First import the JMB library:
 
-A wiki family is a group of wikis that a bot knows about, and hence can edit. It also stores wiki specific information.
+```
+import JMB # TODO
+```
 
-To make a new wiki family, simply run `src/WikiBot/MediawikiData/FamilyGenerator.java`.
-This can be done via your IDE (console required), or through the command line:
+Then create a bot instance:
 
-`./gradlew run -Pmain=WikiBot.MediawikiData.FamilyGenerator -q`
+```
+jmb.createInstance(); # TODO
+```
 
-### Making a Bot
+All code and operations will be done through this bot instance.
 
-To create a Mediawiki bot, create a Java class. It will need to extend either one of
-these two classes:
+Next, the bot needs to know which sites it will be working with as well as their associated data. To do that, run the following code:
 
-`src/WikiBot/core/GenericBot.java`
+```
+jmb.readFamily("src/familyFile.txt"); # TODO
+```
 
-* Extending this class gives access to a plethora of methods for interfacing with Mediawiki.
+For convenience, each bot also requires that a home wiki is specified:
 
-`src/WikiBot/core/BotPanel.java`
+```
+jmb.setHome("en"); # TODO
+```
 
-* Extending this class gives access to GenericBot's methods, plus a GUI for better control of the bot's edit flow. Please note, the bot's main method will have to instantiate itself for the GUI to appear. See `InterwikiBot.java` for an example.
+### Mediawiki Families
 
-When extending a class, the constructor must include either:
+Mediawiki families provide the backbone for interacting with a group of mediawikis. At it's core, a file stores the mediawiki abbreviation, the mediawiki API location, and the mediawiki version.
 
-`super(String family, String homeWikiLanguage)`
 
-`super(File family, String homeWikiLanguage)`
+To generate a mediawiki family, or borrow a pre generated family, see the [JMBFamilyGenerator repo](). # TODO Insert Link
 
-`family` specifies a wiki family file. A bot may then access the wikis in the family file. A String `family` refers to a default included wiki family, and must be "Scratch", "DwarfFortress", or "Wikipedia". A File `family` must point to a local wiki family file.
-
-`homeWikiLanguage` specifies the default wiki of a bot.
-
-### Coding the bot.
+## Coding a Bot
 
 JavaMediawikiBot offers two ways to accomplish what you want.
 
-GenericBot methods are abstractions of the Mediawiki API, and are mostly for querying data.
+Most methods are abstractions of the Mediawiki API, and are mostly for querying data.
 
 APIcommand classes are also abstractions to the Mediawiki API, and are meant to be used as
 Objects. For example:
 
 ```
-APIcommand command = new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki. ^.^ ");
-proposeEdit(command); // Propose command for later review, requires GUI.
+APIcommand command = new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
 APIcommand(command); // Push the command now.
 ```
 
 Half of the API commands are recommended used raw, half are not. This can be checked in the command's class documentation. If not recommended used raw, use GenericBot methods instead.
 
-## Examples
+### Customization
 
-One example bot is included in the project, and it is called `InterwikiBot.java`.
+Each bot can be customized in several different ways. These include:
+
+```
+jmb.
+```
+
+### GUI
+
+JavaMediawikiBot comes with a optional, built in GUI. To enable it, run the following command:
+
+```
+bot.enableGUI(); # TODO Update
+```
+
+The GUI will look like below:
+
+[] #TODO Add image.
 
 ## Contributing
 
-To contribute, make an issue or a pull request! In each Pull Request, make sure to include the situations under which your code was tested.
-
-### Project Tree
-
-Useful bot methods and bot settings may be found in various places.
-
-`src/WikiBot/core/GenericBot.java`
-
-* For bot methods.
-
-`src/WikiBot/core/BotPanel.java`
-
-* For GUI methods.
-
-`src/WikiBot/core/NetworkingBase.java`
-
-* For logging + networking methods.
+Every contribution is welcome! If you are interested in helping out, please submit an issue or pull request.

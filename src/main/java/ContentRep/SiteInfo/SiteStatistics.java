@@ -27,7 +27,7 @@ public class SiteStatistics extends InfoContainer {
 	 * @return
 	 */
 	public boolean hasNumPages() { return hasProperty("pages"); }
-	public int getNumPages() { return new Integer(getValue("pages")); }
+	public int getNumPages() { return Integer.parseInt(getValue("pages")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of articles,
@@ -35,42 +35,42 @@ public class SiteStatistics extends InfoContainer {
 	 * @return
 	 */
 	public boolean hasNumArticle() { return hasProperty("articles"); }
-	public int getNumArticles() { return new Integer(getValue("articles")); }
+	public int getNumArticles() { return Integer.parseInt(getValue("articles")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of edits.
 	 * @return
 	 */
 	public boolean hasNumEdits() { return hasProperty("edits"); }
-	public int getNumEdits() { return new Integer(getValue("edits")); }
+	public int getNumEdits() { return Integer.parseInt(getValue("edits")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of images.
 	 * @return
 	 */
 	public boolean hasNumImages() { return hasProperty("images"); }
-	public int getNumImages() { return new Integer(getValue("images")); }
+	public int getNumImages() { return Integer.parseInt(getValue("images")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of users.
 	 * @return
 	 */
 	public boolean hasNumUsers() { return hasProperty("users"); }
-	public int getNumUsers() { return new Integer(getValue("users")); }
+	public int getNumUsers() { return Integer.parseInt(getValue("users")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of active users.
 	 * @return
 	 */
 	public boolean hasNumActiveUsers() { return hasProperty("activeusers"); }
-	public int getNumActiveUsers() { return new Integer(getValue("activeusers")); }
+	public int getNumActiveUsers() { return Integer.parseInt(getValue("activeusers")); }
 	
 	/**
 	 * Use this method to see if this SiteStatistics contains the number of active users.
 	 * @return
 	 */
 	public boolean hasNumAdmins() { return hasProperty("admins"); }
-	public int getNumAdmins() { return new Integer(getValue("admins")); }
+	public int getNumAdmins() { return Integer.parseInt(getValue("admins")); }
 	
 	@Override
 	public String toString() {

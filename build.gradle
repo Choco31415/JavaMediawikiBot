@@ -25,14 +25,15 @@ repositories {
 }
 
 dependencies {
-	compile 'com.fasterxml.jackson.core:jackson-core:2.8.0'
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.0'
-    compile 'org.apache.commons:commons-lang3:3.4'
+	compile 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    compile 'org.apache.commons:commons-lang3:3.14.0'
+    compile 'org.apache.commons:commons-text:1.11.0'
     compile 'commons-logging:commons-logging:1.2'
-    compile 'org.apache.httpcomponents:httpcore:4.4.4'
-	compile 'org.apache.httpcomponents:httpmime:4.5.2'
-	compile 'com.google.http-client:google-http-client-gson:1.19.0'
-    compile 'com.google.apis:google-api-services-analyticsreporting:v4-rev112-1.22.0'
-    compile group: 'org.jfree', name: 'jfreechart', version: '1.0.19'
+    compile 'org.apache.httpcomponents.core5:httpcore5:5.2.4'
+	compile 'org.apache.httpcomponents:httpmime:4.5.14'
+	compile 'com.google.http-client:google-http-client-gson:1.43.0'
+    compile 'com.google.apis:google-api-services-analyticsreporting:v4-rev174-1.25.0'
+    compile group: 'org.jfree', name: 'jfreechart', version: '1.5.4'
     testCompile 'junit:junit:4.+'
 }

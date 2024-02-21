@@ -32,7 +32,7 @@ public class FileUtils {
 	 * Read in a text file.
 	 * @param path The path to the file.
 	 * @param commentBufferLineCount How many lines to ignore at the beginning of the file.
-	 * @param hasComments If true, a line that starts with # is considered a comment, and hence is ignored.
+	 * @param hasComments If true, a line that starts with @commentHeader is ignored.
 	 * @param commentHeader The header of a comment.
 	 * @param ignoreBlankLines If true, blank lines are ignored.
 	 * @return The text file.

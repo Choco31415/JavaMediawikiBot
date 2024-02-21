@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -30,6 +31,7 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -100,9 +102,9 @@ public class NetworkingBase extends javax.swing.JPanel {
 
 			
 			try {
-				sslcontext = SSLContexts.custom().useProtocol("SSL").build();
+				sslcontext = SSLContext.getInstance("TLSv1.2");
 				sslcontext.init(null, new X509TrustManager[]{new HttpsTrustManager()}, new SecureRandom());
-		        factory = new SSLConnectionSocketFactory(sslcontext, new NoopHostnameVerifier());
+		        factory = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1", "TLSv1.1", "TLSv1.2"  }, null, new NoopHostnameVerifier());
 			} catch (KeyManagementException | NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				logError("Could not create SSL context. Entering fail state.");
@@ -309,28 +311,41 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @return
 	 */
 	public int getResponseCode(String url) {
-        URL oracle = null;
-		try {
-			oracle = new URL(url);
-		} catch (MalformedURLException e) {
-			System.err.println(e.getMessage());
-		}
+  		//This method actual fetches a web page, and returns the response code.
+		HttpResponse response = null;
+	 	HttpHead httpost = new HttpHead(url);
 		
+		// Fetch the url.
 		try {
-			//Send a HEAD request. This is super fast way to just check if a page exists or not.
-			HttpURLConnection huc = (HttpURLConnection) oracle.openConnection();
-			huc.setRequestMethod("HEAD");
-			
-			return huc.getResponseCode();
-		} catch (UnknownHostException e) {
-			logError("Unkown host: " + url);
-			return 401;
-		} catch (SSLHandshakeException e) {
-			return 401;
-		} catch (Throwable e) {
+			response = httpclient.execute(httpost, context);
+		} catch (SocketException|NoHttpResponseException e) {
+			throw new NetworkError("Cannot connect to server at: " + url);
+		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Error("Something went wrong");
 		}
+		return response.getStatusLine().getStatusCode();
+//        URL oracle = null;
+//		try {
+//			oracle = URI.create(url).toURL();
+//		} catch (MalformedURLException e) {
+//			System.err.println(e.getMessage());
+//		}
+//		
+//		try {
+//			//Send a HEAD request. This is super fast way to just check if a page exists or not.
+//			HttpURLConnection huc = (HttpURLConnection) oracle.openConnection();
+//			huc.setRequestMethod("HEAD");
+//			
+//			return huc.getResponseCode();
+//		} catch (UnknownHostException e) {
+//			logError("Unkown host: " + url);
+//			return 401;
+//		} catch (SSLHandshakeException e) {
+//			return 401;
+//		} catch (Throwable e) {
+//			e.printStackTrace();
+//			throw new Error("Something went wrong");
+//		}
 	}
 	
 	public String URLencode(String url) {

@@ -66,7 +66,7 @@ public class UserInfo extends InfoContainer {
 	 * @return
 	 */
 	public boolean hasEditCount() { return hasProperty("editcount"); }
-	public int getEditCount() { return new Integer(getValue("editcount")); }
+	public int getEditCount() { return Integer.parseInt(getValue("editcount")); }
 	
 	/**
 	 * Use this method to see if this UserInfo contains information on a user's registration date and time.
@@ -80,7 +80,7 @@ public class UserInfo extends InfoContainer {
 	 * @return
 	 */
 	public boolean hasEmailable() { return hasProperty("emailable"); }
-	public boolean getEmailable() { return new Boolean(getValue("emailable")); }
+	public boolean getEmailable() { return Boolean.parseBoolean(getValue("emailable")); }
 	
 	/**
 	 * Use this method to see if this UserInfo contains information on a user's gender.
