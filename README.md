@@ -36,12 +36,12 @@ For convenience, each bot also requires that a home wiki is specified:
 jmb.setHome("en"); # TODO
 ```
 
-### Mediawiki Families
+## Mediawiki Families
 
 Mediawiki families provide the backbone for interacting with a group of mediawikis. At it's core, a file stores the mediawiki abbreviation, the mediawiki API location, and the mediawiki version.
 
 
-To generate a mediawiki family, or borrow a pre generated family, see the [JMBFamilyGenerator repo](). # TODO Insert Link
+To generate a mediawiki family, or borrow a pre generated family, please see the [JMBFamilyGenerator project](https://github.com/Choco31415/JMBFamilyGenerator).
 
 ## Coding a Bot
 
