@@ -1,4 +1,4 @@
-#This page contains opening and closing codes for html comments.
+# This file contains opening and closing codes for html comments.
 <!--
 -->
 <!--

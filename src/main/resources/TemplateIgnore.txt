@@ -1,6 +1,8 @@
-// An incomplete list of words that have are called like a template, but are not templates.
+// An incomplete list of Mediawiki magic words. This is to help better disambiguate what is or is not a template.
+
 // Mediawiki magic words
-//Behavoir switches
+
+// Behavoir switches
 __NOTOC__
 __FORCETOC__
 __TOC__
@@ -18,7 +20,8 @@ __END__
 __INDEX__
 __NOINDEX__
 __STATICREDIRECT__
-//date & time
+
+// date & time
 CURRENTYEAR
 CURRENTMONTH
 CURRENTMONTHNAME
@@ -45,7 +48,8 @@ LOCALTIME
 LOCALHOUR
 LOCALWEEK
 LOCALTIMESTAMP
-//technical metadata
+
+// technical metadata
 SITENAME
 SERVER
 SERVERNAME
@@ -84,6 +88,7 @@ NUMBERINGROUP:
 NUMINGROUP:
 PAGESINNS:
 PAGESINNAMESPACE:
+
 //page names
 FULLPAGENAME
 PAGENAME
@@ -100,7 +105,8 @@ SUBJECTPAGENAMEE
 TALKPAGENAMEE
 PIPETRICKE
 #titleparts:
-//namespaces
+
+// namespaces
 NAMESPACE
 SUBJECTSPACE
 ARTICLESPACE
@@ -108,15 +114,18 @@ TALKSPACE
 NAMESPACEE
 SUBJECTSPACEE
 TALKSPACEE
-//url data
+
+// url data
 localurl:
 fullurl:
 filepath:
 urlencode:
 anchorencode:
-//namespaces
+
+// namespaces
 ns:
-//formatting
+
+// formatting
 lc:
 lcfirst:
 uc:
@@ -128,13 +137,15 @@ padleft:
 padright:
 plural:
 grammar:
-//miscellaneous
+
+// miscellaneous
 int:
 #language:
 #special:
 #tag:
 gender:
 groupconvert:
+
 // ParserFunctions extension
 #switch
 #ifeq
