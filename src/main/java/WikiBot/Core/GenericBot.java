@@ -57,77 +57,40 @@ import WikiBot.Utils.ArrayUtils;
 public class GenericBot extends NetworkingBase {
 	
 	protected final long serialVersionUID = 1L;
-	private static GenericBot instance;
 	
-	//Class variables
-	public MediawikiDataManager mdm;//Access to the MDM class.
-	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
-	protected String baseURL = "http://wiki.scratch.mit.edu/w";//The url on which the bot is currently operating.
+	// Generic variables
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	
-	//These variables keep track of data concerning the status of the bot.
-	protected ArrayList<String> loggedInAtLanguages = new ArrayList<String>();//This arraylist keeps track of which languages you are logged in at.
-	protected long lastCommandTimestamp = 0;//The timestamp of the last API command.
+	// Class variables
+	private MediawikiDataManager mdm; // Access to the MDM class.
+	private String baseURL = ""; // The url on which the bot is currently operating.
+	
+	// Status variables
+	private ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
+	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
-	//Configuration variables.
-	protected int APIlimit = 10;//The [hard] maximum items per query call. 
-	protected int revisionDepth = 10;//The number of revisions to include per page.
-	protected boolean getRevisions = false;//When getting a page, should additional API calls be made to fetch revision history?
-	protected boolean getRevisionContent = false;//When getting a page, should revision page content be queried?
-	protected boolean logPageDownloads = true;//Should the bot log page downloads?
-	public boolean parseThurough = false;//Will make additional query calls to resolve page parsing disambiguates.
-	protected double APIthrottle = 0.5;//The minimum amount of time between API commands.
-	protected int maxFileChunkSize = 20000;//The max byte size of a file chunk when uploading local files.
+	// Configuration variables.
+	public int APIlimit = 10; // The maximum items per query call. 
+	public int revisionDepth = 10; // The number of revisions to include per page.
+	public boolean getRevisions = false; // When getting a page, should revisions be included?
+	public boolean getRevisionContent = false; // When getting a revision, should the revision content be included?	
+	public double APIthrottle = 0.5; // The minimum amount of time between API commands.
+	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
+	public boolean parseThrough = false; // When page parsing, should templates be fetched to disambiguate between links and templates?
 	
-	protected final String homeWikiLanguage;//The default wiki of a bot.
+	protected final String homeWikiLanguage; // The default wiki of a bot.
 	
-	protected int interruptedConnectionWait = 5;//If a network issues occurs, wait this amount of seconds and retry. 0 = fail completely
-	
-	public GenericBot(String defaultFamily_, String homeWikiLanguage_) {
-		//Read in some files.
-		mdm = new MediawikiDataManager();
-		
-		//Read in the bot family info.
-		mdm.readDefaultFamily(defaultFamily_, 0);
-		
-		if (instance == null) {
-			instance = this;
-		} else {
-			throw new ConcurrentModificationException();//There should not be more then one GenericBot!!!
-		}
-		
-		//Set variables
-		homeWikiLanguage = homeWikiLanguage_;
-	}
+	protected int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
 	public GenericBot(File family_, String homeWikiLanguage_) {				
-		//Read in some files.
+		// Instantiate the MDM.
 		mdm = new MediawikiDataManager();
 		
-		//Read in the bot family info.
+		// Load in the bot family info.
 		mdm.readFamily(family_, 0);
 		
-		if (instance == null) {
-			instance = this;
-		} else {
-			throw new ConcurrentModificationException();//There should not be more then one GenericBot!!!
-		}
-		
-		//Set variables
+		// Set variable
 		homeWikiLanguage = homeWikiLanguage_;
-	}
-	
-	/**
-	 * Get the instance of GenericBot.
-	 * If GenericBot has not been instantiated yet, the
-	 * family is set to "Wikipedia" and homeWikiLanguage is set to null.
-	 * @return
-	 */
-	public static GenericBot getInstance() {
-		if (instance == null) {
-			instance = new GenericBot("Wikipedia", null);
-		}
-		
-		return instance;
 	}
 	
 	/**
@@ -170,7 +133,7 @@ public class GenericBot extends NetworkingBase {
 	private JsonNode getWikiPageJsonCode(PageLocation loc) {		
 		String serverOutput = APIcommand(new QueryPageContent(loc));
 		
-		// Read in the Json!!!
+		// Read in the JSON!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -180,9 +143,7 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		
-	    if (logPageDownloads) {
-	    	logFine(baseURL + " // " + loc.getTitle() + " is downloaded.");
-	    }
+	    logFine(baseURL + " // " + loc.getTitle() + " is downloaded.");
 	    
 	    return rootNode;
 	}
@@ -195,9 +156,9 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
-		//Enforce APIlimit.
+		// Enforce APIlimit.
 		for (int i = 0; i < locs.size(); i += APIlimit) {
-			//Get a small chunk of page locations.
+			//G et a small chunk of page locations.
 			ArrayList<PageLocation> chunkOfPages;
 			if (i + APIlimit <= locs.size()) {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
@@ -205,7 +166,7 @@ public class GenericBot extends NetworkingBase {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
 			}
 			
-			//Process this small chunk of page locations.
+			// Process this small chunk of page locations.
 			JsonNode serverOutput = getWikiPagesJsonCode(chunkOfPages);
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
@@ -226,9 +187,9 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<SimplePage> getWikiSimplePages(ArrayList<PageLocation> locs) {		
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
-		//Enforce APIlimit.
+		// Enforce APIlimit.
 		for (int i = 0; i < locs.size(); i += APIlimit) {
-			//Get a small chunk of page locations.
+			// Get a small chunk of page locations.
 			ArrayList<PageLocation> chunkOfPages;
 			if (i + APIlimit <= locs.size()) {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
@@ -236,7 +197,7 @@ public class GenericBot extends NetworkingBase {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
 			}
 			
-			//Process this small chunk of page locations.
+			// Process this small chunk of page locations.
 			JsonNode serverOutput = getWikiPagesJsonCode(chunkOfPages);
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
@@ -255,7 +216,7 @@ public class GenericBot extends NetworkingBase {
 		
 		String serverOutput = APIcommand(new QueryPageContent(locs));
 		
-		// Read in the Json!!!
+		// Read in the JSON!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -265,22 +226,20 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		
-		//Log stuff
-        if (logPageDownloads) {
-    		logFine(baseURL + " // " + locs.get(0).getTitle()
-    				+ " through " + locs.get(locs.size()-1).getTitle()
-    				+ " is downloaded.");
-    		
-    		//Super detailed log output
-    		String finest = "Specifically, this includes: "; 
-    		for (int i = 0; i < locs.size(); i++) {
-    			if (i != 0) {
-    				finest += ", ";
-    			}
-    			finest += locs.get(i).getTitle();
-    		}
-    		logFinest(finest);
-        }
+		// Logging
+        logFine(baseURL + " // " + locs.get(0).getTitle()
+				+ " through " + locs.get(locs.size()-1).getTitle()
+				+ " is downloaded.");
+		
+		// Fine detailed logging
+		String finest = "Specifically, this includes: "; 
+		for (int i = 0; i < locs.size(); i++) {
+			if (i != 0) {
+				finest += ", ";
+			}
+			finest += locs.get(i).getTitle();
+		}
+		logFinest(finest);
         
         return rootNode;
 	}
@@ -293,12 +252,12 @@ public class GenericBot extends NetworkingBase {
 		
 		SimplePage newPage = null;
 		
-		//Parse out page information
+		// Parse out page information
 		String title = code.get("title").asText();
 		int pageid = code.get("pageid").asInt();
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
-		//Initialize the SimplePage object with this info.
+		// Initialize the SimplePage object with this info.
 		newPage = new SimplePage(wikiPrefix, title, pageid);
 		
 		String rawText = code.findValue("*").asText();
@@ -315,17 +274,17 @@ public class GenericBot extends NetworkingBase {
 		
 		Page newPage = null;
 		
-		//Parse out page information
+		// Parse out page information
 		String title = code.get("title").asText();
 		int pageid = code.get("pageid").asInt();
 		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
 		
-		//Initialize the SimplePage object with this info.
+		// Initialize the SimplePage object with this info.
 		newPage = new Page(wikiPrefix, title, pageid);
 		String rawText = code.findValue("*").asText();
 		newPage.setRawText(rawText);
 		
-		//Get revisions, if needed.
+		// Get revisions, if needed.
 		getPageRevisions(newPage);
 		return newPage;
 	}
@@ -334,7 +293,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param page The page to attach revisions to.
 	 */
 	private void getPageRevisions(Page page) {
-		//This method fetches the revisions of a page, if needed.
+		// This method fetches the revisions of a page, if needed.
 		if (getRevisions) {
 			ArrayList<Revision> revisions = getPastRevisions(page.getPageLocation(), revisionDepth, getRevisionContent);
 			page.setRevisions(revisions);
@@ -355,7 +314,7 @@ public class GenericBot extends NetworkingBase {
 		String serverOutput = APIcommand(new QueryPageRevisions(loc, revDepth, getContent));
 		
 		
-		// Read in the Json!!!
+		// Read in the JSON!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -365,7 +324,7 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}		
 		
-		//Parse output for info.
+		// Parse output for info.
 		JsonNode query = rootNode.get("query");
 		
 		String title = query.findValue("title").asText();
@@ -377,7 +336,7 @@ public class GenericBot extends NetworkingBase {
 			String comment = revisionNode.get("comment").asText();
 			Date date = createDate(revisionNode.get("timestamp").asText());
 			
-			//Parse for flags
+			// Parse for flags
 			ArrayList<String> flags = new ArrayList<String>();
 			ArrayList<String> flagsToSearchFor = new ArrayList<String>();
 			flagsToSearchFor.add("minor");
@@ -385,7 +344,7 @@ public class GenericBot extends NetworkingBase {
 			flagsToSearchFor.add("bot");
 			for (String flag: flagsToSearchFor) {
 				if (revisionNode.has(flag)) {
-					//Flag found.
+					// Flag found.
 					flags.add(flag);
 				}
 			}
@@ -409,9 +368,9 @@ public class GenericBot extends NetworkingBase {
 	 * @return A list of recent changes wrapped in revisions.
 	 */
 	public ArrayList<Revision> getRecentChanges(String language, int depth) {
-		//This method fetches the recent changes.
+		// This method fetches the recent changes.
 		ArrayList<Revision> toReturn = new ArrayList<Revision>();
-		String rccontinue = null;//Used to continue queries.
+		String rccontinue = null; // Used to continue queries.
 		
 		logFine("Getting recent changes.");
 		
@@ -420,7 +379,7 @@ public class GenericBot extends NetworkingBase {
 			revisionsNeeded = depth - toReturn.size();
 			int batchSize = Math.min(APIlimit, revisionsNeeded);
 			
-			//Make a query call.
+			// Make a query call.
 			String serverOutput;
 			if (rccontinue == null) {
 				serverOutput = APIcommand(new QueryRecentChanges(language, batchSize));
@@ -428,7 +387,7 @@ public class GenericBot extends NetworkingBase {
 				serverOutput = APIcommand(new QueryRecentChanges(language, batchSize, rccontinue));
 			}
 			
-			// Read in the Json!!!
+			// Read in the JSON!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
@@ -449,7 +408,7 @@ public class GenericBot extends NetworkingBase {
 				String comment = rcNode.get("comment").asText();
 				Date date = createDate(rcNode.get("timestamp").asText());
 				
-				//Parse for flags
+				// Parse for flags
 				ArrayList<String> flags = new ArrayList<String>();
 				ArrayList<String> flagsToSearchFor = new ArrayList<String>();
 				flagsToSearchFor.add("minor");
@@ -457,7 +416,7 @@ public class GenericBot extends NetworkingBase {
 				flagsToSearchFor.add("bot");
 				for (String flag: flagsToSearchFor) {
 					if (rcNode.has(flag)) {
-						//Flag found.
+						// Flag found.
 						flags.add(flag);
 					}
 				}
@@ -467,7 +426,7 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(revision);
 			}
 			
-			//Try continuing the query.
+			// Try to continue the query.
 			if (rootNode.findValue("rccontinue") != null) {
 				rccontinue = rootNode.findValue("rccontinue").asText();
 				
@@ -493,7 +452,7 @@ public class GenericBot extends NetworkingBase {
 		logFine("Getting category pages.");
 		
 		do {
-			//Make a query call.
+			// Make a query call.
 			String serverOutput;
 			if (cmcontinue == null) {
 				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit)));
@@ -501,7 +460,7 @@ public class GenericBot extends NetworkingBase {
 				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit), cmcontinue));
 			}
 			
-			// Read in the Json!!!
+			// Read in the JSON!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
@@ -511,7 +470,7 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 
-			//Parse page for info.
+			// Parse page for info.
 			JsonNode query = rootNode.get("query");
 			
 			JsonNode categoryList = query.get("categorymembers");
@@ -522,7 +481,7 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(categoryPage);
 			}
 			
-			//Try continuing the query.
+			// Try continuing the query.
 			if (rootNode.findValue("cmcontinue")  != null) {
 				cmcontinue = rootNode.findValue("cmcontinue").asText();
 				
@@ -612,7 +571,7 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of PageLocation.
 	 */
 	public ArrayList<PageLocation> getPagesThatLinkTo(PageLocation loc, int depth) {
-		//This method gets all the pages that link to another page. Redirects are included.
+		// This method gets all the pages that link to another page. Redirects are included.
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String blcontinue = null;
 		
@@ -620,7 +579,7 @@ public class GenericBot extends NetworkingBase {
 		
 		int backlinksNeeded;
 		do {
-			//Make a query call.
+			// Make a query call.
 			backlinksNeeded = depth - toReturn.size();
 			int batchSize = Math.min(Math.min(30, APIlimit), backlinksNeeded);
 			
@@ -631,7 +590,7 @@ public class GenericBot extends NetworkingBase {
 				serverOutput = APIcommand(new QueryBackLinks(loc, batchSize, blcontinue));
 			}
 	
-			// Read in the Json!!!
+			// Read in the JSON!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
@@ -641,7 +600,7 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 
-			//Parse page for info.
+			// Parse page for info.
 			JsonNode query = rootNode.get("query");
 			
 			JsonNode backlinkList = query.findValue("backlinks");
@@ -652,7 +611,7 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(backlinkLoc);
 			}
 			
-			//Try continuing the query.
+			// Try continuing the query.
 			if (rootNode.findValue("blcontinue") != null) {
 				blcontinue = rootNode.findValue("blcontinue").asText();
 				
@@ -703,7 +662,7 @@ public class GenericBot extends NetworkingBase {
 		logFine("Getting all pages starting from " + from + ".");
 		
 		do {
-			//Make query call.
+			// Make a query call.
 			int pagesNeeded = toReturn.size() - depth;
 			int batchSize = Math.min(APIlimit, pagesNeeded);
 			String serverOutput;
@@ -739,7 +698,7 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 
-			//Parse page for info.
+			// Parse page for info.
 			JsonNode query = rootNode.get("query");
 			
 			JsonNode pageList = query.findValue("allpages");
@@ -750,7 +709,7 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(pageLoc);
 			}
 			
-			//Try continuing the query.
+			// Try continuing the query.
 			if (rootNode.findValue("apcontinue") != null) {
 				apcontinue = rootNode.findValue("apcontinue").asText();
 
@@ -788,7 +747,7 @@ public class GenericBot extends NetworkingBase {
 		Integer psoffset = null;
 		
 		do {
-			//Make query call.
+			// Make query call.
 			String serverOutput;
 			if (psoffset == null) {
 				serverOutput = APIcommand(new QueryPrefix(language, prefix, 0, psnamespace));
@@ -796,7 +755,7 @@ public class GenericBot extends NetworkingBase {
 				serverOutput = APIcommand(new QueryPrefix(language, prefix, psoffset, psnamespace));
 			}
 			
-			// Read in the Json!!!
+			// Read in the JSON!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
@@ -806,7 +765,7 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 
-			//Parse page for info.
+			// Parse page for info.
 			JsonNode query = rootNode.get("query");
 			
 			JsonNode prefixList = query.findValue("prefixsearch");
@@ -817,7 +776,7 @@ public class GenericBot extends NetworkingBase {
 				toReturn.add(prefixLoc);
 			}	
 			
-			//Try continuing the query.
+			// Try continuing the query.
 			if (rootNode.findValue("psoffset") != null) {
 				psoffset = rootNode.findValue("psoffset").asInt();
 			} else {
@@ -873,7 +832,7 @@ public class GenericBot extends NetworkingBase {
 		
 		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
 		
-		// Read in the Json!!!
+		// Read in the JSON!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -883,7 +842,7 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		
-		//Check for not found or redirect
+		// Check for not found or redirect
 		if (rootNode.findParent("-1") != null) {
 			logWarning(loc.getTitle() + " does not exist.");
 			return null;
@@ -893,32 +852,32 @@ public class GenericBot extends NetworkingBase {
 			return null;
 		}
 		
-		//Set up ImageInfo class
+		// Set up ImageInfo class
 		ImageInfo toReturn = new ImageInfo(loc);
 		
-		//Get info
+		// Get info
 		int property = 0;
 		do {
 			String name = propertyNames.get(property).toLowerCase();
 			String value = "";
 			
-			//Handle special cases
+			// Handle special cases
 			if (name.equalsIgnoreCase("dimensions")) {
 				name = "size";//Alias
 			}
 			if (name.equalsIgnoreCase("size")) {
-				//Size returns size, width, and height
+				// Size returns size, width, and height
 				propertyNames.add("width");
 				propertyNames.add("height");
 			}
 			if (name.equalsIgnoreCase("UploadWarning")) {
-				//UploadWarning returns html
+				// UploadWarning returns HTML
 				name = "html";
 			}
 			
-			//Get value
+			// Get value
 			if (name.equals("metadata") || name.equals("commonmetadata") || name.equals("extmetadata")) {
-				//Mediawiki returns Json for these parameters.
+				// Mediawiki returns JSON for these parameters.
 				try {
 					value = mapper.writeValueAsString(rootNode.findValue(name));
 				} catch (JsonProcessingException e) {
@@ -926,11 +885,11 @@ public class GenericBot extends NetworkingBase {
 					e.printStackTrace();
 				}
 			} else {
-				//Mediawiki returns String for these parameters
+				// Mediawiki returns String for these parameters
 				value = rootNode.findValue(name).asText();
 			}
 			
-			//Store value
+			// Store value
 			toReturn.addProperty(name, value);
 			
 			property++;
@@ -1023,7 +982,7 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of ImageInfo.
 	 */
 	protected ArrayList<UserInfo> getUserInfo(ArrayList<User> users, ArrayList<String> propertyNames) {
-		//Logging
+		// Logging
 		String userLogMessage = "Getting user info for: ";
 		for (User u : users) {
 			userLogMessage += u.getUserName() + ", ";
@@ -1032,15 +991,15 @@ public class GenericBot extends NetworkingBase {
 		logFine(userLogMessage);
 		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
-		//Method code below
+		// Method code below
 		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
 		
 		String language = users.get(0).getLanguage();
 		
-		//Enforce APIlimit
+		// Enforce APIlimit
 		int querySize = Math.min(50, APIlimit);
 		for (int i = 0; i < users.size(); i += querySize) {
-			//Get a small chunk of users.
+			// Get a small chunk of users.
 			ArrayList<User> chunkOfUsers = new ArrayList<User>();
 			if (i + querySize <= users.size()) {
 				chunkOfUsers = new ArrayList<User>(users.subList(i,  i + querySize));
@@ -1048,10 +1007,10 @@ public class GenericBot extends NetworkingBase {
 				chunkOfUsers = new ArrayList<User>(users.subList(i, users.size()));
 			}
 			
-			//Query the server.
+			// Query the server.
 			String serverOutput = APIcommand(new QueryUsers(chunkOfUsers, propertyNames));
 			
-			// Read in the Json!!!
+			// Read in the JSON!
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode rootNode = null;
 			try {
@@ -1061,40 +1020,40 @@ public class GenericBot extends NetworkingBase {
 				return null;
 			}
 			
-			//Parse out user info.
+			// Parse out user info.
 			boolean firstUser = true;
 			for (JsonNode user : rootNode.findValue("users")) {
 				String userName = user.findValue("name").asText();
 				UserInfo userInfo = new UserInfo(new User(language, userName));
 				boolean userExists = true;
 				
-				//Check that the user exists.
+				// Check that the user exists.
 				if (user.findParent("missing") != null || user.findParent("invalid") != null) {
 					userInfo = null;
 					userExists = false;
 				}
 				
 				if (userExists) {
-					//Parse for queried properties one at a time
+					// Parse for queried properties one at a time
 					int property = 0;
 					do {
 						String propName = propertyNames.get(property).toLowerCase();
 						String value = "";
 						
-						//Handle special cases, while avoiding duplicates
+						// Handle special cases, while avoiding duplicates
 						if (firstUser) {
 							if (propName.equalsIgnoreCase("centralids")) {
 								propertyNames.add("attachedlocal");
 							}
 						}
 						
-						//Get and store values
+						// Get and store values
 						if (propName.equals("blockinfo")) {
-							//This is a doozie to handle. Twitch a twitch.
+							// This is a doozie to handle. Twitch a twitch.
 							if (user.findValue("blockid") == null) {
 								userInfo.setAsNotBlocked();
 							} else {
-								//This user is blocked.
+								// This user is blocked.
 								int blockID = user.findValue("blockid").asInt();
 								String blockedBy = user.findValue("blockedby").asText();
 								String blockReason = user.findValue("blockreason").asText();
@@ -1104,7 +1063,7 @@ public class GenericBot extends NetworkingBase {
 							}
 						} else {
 							if (propName.equals("groups") || propName.equals("implicitgroups") || propName.equals("rights")) {
-								//Mediawiki returns Json array for these parameters.
+								// Mediawiki returns Json array for these parameters.
 								ArrayList<String> temp = new ArrayList<String>();
 								
 								for (JsonNode node : user.findValue(propName)) {
@@ -1122,12 +1081,11 @@ public class GenericBot extends NetworkingBase {
 										userInfo.setRights(temp);
 										break;
 									default:
-										//Required.
 										break;
 								}
 							} else {
 								if (propName.equals("centralid") || propName.equals("attachedlocal")) {
-									//Mediawiki returns Json for these parameters.
+									// Mediawiki returns JSON for these parameters.
 									try {
 										value = mapper.writeValueAsString(rootNode.findValue(propName));
 									} catch (JsonProcessingException e) {
@@ -1135,7 +1093,7 @@ public class GenericBot extends NetworkingBase {
 										e.printStackTrace();
 									}
 								} else {
-									//Mediawiki returns String for these parameters
+									// Mediawiki returns String for these parameters
 									value = rootNode.findValue(propName).asText();
 								}
 								
@@ -1151,7 +1109,7 @@ public class GenericBot extends NetworkingBase {
 					} while (property < propertyNames.size());
 				}
 				
-				//Store the user's info
+				// Store the user info
 				toReturn.add(userInfo);	
 				
 				firstUser = false;
@@ -1180,7 +1138,7 @@ public class GenericBot extends NetworkingBase {
 	 * @return An ArrayList of ArrayList of Revision. In other words, it is a list of a users' list of contributions.
 	 */
 	public ArrayList<ArrayList<Revision>> getUserContribs(ArrayList<User> users, int depth) {
-		//Logging
+		// Logging
 		String userLogMessage = "Getting contribs for users: ";
 		for (User u : users) {
 			userLogMessage += u.getUserName() + ", ";
@@ -1188,30 +1146,30 @@ public class GenericBot extends NetworkingBase {
 		
 		logFine(userLogMessage);
 		
-		//Method code below
+		// Method code below
 		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<>();
 		
 		String language = users.get(0).getLanguage();
 		
-		//For now, we only query certain properties.
+		// For now, we only query certain properties.
 		ArrayList<String> properties = new ArrayList<String>();
 		properties.add("title");
 		properties.add("comment");
 		properties.add("timestamp");
 		properties.add("flags");
 		
-		//Query users individually.
+		// Query users individually.
 		int maxQuerySize = Math.min(50, APIlimit);
 		for (int u = 0; u < users.size(); u++) {
-			//Get a user.
+			// Get a user.
 			User user = users.get(u);
 			
-			//Query user's contributions.
+			// Query user's contributions.
 			multiContribs.add(new ArrayList<Revision>());
 			boolean moreRevisionsExist = true;
 			String queryContinue = null; // User for continuing queries.
 			while (multiContribs.get(u).size() < depth && moreRevisionsExist) {
-				//Query the server.
+				// Query the server.
 				int querySize = Math.min(maxQuerySize, depth - multiContribs.get(u).size());
 
 				APIcommand queryUserContribs = new QueryUserContribs(user, properties, querySize);
@@ -1222,7 +1180,7 @@ public class GenericBot extends NetworkingBase {
 				String serverOutput = APIcommand(queryUserContribs);
 				
 				
-				// Read in the Json!!!
+				// Read in the JSON!
 				ObjectMapper mapper = new ObjectMapper();
 				JsonNode rootNode = null;
 				try {
@@ -1232,21 +1190,21 @@ public class GenericBot extends NetworkingBase {
 					return null;
 				}
 				
-				//Parse Json for contribs
+				// Parse JSON for contribs
 				JsonNode queryNode = rootNode.findValue("query");
 				JsonNode userContribs = queryNode.findValue("usercontribs");
 				
 				for (int contribID = 0; contribID < userContribs.size(); contribID++) {
 					JsonNode contrib = userContribs.get(contribID);
 					
-					//Parse for revision info
+					// Parse for revision info
 					String title = contrib.findValue("title").textValue();
 					PageLocation loc = new PageLocation(language, title);
 					String userName = user.getUserName();
 					String comment = contrib.findValue("comment").textValue();
 					Date date = createDate(contrib.findValue("timestamp").textValue());
 					
-					//Parse for flags
+					// Parse for flags
 					ArrayList<String> flags = new ArrayList<String>();
 					
 					if (contrib.has("new")) {
@@ -1259,11 +1217,11 @@ public class GenericBot extends NetworkingBase {
 						flags.add("minor");
 					}
 					
-					//Package and ship the revision! Then have it sink due to a bunyip and cucumber sandwiches.
+					// Package and ship the revision! Then have it sink due to a bunyip and cucumber sandwiches.
 					multiContribs.get(u).add(new Revision(loc, userName, comment, date, flags));
 				}
 				
-				//Parse for query continue
+				// Parse for query continue
 				JsonNode queryContinueNode = rootNode.findValue("query-continue");
 				if (queryContinueNode == null) {
 					moreRevisionsExist = false;
@@ -1317,7 +1275,7 @@ public class GenericBot extends NetworkingBase {
 		// Query the server.
 		String serverOutput = APIcommand(new QuerySiteInfo(language, propertyNames));
 		
-		// Read in the Json!!!
+		// Read in the JSON!
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -1419,7 +1377,7 @@ public class GenericBot extends NetworkingBase {
 			firstLoop = false;
 		} while (!results.equals("Success"));
 		
-		// FINISH HIM
+		// Read the results!
 		results = APIcommand(new UploadFileChunk(loc, filekey, uploadComment, pageText));
 	}
 	
@@ -1438,7 +1396,7 @@ public class GenericBot extends NetworkingBase {
         	logFinest("No cookies detected.");
         }
 
-        //LOG IN		
+        // Log in!
 		APIcommand login = new Login(user, password);
 		
 		String serverOutput = APIcommand(login);
@@ -1461,21 +1419,18 @@ public class GenericBot extends NetworkingBase {
 	 * @return Server output.
 	 */
 	public String APIcommand(APIcommand command) {
-		//Check throttle.
+		// Check throttle.
 		throttleAction();
 		
-		//Do the command!
-		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
-		
-		//Do the command!
+		// Do the command!
 		baseURL = mdm.getWikiURL(command.getPageLocation().getLanguage());
 		
 		String textReturned = "";
 		boolean networkError;
 		do {
-			networkError = false;//No bugs have occurred yet this loop...
+			networkError = false; // No bugs have occurred yet this loop...
 			
-			//Look out for network issues. Attempt the command.
+			// Look out for network issues. Attempt the command.
 			try {
 				if (command.requiresPOST()) {
 					if (command.requiresEntity()) {
@@ -1488,7 +1443,7 @@ public class GenericBot extends NetworkingBase {
 				}
 			} catch (Error e) {
 				e.printStackTrace();
-				//Network issues encountered. Handle them.
+				// Network issues encountered. Handle them.
 				networkError = true;
 				if (interruptedConnectionWait > 0) {
 					logInfo("Network issue encountered. Waiting " + interruptedConnectionWait + " seconds.");
@@ -1505,11 +1460,11 @@ public class GenericBot extends NetworkingBase {
 		
 		logFinest("API results obtained.");
 
-		//Handle mediawiki output.
+		// Handle mediawiki output.
 		if (textReturned != null) {
 			if (!command.doesKeyExist("format") || command.getValue("format").equalsIgnoreCase("html") || textReturned.contains("DOCTYPE")) {
-				//We are handling HTML output. It is the default output format.
-				//We will parse it for any errors/warnings.
+				// We are handling HTML output. It is the default output format.
+				// We will parse it for any errors/warnings.
 				
 				//Unescape html
 				textReturned = StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeHtml4(textReturned));
@@ -1525,7 +1480,7 @@ public class GenericBot extends NetworkingBase {
 					logError(error);
 					throw new Error(error);
 				} else {
-					//Log a small portion of the html. It's nice.
+					// Log a small portion of the html. It's nice.
 					if (textReturned.length() < 1000) {
 						logFinest("HTML: " + textReturned);
 					} else {
@@ -1535,7 +1490,7 @@ public class GenericBot extends NetworkingBase {
 					if (textReturned.contains("<warnings>")) {
 						logError("Warnings were received when editing " + command.getTitle() + ".");
 					} else {
-						//Check other possibilities for errors/warnings being returned..
+						// Check other possibilities for errors/warnings being returned..
 						String errorMessage = null;
 						if (textReturned.contains("\"warning")) {
 							errorMessage = "\"warning";
@@ -1545,7 +1500,7 @@ public class GenericBot extends NetworkingBase {
 						}
 						
 						if (errorMessage != null) {
-							//Errors/warnings detected.
+							// Errors/warnings detected.
 							String errorSnippet = parseTextForItem(textReturned, errorMessage, "}");
 							String error = "";
 							
@@ -1559,13 +1514,13 @@ public class GenericBot extends NetworkingBase {
 							}
 							logError(error);
 						} else {
-							//Everything looks ok.
+							// Everything looks ok.
 							logFinest(command.getTitle() + " has been updated.");
 						}
 					}
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("xml")) {
-				//We are handling XML output. We do not do anything.
+				// We are handling XML output. We do not do anything.
 				logFinest("XML received.");
 				if (textReturned.length() < 1000) {
 					logFinest("XML: " + textReturned);
@@ -1573,7 +1528,7 @@ public class GenericBot extends NetworkingBase {
 					logFinest("XML: " + textReturned.substring(0, 1000));	
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("php")) {
-				//We are handling PHP output. We do not do anything.
+				// We are handling PHP output. We do not do anything.
 				logFinest("PHP received.");
 				if (textReturned.length() < 1000) {
 					logFinest("PHP: " + textReturned);
@@ -1581,42 +1536,23 @@ public class GenericBot extends NetworkingBase {
 					logFinest("PHP: " + textReturned.substring(0, 1000));	
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("Json")){
-				//We are handling Json output.
-				//We will look for errors/warnings.
+				// We are handling Json output.
+				// We will look for errors/warnings.
 				
-				//Error handling
+				// Error handling
 				if (textReturned.contains("This is an auto-generated MediaWiki API documentation page")) {
-					//Ugh, the Mediawiki API documentation was returned.
+					// The Mediawiki API documentation was returned.
 					logFinest("Mediawiki API documentation page returned.");
 					
 					throw new Error("Mediawiki API documentation page returned.");
 				} else {
-					//Log a small portion of the Json. It's nice.
+					// Log a small portion of the JSON. It's nice.
 					if (textReturned.length() < 1000) {
 						logFinest("Json: " + textReturned);
 					} else {
 						logFinest("Json: " + textReturned.substring(0, 1000));	
 					}
-					
 
-					
-					//Look for errors/warnings.
-//					if (textReturned.contains("error")) {
-//						// Load in the Json!!
-//						ObjectMapper mapper = new ObjectMapper();
-//						JsonNode rootNode = null;
-//						try {
-//							rootNode = mapper.readValue(textReturned, JsonNode.class);
-//						} catch (IOException e1) {
-//							logError("Was expecting Json, but did not receive Json from server.");
-//							throw new Error("Was expecting Json, but did not receive Json from server.");
-//						}
-//						
-//						
-//						String error = rootNode.findValue("info").asText();
-//						logError(error);
-//						throw new Error(error);
-//					} else 
 					if (textReturned.contains("Internal Server Error")) {
 						logError("Internal Server Error");
 						logFinest(textReturned);
@@ -1637,7 +1573,7 @@ public class GenericBot extends NetworkingBase {
 	 * @return Server output.
 	 */
 	private String APIcommandHTTP(APIcommand command) {
-		//Build the command url
+		// Build the command url.
 		String url = baseURL + "/api.php?";
 		String[] editKeys = command.getKeysArray();
 		String[] editValues = command.getValuesArray();
@@ -1649,7 +1585,7 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		
-		//Follow the url!
+		// Run the url!
 		try {
 			String output = removeBOM(EntityUtils.toString(getURL(url)));
 			if (output == null) {
@@ -1668,10 +1604,10 @@ public class GenericBot extends NetworkingBase {
 	 * @return Server output.
 	 */
 	private String APIcommandPOST(APIcommand command) {
-		//Build the POST request.
+		// Build the POST request.
 		HttpEntity response;
 		
-		//Add a token to our POST request
+		// Add a token to our POST request
 		String token = getToken(command);
 		
 		if (command.getCommandName() == "login") {
@@ -1680,11 +1616,11 @@ public class GenericBot extends NetworkingBase {
 			command.addParameter("token", token);
 		}
 		
-		//Get the key and value pairs of the command.
+		// Get the key and value pairs of the command.
 		String[] keys = command.getKeysArray();
 		String[] values = command.getValuesArray();		
 		
-		//Send the command!
+		// Send the command!
         response = getPOST(baseURL + "/api.php?", keys, values);
         try {
 			String serverOutput = removeBOM(EntityUtils.toString(response));
@@ -1698,7 +1634,7 @@ public class GenericBot extends NetworkingBase {
 	}
 	
 	private String APIcommandHttpEntity(APIcommand command) {
-		//Build the command url
+		// Build the command url
 		String url = baseURL + "/api.php?";
 		String[] editKeys = command.getKeysArray();
 		String[] editValues = command.getValuesArray();
@@ -1710,7 +1646,7 @@ public class GenericBot extends NetworkingBase {
 			}
 		}
 		
-		//Add a token to our POST request
+		// Add a token to our POST request
 		String token = getToken(command);
 		HttpEntity entity = command.getHttpEntity(token);
 		
@@ -1741,7 +1677,7 @@ public class GenericBot extends NetworkingBase {
 		VersionNumber MWVersion = command.getMWVersion();
 		String tokenType;
 		
-		//Token getting changes a bit between MW versions 1.20 and 1.24.
+		// Token getting changes a bit between MW versions 1.20 and 1.24.
 		if (MWVersion.compareTo("1.24") >= 0) {
 			tokenType = command.getNewTokenType();
 		} else {
@@ -1749,8 +1685,8 @@ public class GenericBot extends NetworkingBase {
 		}
 		String tokenField = tokenType + "token";
 		
-		//Build the API call
-		//Handle special cases first.
+		// Build the API call
+		// Handle special cases first.
 		if (tokenType.equals("login") && MWVersion.compareTo("1.27") < 0) {
 			// Login format does not change pre 1.26.
 			keys = new String[]{"action", "lgname", "lgpassword", "format"};
@@ -1760,7 +1696,7 @@ public class GenericBot extends NetworkingBase {
 			keys = new String[]{"action", "prop", "rvtoken", "titles", "user", "format"};
 			values = new String[]{"query", "revisions", "rollback", command.getTitle(), command.getValue("user"), "xml"};
 		} else {
-			//General cases
+			// General cases
 			if (MWVersion.compareTo("1.24") >= 0) {
 				keys = new String[]{"action", "meta", "type", "format"};
 				values = new String[]{"query", "tokens", tokenType, "json"};
@@ -1843,7 +1779,7 @@ public class GenericBot extends NetworkingBase {
 		lastCommandTimestamp = System.currentTimeMillis();
 	}
 	
-	public void sleepInSeconds(double time) {
+	private void sleepInSeconds(double time) {
 		try {
 			Thread.sleep((int)(1000*time));
 		} catch (InterruptedException e) {
@@ -1851,7 +1787,7 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
-	public void sleep(long time) {
+	private void sleep(long time) {
 		try {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
@@ -1859,6 +1795,6 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
-	public boolean shouldParseThurough() { return parseThurough; }
 	public String getHomeWikiLanguage() { return homeWikiLanguage; }
+	public boolean shouldParseThrough() { return parseThrough; }
 }

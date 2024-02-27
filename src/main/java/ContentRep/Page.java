@@ -565,8 +565,7 @@ public class Page extends SimplePage {
 					//Resolve link/template disambiguates
 					//Aka templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
 					//It all depends on if the template is multi-lined or not.
-					GenericBot bot = GenericBot.getInstance();
-					if (isLink && bot.shouldParseThurough()) {
+					if (isLink && bot.shouldParseThrough()) { // TODO Find a way to get this bot information.
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
 								SimplePage sp = bot.getWikiSimplePage(new PageLocation(lan, ((Template)object).getTemplateName()));
