@@ -70,11 +70,11 @@ public class GenericBot extends NetworkingBase {
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
 	// Configuration variables.
-	public int APIlimit = 10; // The maximum items per query call. 
-	public int revisionDepth = 10; // The number of revisions to include per page.
-	public boolean getRevisions = false; // When getting a page, should revisions be included?
-	public boolean getRevisionContent = false; // When getting a revision, should the revision content be included?	
 	public double APIthrottle = 0.5; // The minimum amount of time between API commands.
+	public int queryLimit = 10; // The maximum items per query call. 
+	public boolean getRevisions = false; // When getting a page, should revisions be included?
+	public int revisionDepth = 10; // The number of revisions to include per page.
+	public boolean getRevisionContent = false; // When getting a revision, should the revision content be included?	
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
 	public boolean parseThrough = false; // When page parsing, should templates be fetched to disambiguate between links and templates?
 	
@@ -157,11 +157,11 @@ public class GenericBot extends NetworkingBase {
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
 		// Enforce APIlimit.
-		for (int i = 0; i < locs.size(); i += APIlimit) {
+		for (int i = 0; i < locs.size(); i += queryLimit) {
 			// Get a small chunk of page locations.
 			ArrayList<PageLocation> chunkOfPages;
-			if (i + APIlimit <= locs.size()) {
-				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
+			if (i + queryLimit <= locs.size()) {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+queryLimit));
 			} else {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
 			}
@@ -188,11 +188,11 @@ public class GenericBot extends NetworkingBase {
 		ArrayList<SimplePage> simplePages = new ArrayList<SimplePage>();
 		
 		// Enforce APIlimit.
-		for (int i = 0; i < locs.size(); i += APIlimit) {
+		for (int i = 0; i < locs.size(); i += queryLimit) {
 			// Get a small chunk of page locations.
 			ArrayList<PageLocation> chunkOfPages;
-			if (i + APIlimit <= locs.size()) {
-				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));
+			if (i + queryLimit <= locs.size()) {
+				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+queryLimit));
 			} else {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, locs.size()));
 			}
@@ -310,7 +310,7 @@ public class GenericBot extends NetworkingBase {
 	public ArrayList<Revision> getPastRevisions(PageLocation loc, int localRevisionDepth, boolean getContent) {
 		ArrayList<Revision> toReturn = new ArrayList<>();
 		
-		int revDepth = Math.min(localRevisionDepth, APIlimit);
+		int revDepth = Math.min(localRevisionDepth, queryLimit);
 		String serverOutput = APIcommand(new QueryPageRevisions(loc, revDepth, getContent));
 		
 		
@@ -377,7 +377,7 @@ public class GenericBot extends NetworkingBase {
 		int revisionsNeeded = depth;
 		do {
 			revisionsNeeded = depth - toReturn.size();
-			int batchSize = Math.min(APIlimit, revisionsNeeded);
+			int batchSize = Math.min(queryLimit, revisionsNeeded);
 			
 			// Make a query call.
 			String serverOutput;
@@ -455,9 +455,9 @@ public class GenericBot extends NetworkingBase {
 			// Make a query call.
 			String serverOutput;
 			if (cmcontinue == null) {
-				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit)));
+				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, queryLimit)));
 			} else {
-				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, APIlimit), cmcontinue));
+				serverOutput = APIcommand(new QueryCategoryMembers(loc.getLanguage(), loc.getTitle(), Math.min(100, queryLimit), cmcontinue));
 			}
 			
 			// Read in the JSON!
@@ -581,7 +581,7 @@ public class GenericBot extends NetworkingBase {
 		do {
 			// Make a query call.
 			backlinksNeeded = depth - toReturn.size();
-			int batchSize = Math.min(Math.min(30, APIlimit), backlinksNeeded);
+			int batchSize = Math.min(Math.min(30, queryLimit), backlinksNeeded);
 			
 			String serverOutput;
 			if (blcontinue == null) {
@@ -664,7 +664,7 @@ public class GenericBot extends NetworkingBase {
 		do {
 			// Make a query call.
 			int pagesNeeded = toReturn.size() - depth;
-			int batchSize = Math.min(APIlimit, pagesNeeded);
+			int batchSize = Math.min(queryLimit, pagesNeeded);
 			String serverOutput;
 			if (apnamespace == null) {
 				if (apcontinue == null) {
@@ -997,7 +997,7 @@ public class GenericBot extends NetworkingBase {
 		String language = users.get(0).getLanguage();
 		
 		// Enforce APIlimit
-		int querySize = Math.min(50, APIlimit);
+		int querySize = Math.min(50, queryLimit);
 		for (int i = 0; i < users.size(); i += querySize) {
 			// Get a small chunk of users.
 			ArrayList<User> chunkOfUsers = new ArrayList<User>();
@@ -1159,7 +1159,7 @@ public class GenericBot extends NetworkingBase {
 		properties.add("flags");
 		
 		// Query users individually.
-		int maxQuerySize = Math.min(50, APIlimit);
+		int maxQuerySize = Math.min(50, queryLimit);
 		for (int u = 0; u < users.size(); u++) {
 			// Get a user.
 			User user = users.get(u);

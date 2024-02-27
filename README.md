@@ -2,9 +2,9 @@
 
 ## Description
 
-JavaMediawikiBot is a JAva library meant for interfacing with the Mediawiki web API.
+JavaMediawikiBot is a Java library meant for interfacing with the Mediawiki web API.
 
-The library comes with an experimental, if thoroughly tested, page parser and editor.
+The library comes with experimental, if thoroughly tested, support for page parsing and editing.
 
 ## Set Up
 
@@ -47,12 +47,18 @@ APIcommand(command); // Push the command now.
 
 Half of the API commands are recommended used raw, half are not. This can be checked in the command's class documentation. If not recommended used raw, use GenericBot methods instead.
 
-### Customization
+### Configuration
 
-Each bot can be customized in several different ways. These include:
+A bot can be customized through several different variables. These include:
 
 ```
-jmb.
+bot.APIthrottle = 0.5;
+bot.queryLimit = 10;
+bot.getRevisions = true;
+bot.revisionDepth = 10;
+bot.getRevisionContent = false;
+bot.maxFileChunkSize = 20000;
+bot.parseThrough = false;
 ```
 
 ### GUI
