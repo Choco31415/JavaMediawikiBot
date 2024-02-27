@@ -53,10 +53,11 @@ A bot can be customized through several different variables. These include:
 ```
 bot.APIthrottle = 0.5;
 bot.queryLimit = 10;
-bot.revisionDepth = 10;
+bot.revisionLimit = 10;
 bot.getRevisionContent = false;
 bot.maxFileChunkSize = 20000;
 bot.parseThrough = false;
+bot.interruptedConnectionWait = 5;
 ```
 
 ### GUI
@@ -64,7 +65,7 @@ bot.parseThrough = false;
 JavaMediawikiBot comes with a optional, built in GUI. To enable it, run the following command:
 
 ```
-bot.enableGUI(); # TODO Update
+bot.createGUI(); # TODO Update
 ```
 
 The GUI will look like below:

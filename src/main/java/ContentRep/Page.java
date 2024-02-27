@@ -2,7 +2,7 @@ package WikiBot.ContentRep;
 
 import java.util.ArrayList;
 
-import WikiBot.Core.GenericBot;
+import WikiBot.GenericBot;
 import WikiBot.MediawikiData.MediawikiDataManager;
 
 /**

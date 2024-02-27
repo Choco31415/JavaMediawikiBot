@@ -1,4 +1,4 @@
-package WikiBot.Core;
+package WikiBot;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -36,26 +36,26 @@ public abstract class BotPanel extends GenericBot {
 	private static final long serialVersionUID = 1L;
 	
 	// The GUI
-	protected static BotView view;
+	private static BotView view;
 	
 	// Adjustable preferences
-    protected int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
-	protected int waitTimeBetweenProposedCommands = 12;//Minimum time between proposed commands.
-	protected File logFile = new File("Log.txt");
-	protected File editsFile = new File("Proposed and Accepted Edits.txt");
+    private int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
+	private int waitTimeBetweenProposedCommands = 12;//Minimum time between proposed commands.
+	private File logFile = new File("Log.txt");
+	private File editsFile = new File("Proposed and Accepted Edits.txt");
 	
 	//Account info
-	protected String botUsername = "";
+	private String botUsername = "";
 	private String botPassword;//Never, never, NEVER store your password in the code.
 	
     //More GUI stuff
-	protected boolean pushingCommands = false;//True if paused or not.
-	protected boolean pausedPushing = false;
+	private boolean pushingCommands = false;//True if paused or not.
+	private boolean pausedPushing = false;
 	
-	protected ArrayList<APIcommand> proposedCommands = new ArrayList<APIcommand>();
-	protected ArrayList<APIcommand> acceptedCommands = new ArrayList<APIcommand>();
+	private ArrayList<APIcommand> proposedCommands = new ArrayList<APIcommand>();
+	private ArrayList<APIcommand> acceptedCommands = new ArrayList<APIcommand>();
     
-	protected SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
+	private SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
 	public BotPanel(String defaultFamily_, String homeLanguage_) {
 		super(defaultFamily_, homeLanguage_);

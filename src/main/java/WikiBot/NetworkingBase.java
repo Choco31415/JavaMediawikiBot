@@ -1,4 +1,4 @@
-package WikiBot.Core;
+package WikiBot;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -49,7 +49,7 @@ import WikiBot.Utils.Logger;
  * 
  * For the average user, this class is only interesting for the logger code.
  * 
- * Logging levels are: - SEVERE (fatal errors)
+ * Logging levels are: - SEVERE (fatal errors) # TODO Replace logger with official implementation.
  *                     - WARNING (might be errors)
  *                     - INFO (general GUI stuff)
  *                     - CONFIG (finer GUI stuff)

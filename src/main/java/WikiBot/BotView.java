@@ -1,4 +1,4 @@
-package WikiBot.Core;
+package WikiBot;
 
 import java.awt.Color;
 import java.awt.Dimension;

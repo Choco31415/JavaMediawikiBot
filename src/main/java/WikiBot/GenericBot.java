@@ -1,4 +1,4 @@
-package WikiBot.Core;
+package WikiBot;
  
 import java.io.*;
 import java.nio.file.Files;
@@ -66,20 +66,20 @@ public class GenericBot extends NetworkingBase {
 	private String baseURL = ""; // The url on which the bot is currently operating.
 	
 	// Status variables
-	private ArrayList<String> loggedInAt = new ArrayList<String>(); // A list of wikis the bot is logged into.
+	private ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
 	// Configuration variables.
 	public double APIthrottle = 0.5; // The minimum amount of time between API commands.
 	public int queryLimit = 10; // The maximum items per query call. 
-	public int revisionDepth = 10; // The number of revisions to get if included.
+	public int revisionLimit = 10; // The number of revisions to get.
 	public boolean getRevisionContent = false; // If revision content should be included alongside a revision.
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
 	public boolean parseThrough = false; // When page parsing, should templates be fetched to disambiguate between links and templates?
 	
-	protected final String homeWiki; // The default wiki of a bot.
+	private final String homeWikiLanguage; // The default wiki of a bot.
 	
-	protected int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
+	public int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
 	public GenericBot(File family_, String homeWikiLanguage_) {				
 		// Instantiate the MDM.
@@ -89,7 +89,7 @@ public class GenericBot extends NetworkingBase {
 		mdm.readFamily(family_, 0);
 		
 		// Set variable
-		homeWiki = homeWikiLanguage_;
+		homeWikiLanguage = homeWikiLanguage_;
 	}
 	
 	/**
@@ -1417,7 +1417,7 @@ public class GenericBot extends NetworkingBase {
 		logFiner("Login status at " + user.getLanguage() + ": " + success);
         
 		if (success) {
-			loggedInAt.add(user.getLanguage());
+			loggedInAtLanguages.add(user.getLanguage());
 		}
 		
         return success;
@@ -1805,6 +1805,6 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
-	public String getHomeWikiLanguage() { return homeWiki; }
+	public String getHomeWikiLanguage() { return homeWikiLanguage; }
 	public boolean shouldParseThrough() { return parseThrough; }
 }

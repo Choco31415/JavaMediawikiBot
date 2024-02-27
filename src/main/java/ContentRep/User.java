@@ -1,6 +1,6 @@
 package WikiBot.ContentRep;
 
-import WikiBot.Core.GenericBot;
+import WikiBot.GenericBot;
 
 public class User {
 
