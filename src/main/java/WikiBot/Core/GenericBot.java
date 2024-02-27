@@ -158,7 +158,7 @@ public class GenericBot extends NetworkingBase {
 		
 		// Enforce APIlimit.
 		for (int i = 0; i < locs.size(); i += APIlimit) {
-			//G et a small chunk of page locations.
+			// Get a small chunk of page locations.
 			ArrayList<PageLocation> chunkOfPages;
 			if (i + APIlimit <= locs.size()) {
 				chunkOfPages = new ArrayList<PageLocation>(locs.subList(i, i+APIlimit));

@@ -8,37 +8,25 @@ The library comes with an experimental, if thoroughly tested, page parser and ed
 
 ## Set Up
 
-All bots requires some setup in order to run properly.
-
-First import the JMB library:
+Here is an example on how to setup a bot.
 
 ```
-import JMB # TODO
+import JavaMediawikiBot.GenericBot;
+
+public static void main(String[] args) {
+	GenericBot bot = new GenericBot("resources/mediawikiFamily.txt", "en");
+}
 ```
 
-Then create a bot instance:
+A bot takes two parameters.
 
-```
-jmb.createInstance(); # TODO
-```
+The first parameter specifies the mediawiki family that it will be working with.
 
-All code and operations will be done through this bot instance.
-
-Next, the bot needs to know which sites it will be working with as well as their associated data. To do that, run the following code:
-
-```
-jmb.readFamily("src/familyFile.txt"); # TODO
-```
-
-For convenience, each bot also requires that a home wiki is specified:
-
-```
-jmb.setHome("en"); # TODO
-```
+The second parameter specifies the wiki that operations will default to.
 
 ## Mediawiki Families
 
-Mediawiki families provide the backbone for interacting with a group of mediawikis. At it's core, a file stores the mediawiki abbreviation, the mediawiki API location, and the mediawiki version.
+A mediawiki family is a group of related wikis. It tells a bot data about the wikis it can work with, including their abbreviation, API location, and Mediawiki version.
 
 
 To generate a mediawiki family, or borrow a pre generated family, please see the [JMBFamilyGenerator project](https://github.com/Choco31415/JMBFamilyGenerator).
