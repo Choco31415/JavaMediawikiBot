@@ -66,19 +66,18 @@ public class GenericBot extends NetworkingBase {
 	private String baseURL = ""; // The url on which the bot is currently operating.
 	
 	// Status variables
-	private ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
+	private ArrayList<String> loggedInAt = new ArrayList<String>(); // A list of wikis the bot is logged into.
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
 	// Configuration variables.
 	public double APIthrottle = 0.5; // The minimum amount of time between API commands.
 	public int queryLimit = 10; // The maximum items per query call. 
-	public boolean getRevisions = false; // When getting a page, should revisions be included?
-	public int revisionDepth = 10; // The number of revisions to include per page.
-	public boolean getRevisionContent = false; // When getting a revision, should the revision content be included?	
+	public int revisionDepth = 10; // The number of revisions to get if included.
+	public boolean getRevisionContent = false; // If revision content should be included alongside a revision.
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
 	public boolean parseThrough = false; // When page parsing, should templates be fetched to disambiguate between links and templates?
 	
-	protected final String homeWikiLanguage; // The default wiki of a bot.
+	protected final String homeWiki; // The default wiki of a bot.
 	
 	protected int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
@@ -90,7 +89,14 @@ public class GenericBot extends NetworkingBase {
 		mdm.readFamily(family_, 0);
 		
 		// Set variable
-		homeWikiLanguage = homeWikiLanguage_;
+		homeWiki = homeWikiLanguage_;
+	}
+	
+	/**
+	 * Create and display a GUI to interact with the bot instance.
+	 */
+	public void creategGUI() {
+		// TODO
 	}
 	
 	/**
@@ -98,12 +104,20 @@ public class GenericBot extends NetworkingBase {
 	 * @param loc The location.
 	 * @return A Page.
 	 */
-	public Page getWikiPage(PageLocation loc) {
+	public Page getWikiPage(PageLocation loc, boolean includeRevisions) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
 		JsonNode pages = serverOutput.findValue("pages");
 		JsonNode page = pages.elements().next();
 		
-		return parseWikiPage(page);
+		Page page = parseWikiPage(page);
+		
+		if (includeRevisions) {
+			ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionDepth, getRevisionContent);
+			
+			page.setRevisions(revisions);
+		}
+		
+		return page;
 	}
 	
 	/**
@@ -153,7 +167,7 @@ public class GenericBot extends NetworkingBase {
 	 * @param locs The locations.
 	 * @return An ArrayList of Page.
 	 */
-	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs) {
+	public ArrayList<Page> getWikiPages(ArrayList<PageLocation> locs, boolean includeRevisions) {
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
 		// Enforce APIlimit.
@@ -171,7 +185,15 @@ public class GenericBot extends NetworkingBase {
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
 			for (JsonNode pageNode : pageNodes) {
-				pages.add(parseWikiPage(pageNode));
+				Page page = parseWikiPage(pageNode);
+				
+				if (includeRevisions) {
+					ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionDepth, getRevisionContent);
+					
+					page.setRevisions(revisions);
+				}
+				
+				pages.add(page);
 			}
 
 		}
@@ -285,19 +307,7 @@ public class GenericBot extends NetworkingBase {
 		newPage.setRawText(rawText);
 		
 		// Get revisions, if needed.
-		getPageRevisions(newPage);
 		return newPage;
-	}
-	
-	/**
-	 * @param page The page to attach revisions to.
-	 */
-	private void getPageRevisions(Page page) {
-		// This method fetches the revisions of a page, if needed.
-		if (getRevisions) {
-			ArrayList<Revision> revisions = getPastRevisions(page.getPageLocation(), revisionDepth, getRevisionContent);
-			page.setRevisions(revisions);
-		}
 	}
 	
 	/**
@@ -1407,7 +1417,7 @@ public class GenericBot extends NetworkingBase {
 		logFiner("Login status at " + user.getLanguage() + ": " + success);
         
 		if (success) {
-			loggedInAtLanguages.add(user.getLanguage());
+			loggedInAt.add(user.getLanguage());
 		}
 		
         return success;
@@ -1795,6 +1805,6 @@ public class GenericBot extends NetworkingBase {
 		}
 	}
 	
-	public String getHomeWikiLanguage() { return homeWikiLanguage; }
+	public String getHomeWikiLanguage() { return homeWiki; }
 	public boolean shouldParseThrough() { return parseThrough; }
 }

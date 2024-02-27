@@ -14,7 +14,7 @@ Here is an example on how to setup a bot.
 import JavaMediawikiBot.GenericBot;
 
 public static void main(String[] args) {
-	GenericBot bot = new GenericBot("resources/mediawikiFamily.txt", "en");
+	GenericBot bot = new GenericBot(new File("resources/mediawikiFamily.txt"), "en");
 }
 ```
 
@@ -35,10 +35,9 @@ To generate a mediawiki family, or borrow a pre generated family, please see the
 
 JavaMediawikiBot offers two ways to accomplish what you want.
 
-Most methods are abstractions of the Mediawiki API, and are mostly for querying data.
+Most methods are abstractions of the Mediawiki API. Roughly half of the commands are queries.
 
-APIcommand classes are also abstractions to the Mediawiki API, and are meant to be used as
-Objects. For example:
+APIcommand classes are also abstractions to the Mediawiki API, and are meant to be used as Objects. For example:
 
 ```
 APIcommand command = new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
@@ -54,7 +53,6 @@ A bot can be customized through several different variables. These include:
 ```
 bot.APIthrottle = 0.5;
 bot.queryLimit = 10;
-bot.getRevisions = true;
 bot.revisionDepth = 10;
 bot.getRevisionContent = false;
 bot.maxFileChunkSize = 20000;
