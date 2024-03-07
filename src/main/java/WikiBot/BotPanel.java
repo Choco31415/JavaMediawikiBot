@@ -31,12 +31,15 @@ import WikiBot.Utils.FileUtils;
  * 
  * @author: ErnieParke/Choco31415
  */
-public abstract class BotPanel extends GenericBot {
+public abstract class BotPanel {
 	
 	private static final long serialVersionUID = 1L;
 	
+	// The bot
+	private GenericBot bot;
+	
 	// The GUI
-	private static BotView view;
+	private BotView view;
 	
 	// Adjustable preferences
     private int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
@@ -57,16 +60,10 @@ public abstract class BotPanel extends GenericBot {
     
 	private SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
-	public BotPanel(String defaultFamily_, String homeLanguage_) {
-		super(defaultFamily_, homeLanguage_);
+	public BotPanel(GenericBot bot_) {
+		bot = bot_;
 		
-		view = new BotView("Bot Panel", mdm, this);
-	}
-	
-	public BotPanel(File family_, String homeLanguage_) {
-		super(family_, homeLanguage_);
-		
-		view = new BotView("Bot Panel", mdm, this);
+		view = new BotView("Bot Panel", bot.getMDM(), this);
 	}
 	
 	/**
@@ -446,7 +443,7 @@ public abstract class BotPanel extends GenericBot {
 	public void logInEverywhere() {
 		// Log in.
 		logInfo("Attempting login everywhere.");
-		logInAt(mdm.getWikiPrefixes());
+		logInAt(bot.getMDM().getWikiPrefixes());
 	}
 	
 	/**

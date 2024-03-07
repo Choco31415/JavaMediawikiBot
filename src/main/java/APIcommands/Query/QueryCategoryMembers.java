@@ -4,7 +4,7 @@ package WikiBot.APIcommands.Query;
  * @Description
  * This command gets the members of a category.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @RequiredRights
  * none

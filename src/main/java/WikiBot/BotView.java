@@ -78,13 +78,13 @@ public class BotView extends JFrame implements ActionListener{
 	
 	protected boolean firstConsoleMessage = true;//Used by the console.
 	
-	MediawikiDataManager mdm;
+	GenericBot bot;
 	BotPanel panel;
 	
-    public BotView(String panelName, MediawikiDataManager mdm_, BotPanel panel_) {
+    public BotView(String panelName, GenericBot bot_, BotPanel panel_) {
     	super(panelName);
     	
-    	mdm = mdm_;
+    	bot = bot_;
     	panel = panel_;
 
 		setSize(WIDTH, HEIGHT);
@@ -136,6 +136,7 @@ public class BotView extends JFrame implements ActionListener{
 	    acceptedCommandsPane.setPreferredSize(new Dimension(WIDTH/2, 150));
     	
 	    //Set up the wiki table
+	    MediawikiDataManager mdm = bot.getMDM();)
 	    Object[] columnHeaders = new Object[]{"Wiki", "Logged In"};
 	    Object[][] rowData = new Object[mdm.getNumWikis()][2];
 	    for (int i = 0; i < mdm.getNumWikis(); i++) {

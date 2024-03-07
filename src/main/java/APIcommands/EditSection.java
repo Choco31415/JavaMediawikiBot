@@ -6,7 +6,7 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command edits a page section.
  * 
- * Recommended used raw.
+ * Recommended used directly.
  * 
  * @RequiredRights
  * edit

@@ -19,7 +19,7 @@ import org.apache.http.util.EntityUtils;
  * @Description
  * This class is a base for making APIcommands.
  * 
- * APIcommands are commands to a wiki's API.
+ * APIcommands are commands to the mediawiki API.
  * 
  * Only use this class to create new commands. Ex: EditPage
  */

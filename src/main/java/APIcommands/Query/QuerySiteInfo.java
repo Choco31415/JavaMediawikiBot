@@ -8,7 +8,7 @@ import WikiBot.APIcommands.APIcommand;
  * @Description
  * This command gets site information.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @RequiredRights
  * none

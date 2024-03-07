@@ -18,13 +18,13 @@ public static void main(String[] args) {
 }
 ```
 
-A bot takes two parameters.
+A bot takes two parameters on setup.
 
-The first parameter specifies the mediawiki family that it will be working with.
+The first parameter specifies the file containing the mediawiki family that it will be working with.
 
 The second parameter specifies the wiki that operations will default to.
 
-## Mediawiki Families
+### Mediawiki Families
 
 A mediawiki family is a group of related wikis. It tells a bot data about the wikis it can work with, including their abbreviation, API location, and Mediawiki version.
 
@@ -51,7 +51,7 @@ Half of the API commands are recommended used raw, half are not. This can be che
 A bot can be customized through several different variables. These include:
 
 ```
-bot.APIthrottle = 0.5;
+bot.APIdelay = 0.5;
 bot.queryLimit = 10;
 bot.revisionLimit = 10;
 bot.getRevisionContent = false;
@@ -60,15 +60,17 @@ bot.parseThrough = false;
 bot.interruptedConnectionWait = 5;
 ```
 
+The values listed above are the default values.
+
 ### GUI
 
-JavaMediawikiBot comes with a optional, built in GUI. To enable it, run the following command:
+JavaMediawikiBot comes with a optional, built in GUI. To display it, run the following command:
 
 ```
-bot.createGUI(); # TODO Update
+bot.displayGUI(); # TODO Update
 ```
 
-The GUI will look like below:
+A screenshot of the GUI is below.
 
 [] #TODO Add image.
 

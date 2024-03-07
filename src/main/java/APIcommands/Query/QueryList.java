@@ -8,7 +8,7 @@ import WikiBot.APIcommands.APIcommand;
  * Unless you plan on making an APIcommand,
  * you can ignore this class.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  */
 public class QueryList extends APIcommand {
 	public QueryList(String shortSummary_, String language, String list) {

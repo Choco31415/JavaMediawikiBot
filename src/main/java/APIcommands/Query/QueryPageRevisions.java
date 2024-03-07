@@ -10,7 +10,7 @@ import WikiBot.ContentRep.PageLocation;
  * See this page for revision API info:
  * https://www.mediawiki.org/wiki/API:Revisions
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @RequiredRights
  * none

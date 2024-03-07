@@ -1,4 +1,4 @@
-package WikiBot.APIcommands;
+package APIcommands.Advanced;
 
 import WikiBot.ContentRep.User;
 
@@ -6,7 +6,7 @@ import WikiBot.ContentRep.User;
  * @Description
  * This command logins to a wiki.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @MediawikiSupport
  * all

@@ -58,6 +58,9 @@ public class GenericBot extends NetworkingBase {
 	
 	protected final long serialVersionUID = 1L;
 	
+	// Optional GUI
+	private BotPanel panel;
+	
 	// Generic variables
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	
@@ -70,7 +73,7 @@ public class GenericBot extends NetworkingBase {
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
 	// Configuration variables.
-	public double APIthrottle = 0.5; // The minimum amount of time between API commands.
+	public double APIdelay = 0.5; // The minimum amount of time between API commands.
 	public int queryLimit = 10; // The maximum items per query call. 
 	public int revisionLimit = 10; // The number of revisions to get.
 	public boolean getRevisionContent = false; // If revision content should be included alongside a revision.
@@ -95,8 +98,16 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * Create and display a GUI to interact with the bot instance.
 	 */
-	public void creategGUI() {
-		// TODO
+	public void displayGUI() {
+		panel = new BotPanel(this);
+	}
+	
+	/**
+	 * Get the MediawikiDataManager.
+	 * @return The MediawikiDataManager.
+	 */
+	public MediawikiDataManager getMDM() {
+		return mdm;
 	}
 	
 	/**
@@ -1782,7 +1793,7 @@ public class GenericBot extends NetworkingBase {
 	private void throttleAction() {
 		long currentTime = System.currentTimeMillis();
 		long timeDifference = currentTime - lastCommandTimestamp;
-		long timeToWait = (long) (1000*APIthrottle - timeDifference);
+		long timeToWait = (long) (1000*APIdelay - timeDifference);
 		if (timeToWait > 0) {
 			sleep(timeToWait);
 		}

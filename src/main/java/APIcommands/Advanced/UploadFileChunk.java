@@ -1,4 +1,4 @@
-package WikiBot.APIcommands;
+package APIcommands.Advanced;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -11,7 +11,7 @@ import WikiBot.ContentRep.PageLocation;
  * This command uploads a file to the wiki, via batch upload.
  * This is done synchronously.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @RequiredRights
  * upload

@@ -6,7 +6,7 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command deletes a page.
  * 
- * Recommended used raw.
+ * Recommended used directly.
  * 
  * @RequiredRights
  * delete

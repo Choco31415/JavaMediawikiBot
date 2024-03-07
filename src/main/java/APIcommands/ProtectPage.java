@@ -10,7 +10,7 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command protects a page from being edited or moved.
  * 
- * Recommended used raw.
+ * Recommended used directly.
  * 
  * @RequiredRights
  * protect

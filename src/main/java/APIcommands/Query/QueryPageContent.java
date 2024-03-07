@@ -9,7 +9,7 @@ import WikiBot.ContentRep.PageLocation;
  * @Description
  * This command gets the contents of a page.
  * 
- * Recommended not used raw.
+ * Recommended not used.
  * 
  * @RequiredRights
  * none
