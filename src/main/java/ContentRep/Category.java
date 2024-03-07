@@ -1,4 +1,4 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 public class Category extends PageObject {
 

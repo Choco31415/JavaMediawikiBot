@@ -1,6 +1,6 @@
 package MediawikiData;
 
-import WikiBot.Errors.UnsupportedError;
+import Errors.UnsupportedError;
 
 public class VersionNumber implements Comparable<VersionNumber> {
 

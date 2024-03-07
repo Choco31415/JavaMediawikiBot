@@ -1,5 +1,4 @@
-package WikiBot.ContentRep;
-
+package ContentRep;
 
 /**
  * SimplePage is a simple version of page that does not store information such as links, templates, interwiki, and more.

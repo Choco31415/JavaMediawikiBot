@@ -1,4 +1,4 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 
 public abstract class PageTitleContainer {

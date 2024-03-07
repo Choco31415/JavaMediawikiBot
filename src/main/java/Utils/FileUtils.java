@@ -1,4 +1,4 @@
-package WikiBot.Utils;
+package Utils;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;

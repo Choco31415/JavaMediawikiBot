@@ -1,4 +1,4 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 import java.util.ArrayList;
 import java.util.Date;

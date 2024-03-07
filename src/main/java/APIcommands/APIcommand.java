@@ -1,13 +1,13 @@
-package WikiBot.APIcommands;
+package APIcommands;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-import WikiBot.ContentRep.PageLocation;
-import WikiBot.ContentRep.PageLocationContainer;
-import WikiBot.ContentRep.User;
-import WikiBot.Errors.UnsupportedError;
-import WikiBot.Utils.ArrayUtils;
+import ContentRep.PageLocation;
+import ContentRep.PageLocationContainer;
+import ContentRep.User;
+import Errors.UnsupportedError;
+import Utils.ArrayUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;

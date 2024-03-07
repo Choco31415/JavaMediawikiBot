@@ -1,6 +1,6 @@
 package APIcommands.Advanced;
 
-import WikiBot.ContentRep.User;
+import ContentRep.User;
 
 /**
  * @Description

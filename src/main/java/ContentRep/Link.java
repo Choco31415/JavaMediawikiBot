@@ -1,5 +1,4 @@
-package WikiBot.ContentRep;
-
+package ContentRep;
 
 public class Link extends PageObjectAdvanced {
 	

@@ -4,7 +4,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import WikiBot.ContentRep.PageLocation;
+import ContentRep.PageLocation;
 
 /**
  * @Description

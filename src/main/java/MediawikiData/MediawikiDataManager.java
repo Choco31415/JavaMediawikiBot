@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import WikiBot.Utils.FileUtils;
+import Utils.FileUtils;
 
 /**
  * This class stores various Mediawiki data.

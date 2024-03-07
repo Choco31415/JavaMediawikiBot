@@ -1,8 +1,8 @@
-package WikiBot.ContentRep.SiteInfo;
+package ContentRep.SiteInfo;
 
 import java.util.ArrayList;
 
-import WikiBot.ContentRep.InfoContainer;
+import ContentRep.InfoContainer;
 
 public class SiteStatistics extends InfoContainer {
 	

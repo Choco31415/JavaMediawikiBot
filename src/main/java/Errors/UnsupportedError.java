@@ -1,4 +1,4 @@
-package WikiBot.Errors;
+package Errors;
 
 @SuppressWarnings("serial")
 public class UnsupportedError extends Error {

@@ -1,4 +1,4 @@
-package WikiBot.Utils;
+package Utils;
 
 import java.util.ArrayList;
 import java.util.logging.Level;

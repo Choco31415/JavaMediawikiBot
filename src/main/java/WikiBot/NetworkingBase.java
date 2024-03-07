@@ -41,8 +41,8 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
-import WikiBot.Errors.NetworkError;
-import WikiBot.Utils.Logger;
+import Errors.NetworkError;
+import Utils.Logger;
 
 /**
  * NetworkingBases handles all networking and logging for a bot.

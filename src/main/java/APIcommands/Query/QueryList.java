@@ -1,6 +1,6 @@
-package WikiBot.APIcommands.Query;
+package APIcommands.Query;
 
-import WikiBot.APIcommands.APIcommand;
+import APIcommands.APIcommand;
 
 /**
  * @Description

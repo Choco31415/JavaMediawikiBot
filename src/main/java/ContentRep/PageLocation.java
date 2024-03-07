@@ -1,7 +1,6 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 import WikiBot.GenericBot;
-
 
 public class PageLocation extends PageTitleContainer {
 

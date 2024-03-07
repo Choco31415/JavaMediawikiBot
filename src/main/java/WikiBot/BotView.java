@@ -31,8 +31,8 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
 import MediawikiData.MediawikiDataManager;
-import WikiBot.Utils.DocumentSizeFilter;
-import WikiBot.Utils.FileUtils;
+import Utils.DocumentSizeFilter;
+import Utils.FileUtils;
 
 /**
  * This class is fairly uninteresting. All bot GUI instantiation code is provided for here.

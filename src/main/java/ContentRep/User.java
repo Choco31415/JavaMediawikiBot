@@ -1,4 +1,4 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 import WikiBot.GenericBot;
 

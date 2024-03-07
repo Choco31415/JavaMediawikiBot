@@ -1,4 +1,4 @@
-package WikiBot.APIcommands.Query;
+package APIcommands.Query;
 
 /**
  * @Description

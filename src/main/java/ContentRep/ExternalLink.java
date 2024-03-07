@@ -1,5 +1,4 @@
-package WikiBot.ContentRep;
-
+package ContentRep;
 
 public class ExternalLink extends PageObjectAdvanced {
 	

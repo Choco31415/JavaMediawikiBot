@@ -1,6 +1,6 @@
-package WikiBot.APIcommands;
+package APIcommands;
 
-import WikiBot.ContentRep.PageLocation;
+import ContentRep.PageLocation;
 
 /**
  * @Description

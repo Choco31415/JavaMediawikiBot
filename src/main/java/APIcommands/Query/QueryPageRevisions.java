@@ -1,7 +1,7 @@
-package WikiBot.APIcommands.Query;
+package APIcommands.Query;
 
-import WikiBot.APIcommands.APIcommand;
-import WikiBot.ContentRep.PageLocation;
+import APIcommands.APIcommand;
+import ContentRep.PageLocation;
 
 /**
  * @Description

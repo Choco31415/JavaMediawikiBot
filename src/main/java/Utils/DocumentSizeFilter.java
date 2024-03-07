@@ -1,4 +1,4 @@
-package WikiBot.Utils;
+package Utils;
 
 import javax.swing.JTextArea;
 import javax.swing.text.AttributeSet;

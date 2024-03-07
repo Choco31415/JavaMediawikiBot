@@ -116,13 +116,13 @@ public class GenericBot extends NetworkingBase {
 	 */
 	public Page getWikiPage(PageLocation loc, boolean includeRevisions) {
 		JsonNode serverOutput = getWikiPageJsonCode(loc);
-		JsonNode pages = serverOutput.findValue("pages");
-		JsonNode page = pages.elements().next();
+		JsonNode pagesNode = serverOutput.findValue("pages");
+		JsonNode pageNode = pagesNode.elements().next();
 		
 		Page page = parseWikiPage(page);
 		
 		if (includeRevisions) {
-			ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionDepth, getRevisionContent);
+			ArrayList<Revision> revisions = getPastRevisions(loc, revisionLimit, getRevisionContent);
 			
 			page.setRevisions(revisions);
 		}
@@ -198,7 +198,7 @@ public class GenericBot extends NetworkingBase {
 				Page page = parseWikiPage(pageNode);
 				
 				if (includeRevisions) {
-					ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionDepth, getRevisionContent);
+					ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionLimit, getRevisionContent);
 					
 					page.setRevisions(revisions);
 				}

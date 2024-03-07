@@ -1,4 +1,4 @@
-package WikiBot.Utils;
+package Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

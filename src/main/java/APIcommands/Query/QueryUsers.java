@@ -1,8 +1,8 @@
-package WikiBot.APIcommands.Query;
+package APIcommands.Query;
 
 import java.util.ArrayList;
 
-import WikiBot.ContentRep.User;
+import ContentRep.User;
 
 /**
  * @Description

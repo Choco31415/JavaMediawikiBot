@@ -1,8 +1,8 @@
-package WikiBot.ContentRep;
+package ContentRep;
 
 import java.util.ArrayList;
 
-import WikiBot.Utils.ArrayUtils;
+import Utils.ArrayUtils;
 
 /**
  * This class stores user information, like their direct url, block info, ect...
