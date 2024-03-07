@@ -20,16 +20,15 @@ public static void main(String[] args) {
 
 A bot takes two parameters on setup.
 
-The first parameter specifies the file containing the mediawiki family that it will be working with.
+The first parameter specifies the mediawiki family that it will be working with.
 
 The second parameter specifies the wiki that operations will default to.
 
 ### Mediawiki Families
 
-A mediawiki family is a group of related wikis. It tells a bot data about the wikis it can work with, including their abbreviation, API location, and Mediawiki version.
+A mediawiki family is a group of related wikis. It gives a bot data information the wikis so that it can work with them.
 
-
-To generate a mediawiki family, or borrow a pre generated family, please see the [JMBFamilyGenerator project](https://github.com/Choco31415/JMBFamilyGenerator).
+To generate a mediawiki family, or borrow a pre generated family, please see the [JMB Family Generator project](https://github.com/Choco31415/JMBFamilyGenerator).
 
 ## Coding a Bot
 

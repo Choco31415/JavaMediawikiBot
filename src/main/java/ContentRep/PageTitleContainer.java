@@ -1,6 +1,5 @@
 package ContentRep;
 
-
 public abstract class PageTitleContainer {
 
 	protected PageTitle titleObject;
