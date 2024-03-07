@@ -33,18 +33,32 @@ To generate a mediawiki family, or borrow a pre generated family, please see the
 
 ## Coding a Bot
 
-JavaMediawikiBot offers two ways to accomplish what you want.
+API commands are split into two groups. Queries and actions.
 
-Most methods are abstractions of the Mediawiki API. Roughly half of the commands are queries.
+Any commands that query a Mediawiki site are a query. Methods are provided for easily passing in request info and receiving nicely packaged info in return. These methods can be found directly within a GenericBot instance.
 
-APIcommand classes are also abstractions to the Mediawiki API, and are meant to be used as Objects. For example:
+Below is an example query:
 
 ```
-APIcommand command = new AppendText(loc, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
+PageLocation cat = new PageLocation("en", "Scratch Cat");
+WikiPage page = bot.getWikiPage(cat, false);
+```
+
+Any commands that alter a Mediawiki site are an action. Is it recommended to create an object for an action and running it when convenient. All Object classes can be found within the APICommand directory.
+
+Below is an example action:
+
+```
+APIcommand command = new AppendText(cat, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
 APIcommand(command); // Push the command now.
 ```
 
-Half of the API commands are recommended used raw, half are not. This can be checked in the command's class documentation. If not recommended used raw, use GenericBot methods instead.
+The two exceptions to the above division are logins and file uploads. There are convenient methods for both located in GenericBot:
+
+```
+bot.logIn(new User("en", "InterwikiBot"), "secretPassword");
+bot.uploadFile(cat, new Path("cat.png"), "Replacing the page with an image.", "The new cat.");
+```
 
 ### Configuration
 

@@ -11,9 +11,9 @@ import java.util.logging.Level;
 
 import javax.swing.Box;
 
-import WikiBot.APIcommands.APIcommand;
-import WikiBot.ContentRep.User;
-import WikiBot.Utils.FileUtils;
+import APIcommands.APIcommand;
+import ContentRep.User;
+import Utils.FileUtils;
 
 /**
  * BotPanel is an extension of GenericBot that gives a GUI to a bot.
@@ -31,7 +31,7 @@ import WikiBot.Utils.FileUtils;
  * 
  * @author: ErnieParke/Choco31415
  */
-public abstract class BotPanel {
+public class BotPanel {
 	
 	private static final long serialVersionUID = 1L;
 	

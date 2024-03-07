@@ -2,8 +2,8 @@ package WikiBot.ContentRep;
 
 import java.util.ArrayList;
 
+import MediawikiData.MediawikiDataManager;
 import WikiBot.GenericBot;
-import WikiBot.MediawikiData.MediawikiDataManager;
 
 /**
  * Page is a custom class designed to store Wiki pages.

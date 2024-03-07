@@ -1,7 +1,8 @@
-package WikiBot.MediawikiData;
+package MediawikiData;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,8 +64,8 @@ public class MediawikiDataManager {
 		readFamily(new File("/Families/" + family + ".txt"), commentBufferLineCount);
 	}
 	
-	public void readFamily(File family, int commentBufferLineCount) {
-		String familyFile = FileUtils.readFile(family.getAbsolutePath());
+	public void readFamily(Path family_, int commentBufferLineCount) {
+		String familyFile = FileUtils.readFile(family_.getAbsolutePath());
 		
 		// Initialize variables.
 		WikiPrefix = new ArrayList<String>();

@@ -1,4 +1,4 @@
-package WikiBot.MediawikiData;
+package MediawikiData;
 
 import WikiBot.Errors.UnsupportedError;
 

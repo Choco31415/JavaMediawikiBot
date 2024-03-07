@@ -7,13 +7,14 @@ import WikiBot.ContentRep.PageLocation;
 import WikiBot.ContentRep.PageLocationContainer;
 import WikiBot.ContentRep.User;
 import WikiBot.Errors.UnsupportedError;
-import WikiBot.MediawikiData.MediawikiDataManager;
-import WikiBot.MediawikiData.VersionNumber;
 import WikiBot.Utils.ArrayUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
+
+import MediawikiData.MediawikiDataManager;
+import MediawikiData.VersionNumber;
 
 /**
  * @Description

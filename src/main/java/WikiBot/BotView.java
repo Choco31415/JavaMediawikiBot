@@ -30,7 +30,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
-import WikiBot.MediawikiData.MediawikiDataManager;
+import MediawikiData.MediawikiDataManager;
 import WikiBot.Utils.DocumentSizeFilter;
 import WikiBot.Utils.FileUtils;
 
@@ -136,7 +136,7 @@ public class BotView extends JFrame implements ActionListener{
 	    acceptedCommandsPane.setPreferredSize(new Dimension(WIDTH/2, 150));
     	
 	    //Set up the wiki table
-	    MediawikiDataManager mdm = bot.getMDM();)
+	    MediawikiDataManager mdm = bot.getMDM();
 	    Object[] columnHeaders = new Object[]{"Wiki", "Logged In"};
 	    Object[][] rowData = new Object[mdm.getNumWikis()][2];
 	    for (int i = 0; i < mdm.getNumWikis(); i++) {
@@ -440,6 +440,7 @@ public class BotView extends JFrame implements ActionListener{
 	 * @param status The login status.
 	 */
 	protected void setWikiLoginStatus(String languageCode, boolean status) {
+		MediawikiDataManager mdm = bot.getMDM();
 		wikiTable.setValueAt(true, mdm.getWikiPrefixes().indexOf(languageCode), 1);
 	}
 	

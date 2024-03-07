@@ -21,23 +21,24 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import WikiBot.APIcommands.APIcommand;
-import WikiBot.APIcommands.Login;
-import WikiBot.APIcommands.UploadFileChunk;
-import WikiBot.APIcommands.Query.*;
-import WikiBot.ContentRep.ImageInfo;
-import WikiBot.ContentRep.InfoContainer;
-import WikiBot.ContentRep.Page;
-import WikiBot.ContentRep.PageLocation;
-import WikiBot.ContentRep.Revision;
-import WikiBot.ContentRep.SimplePage;
-import WikiBot.ContentRep.User;
-import WikiBot.ContentRep.UserInfo;
-import WikiBot.ContentRep.SiteInfo.SiteStatistics;
-import WikiBot.Errors.NetworkError;
-import WikiBot.MediawikiData.MediawikiDataManager;
-import WikiBot.MediawikiData.VersionNumber;
-import WikiBot.Utils.ArrayUtils;
+import APIcommands.APIcommand;
+import APIcommands.Advanced.Login;
+import APIcommands.Advanced.UploadFileChunk;
+import APIcommands.Query.*;
+import ContentRep.ImageInfo;
+import ContentRep.InfoContainer;
+import ContentRep.Page;
+import ContentRep.PageLocation;
+import ContentRep.Revision;
+import ContentRep.SimplePage;
+import ContentRep.User;
+import ContentRep.UserInfo;
+import ContentRep.SiteInfo.SiteStatistics;
+import Errors.NetworkError;
+import MediawikiData.MediawikiDataManager;
+import MediawikiData.VersionNumber;
+import Utils.ArrayUtils;
+import WikiBot.BotPanel;
 
 /**
  * GenericBot is an API used to interface with Mediawiki.
@@ -61,30 +62,28 @@ public class GenericBot extends NetworkingBase {
 	// Optional GUI
 	private BotPanel panel;
 	
-	// Generic variables
+	// Formatting variables
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 	
 	// Class variables
 	private MediawikiDataManager mdm; // Access to the MDM class.
-	private String baseURL = ""; // The url on which the bot is currently operating.
+	private String baseURL = ""; // The url for the wiki the bot is currently operating on.
+	private final String homeWikiLanguage; // The default wiki of a bot.
 	
 	// Status variables
 	private ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
-	// Configuration variables.
+	// Configuration variables
 	public double APIdelay = 0.5; // The minimum amount of time between API commands.
-	public int queryLimit = 10; // The maximum items per query call. 
+	public int queryLimit = 10; // The maximum items per query call.
 	public int revisionLimit = 10; // The number of revisions to get.
 	public boolean getRevisionContent = false; // If revision content should be included alongside a revision.
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
-	public boolean parseThrough = false; // When page parsing, should templates be fetched to disambiguate between links and templates?
-	
-	private final String homeWikiLanguage; // The default wiki of a bot.
-	
+	public boolean parseThrough = false; // When page parsing, should pages be downloaded to disambiguate between links and templates?
 	public int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
-	public GenericBot(File family_, String homeWikiLanguage_) {				
+	public GenericBot(Path family_, String homeWikiLanguage_) {				
 		// Instantiate the MDM.
 		mdm = new MediawikiDataManager();
 		
