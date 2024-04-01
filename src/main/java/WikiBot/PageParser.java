@@ -43,7 +43,7 @@ public class PageParser {
 	private static MediawikiDataManager mdm;
 	
 	// Configuration variables
-	private boolean resolveDisambiguates = false;
+	private boolean resolveDisambiguates = false; // Resolve some parsing disambiguates at the expense of extra API calls.
 	
 	public PageParser(MediawikiBot bot_, boolean resolveDisambiguates_) {
 		bot = bot_;
