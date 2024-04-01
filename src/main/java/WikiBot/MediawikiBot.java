@@ -55,7 +55,7 @@ import WikiBot.BotPanel;
  * @author: ErnieParke/Choco31415
  */
 @SuppressWarnings("serial")
-public class GenericBot extends NetworkingBase {
+public class MediawikiBot extends NetworkingBase {
 	
 	protected final long serialVersionUID = 1L;
 	
@@ -67,6 +67,7 @@ public class GenericBot extends NetworkingBase {
 	
 	// Class variables
 	private MediawikiDataManager mdm; // Access to the MDM class.
+	private PageParser pageParser; // Experimental page parser.
 	private String baseURL = ""; // The url for the wiki the bot is currently operating on.
 	private final String homeWikiLanguage; // The default wiki of a bot.
 	
@@ -80,12 +81,12 @@ public class GenericBot extends NetworkingBase {
 	public int revisionLimit = 10; // The number of revisions to get.
 	public boolean getRevisionContent = false; // If revision content should be included alongside a revision.
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
-	public boolean parseThrough = false; // When page parsing, should pages be downloaded to disambiguate between links and templates?
 	public int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
-	public GenericBot(Path family_, String homeWikiLanguage_) {				
+	public MediawikiBot(Path family_, String homeWikiLanguage_) {				
 		// Instantiate the MDM.
 		mdm = new MediawikiDataManager();
+		pageParser = new PageParser();
 		
 		// Load in the bot family info.
 		mdm.readFamily(family_, 0);
@@ -97,8 +98,8 @@ public class GenericBot extends NetworkingBase {
 	/**
 	 * Create and display a GUI to interact with the bot instance.
 	 */
-	public void displayGUI() {
-		panel = new BotPanel(this);
+	public void displayGUI(String botName_) {
+		panel = new BotPanel(botName_, this);
 	}
 	
 	/**
@@ -119,7 +120,7 @@ public class GenericBot extends NetworkingBase {
 		JsonNode pagesNode = serverOutput.findValue("pages");
 		JsonNode pageNode = pagesNode.elements().next();
 		
-		Page page = parseWikiPage(page);
+		Page page = parseWikiPage(pageNode);
 		
 		if (includeRevisions) {
 			ArrayList<Revision> revisions = getPastRevisions(loc, revisionLimit, getRevisionContent);
@@ -198,7 +199,7 @@ public class GenericBot extends NetworkingBase {
 				Page page = parseWikiPage(pageNode);
 				
 				if (includeRevisions) {
-					ArrayList<Revision> revisions = getPastRevisions(pageNode.getPageLocation(), revisionLimit, getRevisionContent);
+					ArrayList<Revision> revisions = getPastRevisions(page.getPageLocation(), revisionLimit, getRevisionContent);
 					
 					page.setRevisions(revisions);
 				}

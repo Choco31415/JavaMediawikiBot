@@ -36,7 +36,7 @@ public class BotPanel {
 	private static final long serialVersionUID = 1L;
 	
 	// The bot
-	private GenericBot bot;
+	private MediawikiBot bot;
 	
 	// The GUI
 	private BotView view;
@@ -60,10 +60,10 @@ public class BotPanel {
     
 	private SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
-	public BotPanel(GenericBot bot_) {
+	public BotPanel(String panelName_, MediawikiBot bot_) {
 		bot = bot_;
 		
-		view = new BotView("Bot Panel", bot.getMDM(), this);
+		view = new BotView(panelName_, bot, this);
 	}
 	
 	/**

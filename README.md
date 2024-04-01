@@ -34,7 +34,7 @@ To generate a mediawiki family, or borrow a pre generated family, please see the
 
 API commands are split into two groups. Queries and actions.
 
-Any commands that query a Mediawiki site are a query. Methods are provided for easily passing in request info and receiving nicely packaged info in return. These methods can be found directly within a GenericBot instance.
+Any commands that query a Mediawiki site are a query. There are simple methods provided for querying all sorts of information from Mediawiki. These methods can be found directly within a GenericBot instance.
 
 Below is an example query:
 
@@ -43,16 +43,16 @@ PageLocation cat = new PageLocation("en", "Scratch Cat");
 WikiPage page = bot.getWikiPage(cat, false);
 ```
 
-Any commands that alter a Mediawiki site are an action. Is it recommended to create an object for an action and running it when convenient. All Object classes can be found within the APICommand directory.
+Any commands that alter a Mediawiki site are an action. The proper way to do an action are to create an object describing what you want done, then to commit it when convenient. All relevant action classes can be found within the APICommand directory.
 
 Below is an example action:
 
 ```
 APIcommand command = new AppendText(cat, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
-APIcommand(command); // Push the command now.
+APIcommand(command); // Run the command now!
 ```
 
-The two exceptions to the above division are logins and file uploads. There are convenient methods for both located in GenericBot:
+The two exceptions to the above are logins and file uploads. There are convenient methods for both located in GenericBot:
 
 ```
 bot.logIn(new User("en", "InterwikiBot"), "secretPassword");
@@ -77,10 +77,10 @@ The values listed above are the default values.
 
 ### GUI
 
-JavaMediawikiBot comes with a optional, built in GUI. To display it, run the following command:
+JavaMediawikiBot comes with an optional GUI. To display it, run the following command:
 
 ```
-bot.displayGUI(); # TODO Update
+bot.displayGUI();
 ```
 
 A screenshot of the GUI is below.
@@ -89,4 +89,4 @@ A screenshot of the GUI is below.
 
 ## Contributing
 
-Every contribution is welcome! If you are interested in helping out, please submit an issue or pull request.
+Do you want to contribute? Then feel free to make a pull request or open an issue!

@@ -1,5 +1,6 @@
 package APIcommands.Advanced;
 
+import APIcommands.APIcommand;
 import ContentRep.User;
 
 /**

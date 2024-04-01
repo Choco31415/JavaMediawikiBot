@@ -78,11 +78,11 @@ public class BotView extends JFrame implements ActionListener{
 	
 	protected boolean firstConsoleMessage = true;//Used by the console.
 	
-	GenericBot bot;
+	MediawikiBot bot;
 	BotPanel panel;
 	
-    public BotView(String panelName, GenericBot bot_, BotPanel panel_) {
-    	super(panelName);
+    public BotView(String panelName_, MediawikiBot bot_, BotPanel panel_) {
+    	super(panelName_);
     	
     	bot = bot_;
     	panel = panel_;

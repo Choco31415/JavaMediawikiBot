@@ -36,10 +36,6 @@ public class SimplePage extends PageLocationContainer implements Cloneable {
 	}
 	
 	//Type methods
-	/*public Page createPage() {
-		
-	}*/
-	
 	@Override
 	public String toString() {
 		String output;

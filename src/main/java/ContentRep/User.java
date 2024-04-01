@@ -1,6 +1,6 @@
 package ContentRep;
 
-import WikiBot.GenericBot;
+import WikiBot.MediawikiBot;
 
 public class User {
 
@@ -15,15 +15,6 @@ public class User {
 	public User(String language_, String username_) {
 		language = language_;
 		username = username_;
-	}
-	
-	/**
-	 * The language is assumed to be the home language of the bot.
-	 * @param username_ The user's name.
-	 */
-	public User(String username_) {
-		username = username_;
-		language = GenericBot.getInstance().getHomeWikiLanguage();
 	}
 	
 	public String getLanguage() {

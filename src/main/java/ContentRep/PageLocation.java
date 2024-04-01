@@ -1,6 +1,6 @@
 package ContentRep;
 
-import WikiBot.GenericBot;
+import WikiBot.MediawikiBot;
 
 public class PageLocation extends PageTitleContainer {
 
@@ -30,7 +30,7 @@ public class PageLocation extends PageTitleContainer {
 	 */
 	public PageLocation(String title_) {
 		super(title_);
-		lan = GenericBot.getInstance().getHomeWikiLanguage();
+		lan = MediawikiBot.getInstance().getHomeWikiLanguage();
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class PageLocation extends PageTitleContainer {
 	 */
 	public PageLocation(PageTitle pt) {
 		super(pt);
-		lan = GenericBot.getInstance().getHomeWikiLanguage();
+		lan = MediawikiBot.getInstance().getHomeWikiLanguage();
 	}
 	
 	public String getLanguage() {

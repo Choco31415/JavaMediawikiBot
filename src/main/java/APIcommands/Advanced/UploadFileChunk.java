@@ -4,6 +4,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
+import APIcommands.APIcommand;
 import ContentRep.PageLocation;
 
 /**
