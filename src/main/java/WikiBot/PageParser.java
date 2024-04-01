@@ -25,21 +25,16 @@ public class PageParser {
 		public ArrayList<PageObjectAdvanced> pageObjects;
 		public ArrayList<Category> categories;
 		public ArrayList<Interwiki> interwikis;
-		public ArrayList<Revision> revisions;
 		
-		public PageParseData(ArrayList<PageObjectAdvanced> pageObjects_, ArrayList<Category> categories_,
-				ArrayList<Interwiki> interwikis_, ArrayList<Revision> revisions_) {
-			pageObjects = pageObjects_;
-			categories = categories_;
-			interwikis = interwikis_;
-			revisions = revisions_;
+		public PageParseData() {
+			pageObjects = new ArrayList<PageObjectAdvanced>();
+			categories = new ArrayList<Category>();
+			interwikis = new ArrayList<Interwiki>();
 		}
 		
 		public void merge(PageParseData toMerge) {
-			pageObjects.addAll(toMerge.pageObjects);
 			categories.addAll(toMerge.categories);
 			interwikis.addAll(toMerge.interwikis);
-			revisions.addAll(toMerge.revisions);
 		}
 	}
 	
@@ -48,11 +43,11 @@ public class PageParser {
 	private static MediawikiDataManager mdm;
 	
 	// Configuration variables
-	private boolean parseThrough = false;
+	private boolean resolveDisambiguates = false;
 	
-	public PageParser(MediawikiBot bot_, boolean parseThrough_) {
+	public PageParser(MediawikiBot bot_, boolean resolveDisambiguates_) {
 		bot = bot_;
-		parseThrough = parseThrough_;
+		resolveDisambiguates = resolveDisambiguates_;
 		
 		mdm = bot.getMDM();
 	}
@@ -72,19 +67,19 @@ public class PageParser {
 	
 	// !Experimental! Page parsing 
 	public Page parseWikiPage(String rawText) {
-		ArrayList<Integer> linePositions = parsePageForNewLines(page, rawText);
-		PageParseData pData = parsePageForPageObjects();
-		ArrayList<Section> sections = parsePageForSections();
+		ArrayList<Integer> linePositions = parsePageForNewLines(rawText);
+		PageParseData pData = parsePageForPageObjects(rawText);
+		ArrayList<Section> sections = parsePageForSections(rawText);
 		
 		Page page = new Page(linePositions, sections,
 				pData.pageObjects, pData.categories,
-				pData.interwikis, pData.revisions,
+				pData.interwikis,
 				language, title, pageID);
 		
-		return page
+		return page;
 	}
 	
-	private void parsePageForNewLines(Page page, String rawText) {
+	private ArrayList<Integer> parsePageForNewLines(String rawText) {
 		ArrayList<Integer> linePositions = new ArrayList<Integer>();
 		
 		MediawikiDataManager mdm = bot.getMDM();
@@ -99,15 +94,15 @@ public class PageParser {
 			}
 		}
 		
-		page.setLinePositions(linePositions);
+		return linePositions;
 	}
 	
-	private PageParseData parsePageForPageObjects(String rawText) {
-		parseTextForPageObjects(rawText, 0, 0);
+	private PageParseData parsePageForPageObjects(String rawText, PageLocation loc) {
+		return parseTextForPageObjects(rawText, loc, 0, 0);
 	}
 	
-	private PageParseData parseTextForPageObjects(String text, int pos, int depth) {
-		ArrayList<PageObjectAdvanced> output = new ArrayList<PageObjectAdvanced>();
+	private PageParseData parseTextForPageObjects(String rawText, PageLocation loc, int pos, int depth) {
+		PageParseData pData = new PageParseData();
 		
 		int lastOpenIndex;
 		int openIndex = -1;
@@ -122,7 +117,7 @@ public class PageParser {
 			lastOpenIndex = openIndex;
 			int lowestIndex = -1;
 			for (int i = 0; i < openStrings.length; i++) {
-				openIndex = text.indexOf(openStrings[i], lastOpenIndex);
+				openIndex = rawText.indexOf(openStrings[i], lastOpenIndex);
 				if ((openIndex < lowestIndex || lowestIndex == -1) && openIndex != -1) {
 					lowestIndex = openIndex;
 					objectID = i;
@@ -131,14 +126,14 @@ public class PageParser {
 			
 			//Test that we might have an object.
 			openIndex = lowestIndex;
-			if (openIndex != -1 && isPositionParsedAsMediawiki(openIndex+pos)) {
+			if (openIndex != -1 && isPositionParsedAsMediawiki(rawText, openIndex+pos)) {
 				//Test that we do have a page object.
-				innerCloseIndex = findClosingPosition(text, openStrings[objectID], closeStrings[objectID], openIndex);
+				innerCloseIndex = findClosingPosition(rawText, openStrings[objectID], closeStrings[objectID], openIndex);
 				
 				if (objectID == 1) {
 					//Mediawiki preference. If a link closing can be put one character further, do it.
-					if (text.length() >= innerCloseIndex + 1 + closeStrings[1].length()) {
-						if (text.substring(innerCloseIndex + 1, innerCloseIndex + 1 + closeStrings[1].length()).equals(closeStrings[1])) {
+					if (rawText.length() >= innerCloseIndex + 1 + closeStrings[1].length()) {
+						if (rawText.substring(innerCloseIndex + 1, innerCloseIndex + 1 + closeStrings[1].length()).equals(closeStrings[1])) {
 							innerCloseIndex += 1;
 						}
 					}
@@ -148,7 +143,7 @@ public class PageParser {
 				if (innerCloseIndex != -1) {
 					// We have a page object. Parse!
 					PageObjectAdvanced po = null;
-					String objectText = text.substring(openIndex + openStrings[objectID].length(), innerCloseIndex);
+					String objectText = rawText.substring(openIndex + openStrings[objectID].length(), innerCloseIndex);
 					String header;
 					
 					int tempIndex = objectText.indexOf("|");
@@ -182,7 +177,7 @@ public class PageParser {
 							break objectParse;
 						}
 						
-						po = new Template(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
+						po = new Template(openIndex+pos, outerCloseIndex+pos, loc.getTitle(), header);
 					} else if (objectID == 1) {
 						//[[
 						if (header.length() == 0) {
@@ -194,31 +189,31 @@ public class PageParser {
 							po = new Image(openIndex+pos, outerCloseIndex+pos, header);
 						} else if (header.length() > 9 && header.substring(0,9).equalsIgnoreCase("Category:")) {
 							//We have a category.
-							categories.add(new Category(objectText, openIndex+pos, outerCloseIndex+pos));
+							pData.categories.add(new Category(objectText, openIndex+pos, outerCloseIndex+pos));
 							
 							openIndex = outerCloseIndex;
-							break objectParse;
+							break objectParse; // Done.
 						} else {
-							//Check for interwiki
+							//Check for an interwiki.
 							for (String iw: mdm.getWikiPrefixes()) {
 								if (header.length() >= iw.length() && header.substring(0, iw.length()).equals(iw)) {
-									interwikis.add(new Interwiki(iw, header.substring(iw.length()+1).trim(), openIndex+pos, outerCloseIndex+pos));
+									pData.interwikis.add(new Interwiki(iw, header.substring(iw.length()+1).trim(), openIndex+pos, outerCloseIndex+pos));
 									
 									openIndex = outerCloseIndex;
 									break objectParse;
 								}
 							}
 							
-							//Check that this is indeed a link.
+							//Check that this is a valid link.
 							//Extra [ means the link is slightly further down.
 							//Odd multiples of [ do not create a link.
 							if (header.substring(0,1).equals("[")) {
-								openIndex += openStrings[objectID].length();
+								openIndex += openStrings[objectID].length(); // Check again further.
 								break objectParse;
 							}
 							
 							isLink = true;
-							po = new Link(openIndex+pos, outerCloseIndex+pos, getTitle(), header);
+							po = new Link(openIndex+pos, outerCloseIndex+pos, loc.getTitle(), header);
 						}
 					} else {
 						//[
@@ -228,28 +223,30 @@ public class PageParser {
 							po = new ExternalLink(openIndex+pos, outerCloseIndex+pos, header);
 						} else {
 							openIndex += 1;
-							break objectParse;
+							break objectParse; // Not an object.
 						}
 					}
 					
 					//Page objects within the current page object.
-					ArrayList<PageObjectAdvanced> objects = parseTextForPageObjects(objectText, openIndex + pos + openStrings[objectID].length(), depth+1);
+					PageParseData pData2 = parseTextForPageObjects(objectText, loc, openIndex + pos + openStrings[objectID].length(), depth+1);
+					pData.merge(pData2);
+					ArrayList<PageObjectAdvanced> objects = pData2.pageObjects;
 					
 					//Resolve link/template disambiguates
-					//Aka templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
+					//Templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
 					//It all depends on if the template is multi-lined or not.
-					if (isLink && bot.shouldParseThrough()) { // TODO Find a way to get this bot information.
+					if (isLink && resolveDisambiguates) {
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
-								SimplePage sp = bot.getWikiSimplePage(new PageLocation(lan, ((Template)object).getTemplateName()));
+								SimplePage sp = bot.getWikiSimplePage(new PageLocation(loc.getLanguage(), ((Template)object).getTemplateName()));
 								if (sp.getRawText().contains("\n") && depth == 0) {
-									//This is parsed as a template.
-									//Add all page objects to the page.
+									//This template is, indeed, parsed as a template.
+									//Add everything contained.
 									for (PageObject object2: objects) {
 										if (object2.getObjectType().equalsIgnoreCase("Category")) {
-											categories.add((Category)object2);
+											pData.categories.add((Category)object2);
 										} else {
-											pageObjects.add((PageObjectAdvanced)object2);
+											pData.pageObjects.add((PageObjectAdvanced)object2);
 										}
 									}
 									
@@ -264,11 +261,12 @@ public class PageParser {
 					if (isLink) {
 						for (PageObjectAdvanced o : objects) {
 							if (o.getObjectType().equalsIgnoreCase("link")) {
-								openIndex += 2;
+								openIndex += 2; // Check again further.
 								break objectParse;
 							}
 						}
 						
+						// Check if the link can start further.
 						if (objectText.contains(openStrings[1])) {
 							openIndex += 2;
 							break objectParse;
@@ -278,7 +276,7 @@ public class PageParser {
 					//Parse for parameters.
 					ArrayList<Integer> parameterLocations= new ArrayList<Integer>();
 					while (tempIndex != -1) {
-						if (isPositionParsedAsMediawiki(tempIndex+pos)) {
+						if (isPositionParsedAsMediawiki(rawText, tempIndex+pos)) {
 							parameterLocations.add(tempIndex);
 						}
 						tempIndex = objectText.indexOf("|", tempIndex+1);
@@ -316,14 +314,8 @@ public class PageParser {
 						po.addParameter(objectText.substring(paramLoc, paramEndLoc));
 					}
 					
-					po.addPageObjects(objects);
-					
-					output.add(po);
-					
-					//Add the page object to the page.
-					if (depth == 0) {
-						pageObjects.add(po);
-					}
+					// Wrap up and save work.
+					pData.pageObjects.add(po);
 					
 					//Done. Continue iteration.
 					openIndex = outerCloseIndex;
@@ -339,10 +331,10 @@ public class PageParser {
 			
 		} while (openIndex != -1);
 		
-		return output;
+		return pData;
 	}
 	
-	private ArrayList<Section> parsePageForSections(Page page, String rawText) {
+	private ArrayList<Section> parsePageForSections(String rawText) {
 		ArrayList<Section> sections = new ArrayList<Section>();
 		
 		int openIndex = 0;
@@ -390,13 +382,13 @@ public class PageParser {
 	 * @param pos The position to check.
 	 * @return Is this position parsed as Mediawiki, or not?
 	 */
-	public boolean isPositionParsedAsMediawiki(int pos) {
+	public boolean isPositionParsedAsMediawiki(String rawText, int pos) {
 		ArrayList<String> MWEscapeOpenText = mdm.getMWEscapeOpenText();
 		ArrayList<String> MWEscapeCloseText = mdm.getMWEscapeCloseText();
-		return isPositionParsedAsMediawiki(pos, MWEscapeOpenText, MWEscapeCloseText);
+		return isPositionParsedAsMediawiki(rawText, pos, MWEscapeOpenText, MWEscapeCloseText);
 	}
 	
-	public boolean isPositionParsedAsMediawiki(int pos, ArrayList<String> escapeOpenText, ArrayList<String> escapeCloseText) {
+	public boolean isPositionParsedAsMediawiki(String rawText, int pos, ArrayList<String> escapeOpenText, ArrayList<String> escapeCloseText) {
 		//Start from the beginning of the page and work up.
 		int cursor = 0;
 		int lowest;//Earliest occurrence of MW escaped text.
@@ -487,16 +479,16 @@ public class PageParser {
 		}
 	}
 	
-	private int findClosingPosition(String text, String open, String close, int start) {
+	private int findClosingPosition(String rawText, String open, String close, int start) {
 		//Method for finding where [[ ]] and {{ }} end.
 		int i = start;
 		int j;
-		int k = 0;//Keeps track of last found closing.
+		int k = 0;//Keeps track of the last found closing.
 		int depth = 1;
 
 		k = i;
-		i = text.indexOf(open, i+open.length());
-		j = text.indexOf(close, k+open.length());
+		i = rawText.indexOf(open, i+open.length());
+		j = rawText.indexOf(close, k+open.length());
 		if (i > j || (i == -1 && j != -1)) {
 			//This object has depth 1.
 			k = j;
@@ -507,16 +499,16 @@ public class PageParser {
 				if (i<=j && i != -1) {
 					//Depth increased
 					k = i;
-					i = text.indexOf(open, i+open.length());
-					j = text.indexOf(close, k+open.length());
+					i = rawText.indexOf(open, i+open.length());
+					j = rawText.indexOf(close, k+open.length());
 					depth++;
 				} else if (j != -1) {
 					//Depth decreased
 					k = j;
 					if (i != -1) {
-						i = text.indexOf(open, j+close.length());
+						i = rawText.indexOf(open, j+close.length());
 					}
-					j = text.indexOf(close, j+close.length());
+					j = rawText.indexOf(close, j+close.length());
 					depth--;
 				}
 			} while(depth>0 && j != -1);
@@ -528,9 +520,6 @@ public class PageParser {
 		}
 		return k;
 	}
-	
-	
-	
 	
 	// Type methods
 	public void setParseThroughStatus(boolean flag) {

@@ -43,6 +43,11 @@ public class Page extends SimplePage {
 		mdm = MediawikiDataManager.getInstance();
 	}
 	
+	//Modify variables.	
+	public void setRevisions(ArrayList<Revision> revisions_) {
+		revisions.addAll(revisions);
+	}
+	
 	//Get information.
 	//Line methods
 	public int getLinePosition(int line) {
