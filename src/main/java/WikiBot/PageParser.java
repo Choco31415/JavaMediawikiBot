@@ -208,7 +208,7 @@ public class PageParser {
 							//Extra [ means the link is slightly further down.
 							//Odd multiples of [ do not create a link.
 							if (header.substring(0,1).equals("[")) {
-								openIndex += openStrings[objectID].length(); // Check again further.
+								openIndex += openStrings[objectID].length(); // Advance the cursor.
 								break objectParse;
 							}
 							
@@ -234,21 +234,16 @@ public class PageParser {
 					
 					//Resolve link/template disambiguates
 					//Templates encased by [[ ]] are disambiguates in that they could turn into a link, or stay a template.
-					//It all depends on if the template is multi-lined or not.
+					//It all depends on if the template is multi-lined, hence breaking the link.
 					if (isLink && resolveDisambiguates) {
 						for (PageObject object: objects) {
 							if (object.getObjectType().equalsIgnoreCase("Template")) {
+								
+								// Check if the template is muli-lined.
 								SimplePage sp = bot.getWikiSimplePage(new PageLocation(loc.getLanguage(), ((Template)object).getTemplateName()));
 								if (sp.getRawText().contains("\n") && depth == 0) {
-									//This template is, indeed, parsed as a template.
-									//Add everything contained.
-									for (PageObject object2: objects) {
-										if (object2.getObjectType().equalsIgnoreCase("Category")) {
-											pData.categories.add((Category)object2);
-										} else {
-											pData.pageObjects.add((PageObjectAdvanced)object2);
-										}
-									}
+									//It is!
+									pData.pageObjects.addAll(pData2.pageObjects);
 									
 									openIndex = outerCloseIndex;
 									break objectParse;
@@ -261,7 +256,7 @@ public class PageParser {
 					if (isLink) {
 						for (PageObjectAdvanced o : objects) {
 							if (o.getObjectType().equalsIgnoreCase("link")) {
-								openIndex += 2; // Check again further.
+								openIndex += 2; // Advanced the cursor.
 								break objectParse;
 							}
 						}
@@ -315,6 +310,8 @@ public class PageParser {
 					}
 					
 					// Wrap up and save work.
+					po.addPageObjects(objects);
+					
 					pData.pageObjects.add(po);
 					
 					//Done. Continue iteration.
