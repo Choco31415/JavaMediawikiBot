@@ -25,15 +25,15 @@ import APIcommands.APIcommand;
 import APIcommands.Advanced.Login;
 import APIcommands.Advanced.UploadFileChunk;
 import APIcommands.Query.*;
-import ContentRep.ImageInfo;
-import ContentRep.InfoContainer;
-import ContentRep.Page;
-import ContentRep.PageLocation;
-import ContentRep.Revision;
-import ContentRep.SimplePage;
-import ContentRep.User;
-import ContentRep.UserInfo;
-import ContentRep.SiteInfo.SiteStatistics;
+import Content.ImageInfo;
+import Content.InfoContainer;
+import Content.Page;
+import Content.PageLocation;
+import Content.Revision;
+import Content.SimplePage;
+import Content.User;
+import Content.UserInfo;
+import Content.SiteInfo.SiteStatistics;
 import Errors.NetworkError;
 import MediawikiData.MediawikiDataManager;
 import MediawikiData.VersionNumber;
@@ -86,7 +86,7 @@ public class MediawikiBot extends NetworkingBase {
 	public MediawikiBot(Path family_, String homeWikiLanguage_) {				
 		// Instantiate the MDM.
 		mdm = new MediawikiDataManager();
-		pageParser = new PageParser();
+		pageParser = new PageParser(this);
 		
 		// Load in the bot family info.
 		mdm.readFamily(family_, 0);
@@ -120,7 +120,7 @@ public class MediawikiBot extends NetworkingBase {
 		JsonNode pagesNode = serverOutput.findValue("pages");
 		JsonNode pageNode = pagesNode.elements().next();
 		
-		Page page = parseWikiPage(pageNode);
+		Page page = parsePage(pageNode);
 		
 		if (includeRevisions) {
 			ArrayList<Revision> revisions = getPastRevisions(loc, revisionLimit, getRevisionContent);
@@ -141,7 +141,7 @@ public class MediawikiBot extends NetworkingBase {
 		JsonNode pages = serverOutput.findValue("pages");
 		JsonNode page = pages.elements().next();
 		
-		return parseWikiSimplePage(page);
+		return parseSimplePage(page);
 	}
 	
 	/**
@@ -196,7 +196,7 @@ public class MediawikiBot extends NetworkingBase {
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
 			for (JsonNode pageNode : pageNodes) {
-				Page page = parseWikiPage(pageNode);
+				Page page = parsePage(pageNode);
 				
 				if (includeRevisions) {
 					ArrayList<Revision> revisions = getPastRevisions(page.getPageLocation(), revisionLimit, getRevisionContent);
@@ -235,7 +235,7 @@ public class MediawikiBot extends NetworkingBase {
 			
 			JsonNode pageNodes = serverOutput.findValue("pages");
 			for (JsonNode pageNode : pageNodes) {
-				simplePages.add(parseWikiSimplePage(pageNode));
+				simplePages.add(parseSimplePage(pageNode));
 			}
 		}
 		
@@ -277,48 +277,30 @@ public class MediawikiBot extends NetworkingBase {
         return rootNode;
 	}
 
-	protected SimplePage parseWikiSimplePage(JsonNode code) {
-		/*
-		 * This is a custom built XML parser for Wiki pages.
-		 * It creates a SimplePage object.
-		 **/
-		
-		SimplePage newPage = null;
-		
+	/**
+	 * This is a custom parser for Wiki pages.
+	 * It creates a SimplePage object.
+	 * @param code JSON code for the Wiki page.
+	 * @return A SimplePage object.
+	 */
+	protected SimplePage parseSimplePage(JsonNode code) {
 		// Parse out page information
-		String title = code.get("title").asText();
-		int pageid = code.get("pageid").asInt();
-		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
+		String language = mdm.getWikiPrefixFromURL(baseURL);
 		
-		// Initialize the SimplePage object with this info.
-		newPage = new SimplePage(wikiPrefix, title, pageid);
-		
-		String rawText = code.findValue("*").asText();
-		newPage.setRawText(rawText);
-		
-		return newPage;
+		return pageParser.parseSimplePage(code, language);
 	}
 	
-	protected Page parseWikiPage(JsonNode code) {
-		/*
-		 * This is a custom built XML parser for Wiki pages.
-		 * It creates a Page object.
-		 **/
-		
-		Page newPage = null;
-		
+	/**
+	 * This is a custom built XML parser for Wiki pages.
+	 * It creates a Page object.
+	 * @param code JSON code for the Wiki page.
+	 * @return A Page object.
+	 */
+	protected Page parsePage(JsonNode code) {		
 		// Parse out page information
-		String title = code.get("title").asText();
-		int pageid = code.get("pageid").asInt();
-		String wikiPrefix = mdm.getWikiPrefixFromURL(baseURL);
+		String language = mdm.getWikiPrefixFromURL(baseURL);
 		
-		// Initialize the SimplePage object with this info.
-		newPage = new Page(wikiPrefix, title, pageid);
-		String rawText = code.findValue("*").asText();
-		newPage.setRawText(rawText);
-		
-		// Get revisions, if needed.
-		return newPage;
+		return pageParser.parsePage(code, language);
 	}
 	
 	/**

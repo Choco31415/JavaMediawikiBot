@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 /**
  * This class takes in an article title and parses it into: namespace, Page Name (without namespace)

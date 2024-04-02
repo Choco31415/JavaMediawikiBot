@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import javax.swing.Box;
 
 import APIcommands.APIcommand;
-import ContentRep.User;
+import Content.User;
 import Utils.FileUtils;
 
 /**

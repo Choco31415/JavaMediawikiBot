@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 public class Link extends PageObjectAdvanced {
 	

@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 /**
  * This class is used to represent various features of a page.

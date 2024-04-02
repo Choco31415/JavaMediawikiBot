@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 import WikiBot.MediawikiBot;
 

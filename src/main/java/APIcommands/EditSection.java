@@ -1,6 +1,6 @@
 package APIcommands;
 
-import ContentRep.PageLocation;
+import Content.PageLocation;
 
 /**
  * @Description

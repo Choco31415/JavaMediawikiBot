@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 import java.util.ArrayList;
 
@@ -21,16 +21,16 @@ public class Page extends SimplePage {
 	private MediawikiDataManager mdm;
 	
 	//Page data
-	private ArrayList<Integer> linePositions = new ArrayList<Integer>();
-	private ArrayList<Section> sections = new ArrayList<Section>();
-	private ArrayList<PageObjectAdvanced> pageObjects = new ArrayList<PageObjectAdvanced>();//Templates, links, more
-	private ArrayList<Category> categories = new ArrayList<Category>();
-	private ArrayList<Interwiki> interwikis = new ArrayList<Interwiki>();
-	private ArrayList<Revision> revisions = new ArrayList<Revision>();
+	private ArrayList<Integer> linePositions;
+	private ArrayList<Section> sections;
+	private ArrayList<PageObjectAdvanced> pageObjects;//Templates, links, more
+	private ArrayList<Category> categories;
+	private ArrayList<Interwiki> interwikis;
+	private ArrayList<Revision> revisions;
 	
 	public Page(ArrayList<Integer> linePositions_, ArrayList<Section> sections_,
 			ArrayList<PageObjectAdvanced> pageObjects_, ArrayList<Category> categories_, 
-			ArrayList<Interwiki> interwikis_, ArrayList<Revision> revisions_,
+			ArrayList<Interwiki> interwikis_,
 			String lan_, String title_, int pageID_) {
 		super(lan_, title_, pageID_);
 		linePositions = linePositions_;
@@ -38,7 +38,7 @@ public class Page extends SimplePage {
 		pageObjects = pageObjects_;
 		categories = categories_;
 		interwikis = interwikis_;
-		revisions = revisions_;
+		revisions = new ArrayList<Revision>();
 		
 		mdm = MediawikiDataManager.getInstance();
 	}

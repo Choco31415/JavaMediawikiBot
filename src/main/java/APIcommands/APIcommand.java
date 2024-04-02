@@ -3,9 +3,6 @@ package APIcommands;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import ContentRep.PageLocation;
-import ContentRep.PageLocationContainer;
-import ContentRep.User;
 import Errors.UnsupportedError;
 import Utils.ArrayUtils;
 
@@ -13,6 +10,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
+import Content.PageLocation;
+import Content.PageLocationContainer;
+import Content.User;
 import MediawikiData.MediawikiDataManager;
 import MediawikiData.VersionNumber;
 

@@ -1,6 +1,6 @@
 package APIcommands.Query;
 
-import ContentRep.PageLocation;
+import Content.PageLocation;
 
 /**
  * @Description

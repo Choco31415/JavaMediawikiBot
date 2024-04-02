@@ -3,19 +3,21 @@ package WikiBot;
 import java.util.ArrayList;
 import java.util.Map;
 
-import ContentRep.Category;
-import ContentRep.ExternalLink;
-import ContentRep.Image;
-import ContentRep.Interwiki;
-import ContentRep.Link;
-import ContentRep.Page;
-import ContentRep.PageLocation;
-import ContentRep.PageObject;
-import ContentRep.PageObjectAdvanced;
-import ContentRep.Revision;
-import ContentRep.Section;
-import ContentRep.SimplePage;
-import ContentRep.Template;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import Content.Category;
+import Content.ExternalLink;
+import Content.Image;
+import Content.Interwiki;
+import Content.Link;
+import Content.Page;
+import Content.PageLocation;
+import Content.PageObject;
+import Content.PageObjectAdvanced;
+import Content.Revision;
+import Content.Section;
+import Content.SimplePage;
+import Content.Template;
 import MediawikiData.MediawikiDataManager;
 
 public class PageParser {
@@ -59,22 +61,37 @@ public class PageParser {
 	}
 	
 	// SimplePage parsing
-	public SimplePage parseSimpleWikiPage() {
-		SimplePage page = new SimplePage();
+	public SimplePage parseSimplePage(JsonNode code, String language) {
+		String title = code.get("title").asText();
+		int pageID = code.get("pageid").asInt();
 		
-		return page;
+		// Initialize the SimplePage object with this info.
+		SimplePage newPage = new SimplePage(language, title, pageID);
+		
+		String rawText = code.findValue("*").asText();
+		newPage.setRawText(rawText);
+		
+		return newPage;
 	}
 	
-	// !Experimental! Page parsing 
-	public Page parseWikiPage(String rawText) {
+	// Experimental Page parsing 
+	public Page parsePage(JsonNode code, String language) {
+		String title = code.get("title").asText();
+		int pageID = code.get("pageid").asInt();
+		
+		// Initialize the SimplePage object with this info.
+		String rawText = code.findValue("*").asText();
+		
 		ArrayList<Integer> linePositions = parsePageForNewLines(rawText);
-		PageParseData pData = parsePageForPageObjects(rawText);
+		PageParseData pData = parseTextForPageObjects(rawText, new PageLocation(language, title), 0, 0);
 		ArrayList<Section> sections = parsePageForSections(rawText);
 		
 		Page page = new Page(linePositions, sections,
 				pData.pageObjects, pData.categories,
 				pData.interwikis,
 				language, title, pageID);
+		
+		page.setRawText(rawText);
 		
 		return page;
 	}
@@ -89,16 +106,12 @@ public class PageParser {
 		ArrayList<String> escapeCloseText = mdm.getHTMLCommentCloseText();
 
 		for (int i = 0; i != -1; i = rawText.indexOf('\n', i+1)) {
-			if (isPositionParsedAsMediawiki(i, escapeOpenText, escapeCloseText)) {
+			if (isPositionParsedAsMediawiki(rawText, i, escapeOpenText, escapeCloseText)) {
 				linePositions.add(i);
 			}
 		}
 		
 		return linePositions;
-	}
-	
-	private PageParseData parsePageForPageObjects(String rawText, PageLocation loc) {
-		return parseTextForPageObjects(rawText, loc, 0, 0);
 	}
 	
 	private PageParseData parseTextForPageObjects(String rawText, PageLocation loc, int pos, int depth) {
@@ -519,11 +532,11 @@ public class PageParser {
 	}
 	
 	// Type methods
-	public void setParseThroughStatus(boolean flag) {
-		parseThrough = flag;
+	public void setDisambiguateStatus(boolean flag) {
+		resolveDisambiguates = flag;
 	}
 	
-	public boolean getParseThroughStatus() {
-		return parseThrough;
+	public boolean getDisambiguateStatus() {
+		return resolveDisambiguates;
 	}
 }

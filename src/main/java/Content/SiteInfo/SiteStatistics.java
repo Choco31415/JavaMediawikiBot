@@ -1,8 +1,8 @@
-package ContentRep.SiteInfo;
+package Content.SiteInfo;
 
 import java.util.ArrayList;
 
-import ContentRep.InfoContainer;
+import Content.InfoContainer;
 
 public class SiteStatistics extends InfoContainer {
 	

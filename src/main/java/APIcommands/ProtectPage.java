@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ContentRep.PageLocation;
+import Content.PageLocation;
 
 /**
  * @Description

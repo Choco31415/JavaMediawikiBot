@@ -1,4 +1,4 @@
-package ContentRep;
+package Content;
 
 /**
  * SimplePage is a simple version of page that does not store information such as links, templates, interwiki, and more.
@@ -15,8 +15,8 @@ public class SimplePage extends PageLocationContainer implements Cloneable {
 		lan = lan_;
 	}
 	
-	public void setRawText(String txt) {
-		rawText = txt;
+	public void setRawText(String text) {
+		rawText = text;
 	}
 	
 	//Get information.

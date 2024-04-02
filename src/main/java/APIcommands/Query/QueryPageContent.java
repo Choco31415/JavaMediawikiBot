@@ -3,7 +3,7 @@ package APIcommands.Query;
 import java.util.ArrayList;
 
 import APIcommands.APIcommand;
-import ContentRep.PageLocation;
+import Content.PageLocation;
 
 /**
  * @Description

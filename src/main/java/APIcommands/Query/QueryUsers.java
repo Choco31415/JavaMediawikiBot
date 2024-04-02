@@ -2,7 +2,7 @@ package APIcommands.Query;
 
 import java.util.ArrayList;
 
-import ContentRep.User;
+import Content.User;
 
 /**
  * @Description
