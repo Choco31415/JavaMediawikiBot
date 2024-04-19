@@ -24,24 +24,6 @@ public class PageLocation extends PageTitleContainer {
 		lan = lan_;
 	}
 	
-	/**
-	 * The language is assumed to be the home language of the bot.
-	 * @param title_ The title of the page.
-	 */
-	public PageLocation(String title_) {
-		super(title_);
-		lan = MediawikiBot.getInstance().getHomeWikiLanguage();
-	}
-	
-	/**
-	 * The language is assumed to be the home language of the bot.
-	 * @param pt The Page Title object describing the title of the page.
-	 */
-	public PageLocation(PageTitle pt) {
-		super(pt);
-		lan = MediawikiBot.getInstance().getHomeWikiLanguage();
-	}
-	
 	public String getLanguage() {
 		return lan;
 	}

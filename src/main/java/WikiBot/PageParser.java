@@ -18,7 +18,7 @@ import Content.Revision;
 import Content.Section;
 import Content.SimplePage;
 import Content.Template;
-import MediawikiData.MediawikiDataManager;
+import Mediawiki.MediawikiDataManager;
 
 public class PageParser {
 	

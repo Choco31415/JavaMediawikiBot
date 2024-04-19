@@ -1,4 +1,4 @@
-package MediawikiData;
+package Mediawiki;
 
 import Errors.UnsupportedError;
 

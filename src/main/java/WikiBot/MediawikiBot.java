@@ -13,7 +13,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
@@ -35,8 +35,8 @@ import Content.User;
 import Content.UserInfo;
 import Content.SiteInfo.SiteStatistics;
 import Errors.NetworkError;
-import MediawikiData.MediawikiDataManager;
-import MediawikiData.VersionNumber;
+import Mediawiki.MediawikiDataManager;
+import Mediawiki.VersionNumber;
 import Utils.ArrayUtils;
 import WikiBot.BotPanel;
 
@@ -1799,5 +1799,5 @@ public class MediawikiBot extends NetworkingBase {
 	}
 	
 	public String getHomeWikiLanguage() { return homeWikiLanguage; }
-	public boolean shouldParseThrough() { return parseThrough; }
+	public void setDisambiguateStatus(boolean flag) { pageParser.setDisambiguateStatus(flag); }
 }

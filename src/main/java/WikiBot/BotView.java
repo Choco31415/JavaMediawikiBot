@@ -30,7 +30,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 
-import MediawikiData.MediawikiDataManager;
+import Mediawiki.MediawikiDataManager;
 import Utils.DocumentSizeFilter;
 import Utils.FileUtils;
 

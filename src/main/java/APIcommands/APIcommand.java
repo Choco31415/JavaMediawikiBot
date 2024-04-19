@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import Errors.UnsupportedError;
+import Mediawiki.MediawikiDataManager;
+import Mediawiki.VersionNumber;
 import Utils.ArrayUtils;
 
 import org.apache.http.HttpEntity;
@@ -13,8 +15,6 @@ import org.apache.http.util.EntityUtils;
 import Content.PageLocation;
 import Content.PageLocationContainer;
 import Content.User;
-import MediawikiData.MediawikiDataManager;
-import MediawikiData.VersionNumber;
 
 /**
  * @Description

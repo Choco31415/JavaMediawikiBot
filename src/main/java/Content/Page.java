@@ -2,7 +2,7 @@ package Content;
 
 import java.util.ArrayList;
 
-import MediawikiData.MediawikiDataManager;
+import Mediawiki.MediawikiDataManager;
 import WikiBot.MediawikiBot;
 
 /**
