@@ -134,94 +134,40 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * Add finest info to the logger.
 	 * @param line 
 	 */
-	public void logFinest(String line) {
-		log(Level.FINEST, line);
+	public void logTrace(String message) {
+		logger.trace(message);
 	}
 	
 	/**
 	 * Add finer info to the logger.
 	 * @param line 
 	 */
-	public void logFiner(String line) {
-		log(Level.FINER, line);
+	public void logDebug(String message) {
+		logger.debug(message);
 	}
 	
 	/**
 	 * Add fine info to the logger.
 	 * @param line 
 	 */
-	public void logFine(String line) {
-		log(Level.FINE, line);
+	public void logInfo(String message) {
+		logger.info(message);
 	}
 	
 	/**
 	 * Add configuration info to the logger.
 	 * @param line
 	 */
-	public void logConfig(String line) {
-		log(Level.CONFIG, line);
+	public void logWarning(String message) {
+		logger.warn(message);
 	}
 	
 	/**
 	 * Add a line to the logger.
 	 * @param line 
 	 */
-	public void logInfo(String line) {
-		log(Level.INFO, line);
-	}
-	
-	/**
-	 * Add a warning to the logger.
-	 * @param line
-	 */
-	public void logWarning(String line) {
-		log(Level.WARNING, "WARNING: " + line);
-	}
-	
-	/**
-	 * Add an error to the logger.
-	 * @param line
-	 */
-	public void logError(String line) {
-		log(Level.SEVERE, "ERROR: " + line);
-	}
-	
-	public boolean log(Level level, String line) {
-		return logger.log(level, line);
-	}
-	
-	/**
-	 * Set how fine you want the log.
-	 * Refer to the comment at the top of NetworkingBase to see what each level corresponds to.
-	 * 
-	 * @param level The fineness level.
-	 */
-	public void setLoggerLevel(Level level) {
-		logger.setLoggerLevel(level);
-	}
-	
-	/**
-	 * Get the most recent logger line.
-	 * @return
-	 */
-	public String getNewestLoggerLine() {
-		return logger.getNewestLoggerLine();
-	}
-	
-	/**
-	 * Obtain a String copy of the log.
-	 * @return
-	 */
-	public String exportLog() {
-		return logger.exportLog();
-	}
-	
-	/**
-	 * Set if logger propagates to Stdout.
-	 * @param set
-	 */
-	public void setLogPropagation(boolean set) {
-		logger.setPropagation(set);
+	public void logError(String message) {
+		logger.error(message);
 	}
 	
 	/*
@@ -243,7 +189,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * @param unescapeHTML4 Unescapes HTML4 text. Ex: & #039;
 	 */
 	protected HttpEntity getURL(String ur) throws IOException {
-		logFiner("Loading: " + ur);
+		logTrace("Loading HTTP: " + ur);
 	  		
   		//This method actual fetches a web page, and turns it into a more easily use-able format.		  		//This method actual fetches a web page, and turns it into a more easily use-able format.
 		HttpResponse response = null;
@@ -264,7 +210,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	 * A method for creating a Web POST request.
 	 */
 	protected HttpEntity getPOST(String url, String[] keys, String[] values) {
-		logFiner("Loading: " + url);
+		logTrace("Loading POST: " + url);
 		
         HttpResponse response = null;
 		
@@ -290,7 +236,7 @@ public class NetworkingBase extends javax.swing.JPanel {
 	}
 	
 	protected HttpEntity getPOST(String url, HttpEntity entity) {
-		logFiner("Multipart loading: " + url);
+		logTrace("Loading Multipart POST: " + url);
 		
 		HttpResponse response = null;
 		
@@ -326,29 +272,8 @@ public class NetworkingBase extends javax.swing.JPanel {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		return response.getStatusLine().getStatusCode();
-//        URL oracle = null;
-//		try {
-//			oracle = URI.create(url).toURL();
-//		} catch (MalformedURLException e) {
-//			System.err.println(e.getMessage());
-//		}
-//		
-//		try {
-//			//Send a HEAD request. This is super fast way to just check if a page exists or not.
-//			HttpURLConnection huc = (HttpURLConnection) oracle.openConnection();
-//			huc.setRequestMethod("HEAD");
-//			
-//			return huc.getResponseCode();
-//		} catch (UnknownHostException e) {
-//			logError("Unkown host: " + url);
-//			return 401;
-//		} catch (SSLHandshakeException e) {
-//			return 401;
-//		} catch (Throwable e) {
-//			e.printStackTrace();
-//			throw new Error("Something went wrong");
-//		}
 	}
 	
 	public String URLencode(String url) {
@@ -387,12 +312,12 @@ public class NetworkingBase extends javax.swing.JPanel {
 	public void logCookies() {
 		List<Cookie> cookies = context.getCookieStore().getCookies();
 		
-		logFinest("List of cookies: ");
+		logTrace("List of cookies: ");
 		if (cookies.isEmpty()) {
-			logFinest("None");
+			logTrace("None");
 	    } else {
 	        for (int i = 0; i < cookies.size(); i++) {
-	            logFinest("- " + cookies.get(i).toString());
+	            logTrace("- " + cookies.get(i).toString());
 	        }
 	    }
 	}

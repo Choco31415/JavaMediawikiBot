@@ -168,7 +168,7 @@ public class MediawikiBot extends NetworkingBase {
 			return null;
 		}
 		
-	    logFine(baseURL + " // " + loc.getTitle() + " is downloaded.");
+	    logDebug(baseURL + " // " + loc.getTitle() + " is downloaded.");
 	    
 	    return rootNode;
 	}
@@ -260,19 +260,19 @@ public class MediawikiBot extends NetworkingBase {
 		}
 		
 		// Logging
-        logFine(baseURL + " // " + locs.get(0).getTitle()
+        logDebug(baseURL + " // " + locs.get(0).getTitle()
 				+ " through " + locs.get(locs.size()-1).getTitle()
 				+ " is downloaded.");
 		
 		// Fine detailed logging
-		String finest = "Specifically, this includes: "; 
+		String finest = "Specifically, the list of pages includes: "; 
 		for (int i = 0; i < locs.size(); i++) {
 			if (i != 0) {
 				finest += ", ";
 			}
 			finest += locs.get(i).getTitle();
 		}
-		logFinest(finest);
+		logTrace(finest);
         
         return rootNode;
 	}
@@ -375,7 +375,7 @@ public class MediawikiBot extends NetworkingBase {
 		ArrayList<Revision> toReturn = new ArrayList<Revision>();
 		String rccontinue = null; // Used to continue queries.
 		
-		logFine("Getting recent changes.");
+		logDebug("Getting recent changes.");
 		
 		int revisionsNeeded = depth;
 		do {
@@ -433,7 +433,7 @@ public class MediawikiBot extends NetworkingBase {
 			if (rootNode.findValue("rccontinue") != null) {
 				rccontinue = rootNode.findValue("rccontinue").asText();
 				
-				logFiner("Next page batch starts at: " + rccontinue);
+				logTrace("Getting more recent changes starting at: " + rccontinue);
 			} else {
 				rccontinue = null;
 			}
@@ -452,7 +452,7 @@ public class MediawikiBot extends NetworkingBase {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String cmcontinue = null;
 		
-		logFine("Getting category pages.");
+		logDebug("Getting category pages.");
 		
 		do {
 			// Make a query call.
@@ -488,7 +488,7 @@ public class MediawikiBot extends NetworkingBase {
 			if (rootNode.findValue("cmcontinue")  != null) {
 				cmcontinue = rootNode.findValue("cmcontinue").asText();
 				
-				logFiner("Next page batch starts at: " + cmcontinue);
+				logTrace("Getting more category pages starting at: " + cmcontinue);
 			} else {
 				cmcontinue = null;
 			}
@@ -509,7 +509,7 @@ public class MediawikiBot extends NetworkingBase {
 		
 		toAdd = getCategoryPages(loc);
 		
-		logFiner("Getting category pages (recursive) for: " + loc.getTitle());
+		logTrace("Getting category pages recursively for: " + loc.getTitle());
 		
 		/*
 		 * Look through all page names. If there is a category, get those pages.
@@ -538,7 +538,7 @@ public class MediawikiBot extends NetworkingBase {
 		
 		toAdd = getCategoryPages(loc);
 		
-		logFiner("Getting category pages (recursive) for: " + loc.getTitle());
+		logTrace("Getting category pages recursively for: " + loc.getTitle());
 		
 		/*
 		 * Look through all page names. If there is a category, get those pages.
@@ -578,7 +578,7 @@ public class MediawikiBot extends NetworkingBase {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String blcontinue = null;
 		
-		logFine("Getting pages that link to: "  + loc.getTitle());
+		logDebug("Getting pages that link to: "  + loc.getTitle());
 		
 		int backlinksNeeded;
 		do {
@@ -618,7 +618,7 @@ public class MediawikiBot extends NetworkingBase {
 			if (rootNode.findValue("blcontinue") != null) {
 				blcontinue = rootNode.findValue("blcontinue").asText();
 				
-				logFiner("Next backlink batch starts at: " + blcontinue);
+				logTrace("Getting pages that link to " + loc.getTitle() + " starting at: " + blcontinue);
 			} else {
 				blcontinue = null;
 			}
@@ -662,7 +662,7 @@ public class MediawikiBot extends NetworkingBase {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		String apcontinue = null;
 		
-		logFine("Getting all pages starting from " + from + ".");
+		logDebug("Getting all pages starting from " + from + ".");
 		
 		do {
 			// Make a query call.
@@ -716,7 +716,7 @@ public class MediawikiBot extends NetworkingBase {
 			if (rootNode.findValue("apcontinue") != null) {
 				apcontinue = rootNode.findValue("apcontinue").asText();
 
-				logFiner("Next page batch starts at: " + apcontinue);
+				logTrace("Getting all pages continuing from: " + apcontinue);
 			} else {
 				apcontinue = null;
 			}
@@ -748,6 +748,8 @@ public class MediawikiBot extends NetworkingBase {
 	public ArrayList<PageLocation> getPagesByPrefix(String language, String prefix, int psnamespace) {
 		ArrayList<PageLocation> toReturn = new ArrayList<PageLocation>();
 		Integer psoffset = null;
+		
+		logDebug("Getting all pages with prefix " + prefix + ".");
 		
 		do {
 			// Make query call.
@@ -786,8 +788,6 @@ public class MediawikiBot extends NetworkingBase {
 				psoffset = null;
 			}
 		} while (psoffset != null);
-		
-		logFine("All pages with prefix " + prefix + " queried.");
 		
 		return toReturn;
 	}
@@ -830,8 +830,8 @@ public class MediawikiBot extends NetworkingBase {
 	 * @return A ImageInfo.
 	 */
 	protected ImageInfo getImageInfo(PageLocation loc, ArrayList<String> propertyNames) {
-		logFine("Getting file info for: " + loc.getTitle());
-		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
+		logDebug("Getting file info for: " + loc.getTitle());
+		logTrace("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
 		String serverOutput = APIcommand(new QueryImageInfo(loc, propertyNames));
 		
@@ -991,8 +991,8 @@ public class MediawikiBot extends NetworkingBase {
 			userLogMessage += u.getUserName() + ", ";
 		}
 		
-		logFine(userLogMessage);
-		logFiner("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
+		logDebug(userLogMessage);
+		logTrace("Getting properties: " + ArrayUtils.compactArray(propertyNames, ", "));
 		
 		// Method code below
 		ArrayList<UserInfo> toReturn = new ArrayList<UserInfo>();
@@ -1147,7 +1147,7 @@ public class MediawikiBot extends NetworkingBase {
 			userLogMessage += u.getUserName() + ", ";
 		}
 		
-		logFine(userLogMessage);
+		logDebug(userLogMessage);
 		
 		// Method code below
 		ArrayList<ArrayList<Revision>> multiContribs = new ArrayList<>();
@@ -1249,7 +1249,7 @@ public class MediawikiBot extends NetworkingBase {
 		// Logging
 		String userLogMessage = "Getting site statistics for wiki: " + language;
 		
-		logFine(userLogMessage);
+		logDebug(userLogMessage);
 		
 		// Method code below.
 		ArrayList<String> propertyNames = new ArrayList<String>();
@@ -1396,7 +1396,7 @@ public class MediawikiBot extends NetworkingBase {
         try {
         	logCookies();
         } catch (NullPointerException e) {
-        	logFinest("No cookies detected.");
+        	logTrace("No cookies detected.");
         }
 
         // Log in!
@@ -1407,7 +1407,7 @@ public class MediawikiBot extends NetworkingBase {
         logCookies();
         
         boolean success = serverOutput.contains("Success");
-		logFiner("Login status at " + user.getLanguage() + ": " + success);
+		logDebug("Login status at " + user.getLanguage() + ": " + success);
         
 		if (success) {
 			loggedInAtLanguages.add(user.getLanguage());
@@ -1461,7 +1461,7 @@ public class MediawikiBot extends NetworkingBase {
 			}
 		} while (networkError);
 		
-		logFinest("API results obtained.");
+		logTrace("API results obtained.");
 
 		// Handle mediawiki output.
 		if (textReturned != null) {
@@ -1474,7 +1474,7 @@ public class MediawikiBot extends NetworkingBase {
 				
 				if (textReturned.contains("This is an auto-generated MediaWiki API documentation page")) {
 					//You got the Mediawiki API documentation sent back.
-					logFinest("MediawikiAPI documentation page returned.");
+					logTrace("MediawikiAPI documentation page returned.");
 					
 					String error = parseTextForItem(textReturned, "error code", "\"");
 					if (textReturned.contains("info=")) {
@@ -1485,9 +1485,9 @@ public class MediawikiBot extends NetworkingBase {
 				} else {
 					// Log a small portion of the html. It's nice.
 					if (textReturned.length() < 1000) {
-						logFinest("HTML: " + textReturned);
+						logTrace("HTML: " + textReturned);
 					} else {
-						logFinest("HTML: " + textReturned.substring(0, 1000));	
+						logTrace("HTML: " + textReturned.substring(0, 1000));	
 					}
 
 					if (textReturned.contains("<warnings>")) {
@@ -1518,25 +1518,25 @@ public class MediawikiBot extends NetworkingBase {
 							logError(error);
 						} else {
 							// Everything looks ok.
-							logFinest(command.getTitle() + " has been updated.");
+							logTrace(command.getTitle() + " has been updated.");
 						}
 					}
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("xml")) {
 				// We are handling XML output. We do not do anything.
-				logFinest("XML received.");
+				logTrace("XML received.");
 				if (textReturned.length() < 1000) {
-					logFinest("XML: " + textReturned);
+					logTrace("XML: " + textReturned);
 				} else {
-					logFinest("XML: " + textReturned.substring(0, 1000));	
+					logTrace("XML: " + textReturned.substring(0, 1000));	
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("php")) {
 				// We are handling PHP output. We do not do anything.
-				logFinest("PHP received.");
+				logTrace("PHP received.");
 				if (textReturned.length() < 1000) {
-					logFinest("PHP: " + textReturned);
+					logTrace("PHP: " + textReturned);
 				} else {
-					logFinest("PHP: " + textReturned.substring(0, 1000));	
+					logTrace("PHP: " + textReturned.substring(0, 1000));	
 				}
 			} else if (command.getValue("format").equalsIgnoreCase("Json")){
 				// We are handling Json output.
@@ -1545,23 +1545,23 @@ public class MediawikiBot extends NetworkingBase {
 				// Error handling
 				if (textReturned.contains("This is an auto-generated MediaWiki API documentation page")) {
 					// The Mediawiki API documentation was returned.
-					logFinest("Mediawiki API documentation page returned.");
+					logTrace("Mediawiki API documentation page returned.");
 					
 					throw new Error("Mediawiki API documentation page returned.");
 				} else {
 					// Log a small portion of the JSON. It's nice.
 					if (textReturned.length() < 1000) {
-						logFinest("Json: " + textReturned);
+						logTrace("Json: " + textReturned);
 					} else {
-						logFinest("Json: " + textReturned.substring(0, 1000));	
+						logTrace("Json: " + textReturned.substring(0, 1000));	
 					}
 
 					if (textReturned.contains("Internal Server Error")) {
 						logError("Internal Server Error");
-						logFinest(textReturned);
+						logTrace(textReturned);
 						throw new Error("Internal Server Error");
 					} else {
-				        logFinest("Downloaded page " + command.getPageLocation().getTitle() + ".");
+				        logTrace("Downloaded page " + command.getPageLocation().getTitle() + ".");
 					}
 				}
 			}
@@ -1718,7 +1718,7 @@ public class MediawikiBot extends NetworkingBase {
 		try {
 			String serverOutput = removeBOM(EntityUtils.toString(entity));
 			
-			logFinest("Received token response: " + serverOutput);
+			logTrace("Received token response: " + serverOutput);
 
 			// Read in the Json!!!
 			ObjectMapper mapper = new ObjectMapper();
