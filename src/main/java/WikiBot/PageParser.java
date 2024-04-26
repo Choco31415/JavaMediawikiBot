@@ -18,6 +18,7 @@ import Content.Revision;
 import Content.Section;
 import Content.SimplePage;
 import Content.Template;
+import Errors.ParsingError;
 import Mediawiki.MediawikiDataManager;
 
 public class PageParser {
@@ -141,7 +142,11 @@ public class PageParser {
 			openIndex = lowestIndex;
 			if (openIndex != -1 && isPositionParsedAsMediawiki(rawText, openIndex+pos)) {
 				//Test that we do have a page object.
-				innerCloseIndex = findClosingPosition(rawText, openStrings[objectID], closeStrings[objectID], openIndex);
+				try {
+					innerCloseIndex = findClosingPosition(rawText, openStrings[objectID], closeStrings[objectID], openIndex);
+				} catch (ParsingError e) {
+					//TODO: "Detected possible unclosed Mediawiki object at page: " + getTitle() + " language: " + getLanguage());
+				}
 				
 				if (objectID == 1) {
 					//Mediawiki preference. If a link closing can be put one character further, do it.
@@ -489,7 +494,7 @@ public class PageParser {
 		}
 	}
 	
-	private int findClosingPosition(String rawText, String open, String close, int start) {
+	private int findClosingPosition(String rawText, String open, String close, int start) throws ParsingError {
 		//Method for finding where [[ ]] and {{ }} end.
 		int i = start;
 		int j;
@@ -524,9 +529,7 @@ public class PageParser {
 			} while(depth>0 && j != -1);
 		}
 		if (depth != 0 ) {
-			MediawikiBot bot = MediawikiBot.getInstance();
-			bot.logFine("Detected possible unclosed parseable item at page: " + getTitle() + " language: " + getLanguage());
-			return start + open.length();
+			throw new ParsingError();
 		}
 		return k;
 	}

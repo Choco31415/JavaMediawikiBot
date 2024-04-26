@@ -89,10 +89,6 @@ public class BotPanel {
 		}
 	}
 	
-	/**
-	 * Put all bot code in this method.
-	 */
-	public abstract void code();
 	
 	/**
 	 * Set the panel's name.

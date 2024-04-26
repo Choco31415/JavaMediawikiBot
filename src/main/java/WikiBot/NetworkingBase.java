@@ -40,9 +40,10 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import Errors.NetworkError;
-import Utils.Logger;
 
 /**
  * NetworkingBases handles all networking and logging for a bot.
@@ -63,7 +64,7 @@ import Utils.Logger;
 public class NetworkingBase extends javax.swing.JPanel {
 	
 	//Log variables.
-	private Logger logger = Logger.getInstance();
+	private Logger logger;
 	public Level logLevel = Level.INFO;
 	
 	//These variables are used for networking purposes (GET and POST requests).
@@ -119,6 +120,8 @@ public class NetworkingBase extends javax.swing.JPanel {
 		
 	//Instantiation.
 	public NetworkingBase() {
+		logger = LogManager.getRootLogger();
+		
 		setupSSLclient();
 		context =  HttpClientContext.create();
 	}
