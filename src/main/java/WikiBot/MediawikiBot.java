@@ -69,10 +69,10 @@ public class MediawikiBot extends NetworkingBase {
 	private MediawikiDataManager mdm; // Access to the MDM class.
 	private PageParser pageParser; // Experimental page parser.
 	private String baseURL = ""; // The url for the wiki the bot is currently operating on.
-	private final String homeWikiLanguage; // The default wiki of a bot.
+	final String homeWikiLanguage; // The default wiki of a bot.
 	
 	// Status variables
-	private ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
+	ArrayList<String> loggedInAtLanguages = new ArrayList<String>(); // A list of wikis the bot is logged into.
 	private long lastCommandTimestamp = 0; // The timestamp of the last API command.
 
 	// Configuration variables
@@ -1782,7 +1782,7 @@ public class MediawikiBot extends NetworkingBase {
 		lastCommandTimestamp = System.currentTimeMillis();
 	}
 	
-	private void sleepInSeconds(double time) {
+	void sleepInSeconds(double time) {
 		try {
 			Thread.sleep((int)(1000*time));
 		} catch (InterruptedException e) {

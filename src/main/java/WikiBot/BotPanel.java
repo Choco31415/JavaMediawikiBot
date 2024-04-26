@@ -6,6 +6,7 @@ import javax.swing.JPasswordField;
 import javax.swing.SwingWorker;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -109,23 +110,12 @@ public class BotPanel {
 	 * </notice>
 	 */
 	
-	@Override
-	public boolean log(Level level, String line) {
-		boolean toReturn = super.log(level, line);
-		
-		if (toReturn) {
-			view.printToConsole(getNewestLoggerLine());
-		}
-		
-		return toReturn;
-	}
-	
 	/**
 	 * Print the log to the {@code logFile}.
 	 */
-	public void printLog() {
-		String log = exportLog();
-		FileUtils.writeFile(log, logFile.getAbsolutePath());
+	public void displayLog() {
+		//TODO: Figure out how to fetch log data from log4j.
+		//FileUtils.writeFile(log, logFile.getAbsolutePath());
 	}
 	
 	/*
@@ -137,19 +127,19 @@ public class BotPanel {
 	 */
 	public void runCode() {
 		if (pushingCommands) {
-			logError("Please wait for edits to finish pushing.");
+			bot.logWarning("Please wait for edits to finish pushing.");
 		} else {
 			if (proposedCommands.size() >= maxProposedEdits && maxProposedEdits > 0) {
-				logInfo("To continue, review some proposed edits.");
+				bot.logInfo("To continue, please review some proposed edits.");
 			} else {	
 			    SwingWorker<Void, Void> runWorker = new SwingWorker<Void, Void>() {
 			        @Override
 			        public Void doInBackground() {
 			        	try {
-			        		logInfo("Running code.");
-			        		code();
+			        		bot.logInfo("Running code.");
+			        		// code(); TODO: Figure out new setup
 			        	} catch (Throwable e) {
-			        		logError(e.getMessage());
+			        		bot.logError(e.getMessage());
 			        		e.printStackTrace();
 			        	}
 			        	
@@ -158,7 +148,7 @@ public class BotPanel {
 
 			        @Override
 			        protected void done() {
-						logInfo("Done running.");
+						bot.logInfo("Done running.");
 						
 						validate();
 			        }
@@ -175,10 +165,10 @@ public class BotPanel {
 	 */
 	public void pushButton() {
 		if (!pushingCommands) {
-			if (loggedInAtLanguages.size() != 0) {
+			if (bot.loggedInAtLanguages.size() != 0) {
 				pushCommands();
 			} else {
-				logWarning("Please log in to push commands.");
+				bot.logWarning("Please log in to push commands.");
 			}
 		} else {
 			pausedPushing = !pausedPushing;
@@ -210,7 +200,7 @@ public class BotPanel {
 
 		        @Override
 		        protected void done() {
-		        	logInfo("Done pushing commands.");
+		        	bot.logInfo("Done pushing commands.");
 		    		view.setStatus("Done pushing commands.");
 		    		
 					pushingCommands = false;
@@ -220,7 +210,7 @@ public class BotPanel {
 
 		    pushWorker.execute();
 		} else {
-			logInfo("No accepted commands detected.");
+			bot.logInfo("All work is done.");
 		}
 	}
 	
@@ -231,7 +221,7 @@ public class BotPanel {
 		int waitTime;
 	    
 		int numCommands = acceptedCommands.size();
-		logInfo("Pushing " + acceptedCommands.size() + " commands. Please wait.");
+		bot.logInfo("Pushing " + acceptedCommands.size() + " commands. Please wait.");
 		
 		//Push the commands!
 		for (int i = acceptedCommands.size()-1; i >= 0; i--) {
@@ -248,21 +238,21 @@ public class BotPanel {
 			
 			//Try pushing a command.
 			try {
-				logFinest("Pushing edit.");
-				APIcommand(acceptedCommands.get(i));
+				bot.logDebug("Pushing edit.");
+				bot.APIcommand(acceptedCommands.get(i));
 				acceptedCommands.remove(i);
 				view.removeAccepted(i);
 
 				//Log info.
 				if (i%10 == 0) {
-					logInfo(baseMessage + " | Waiting " + waitTimeBetweenProposedCommands + " sec.");
+					bot.logInfo(baseMessage + " | Waiting " + waitTimeBetweenProposedCommands + " sec.");
 				}
 				
 				view.setStatus(baseMessage + " | Waiting " + waitTimeBetweenProposedCommands + " sec.");
 			} catch (Error e) {
 				//Fail.
 				e.printStackTrace();
-				logError(e.getClass().getName());
+				bot.logError(e.getClass().getName());
 			}
 			
 			if (i != 0) {
@@ -270,7 +260,7 @@ public class BotPanel {
 				if (!pausedPushing) {
 					//Wait a little between each command.
 					for (int time = 0; time < waitTimeBetweenProposedCommands && !pausedPushing; time++) {
-						sleepInSeconds(1);
+						bot.sleepInSeconds(1);
 					}
 				}
 				
@@ -279,7 +269,7 @@ public class BotPanel {
 					view.setStatus(baseMessage + " | Paused.");
 					
 					do { 
-						sleepInSeconds(1);
+						bot.sleepInSeconds(1);
 					} while (pausedPushing);
 				}
 			}
@@ -297,7 +287,7 @@ public class BotPanel {
 	 */
 	public void removeSelectedCommands() {
 		if (pushingCommands) {
-			logError("Please wait for edits to finish pushing.");
+			bot.logError("Please wait for edits to finish pushing.");
 		} else {
 			int index = view.getSelectedProposedIndex();
 			while (index > -1) {
@@ -340,7 +330,7 @@ public class BotPanel {
 				index = view.getSelectedProposedIndex();
 			}
 		} else {
-			logError("Please wait for the current edits to finish.");
+			bot.logError("Please wait for the current edits to finish.");
 		}
 	}
 	
@@ -353,7 +343,7 @@ public class BotPanel {
 				acceptCommand(i);
 			}
 		} else {
-			logError("Please wait for the current edits to finish.");
+			bot.logError("Please wait for the current edits to finish.");
 		}
 	}
 	
@@ -372,9 +362,9 @@ public class BotPanel {
 	}
 	
 	/**
-	 * Export proposed and accepted edits to {@code editsFile}.
+	 * Export proposed and accepted edits to.
 	 */
-	public void exportEdits() {
+	public void exportEdits(Path outputFile) {
 		String temp = "***Proposed Edits***";
 		for (APIcommand et : proposedCommands) {
 			temp += et.getSummary() + "\n";
@@ -383,8 +373,8 @@ public class BotPanel {
 		for (APIcommand et : acceptedCommands) {
 			temp += et.getSummary() + "\n";
 		}
-		FileUtils.writeFile(temp, editsFile.getAbsolutePath());
-		logInfo("Edits exported.");
+		FileUtils.writeFile(temp, outputFile.toString());
+		bot.logInfo("Edits exported.");
 	}
 	
 	/*
@@ -420,7 +410,7 @@ public class BotPanel {
 	public void logInAtHome() {
 		// Log in.
 		ArrayList<String> languageCodes = new ArrayList<String>();
-		languageCodes.add(homeWikiLanguage);
+		languageCodes.add(bot.homeWikiLanguage);
 		logInAt(languageCodes);
 	}
 	
@@ -438,7 +428,7 @@ public class BotPanel {
 	 */
 	public void logInEverywhere() {
 		// Log in.
-		logInfo("Attempting login everywhere.");
+		bot.logInfo("Logging in to every wiki.");
 		logInAt(bot.getMDM().getWikiPrefixes());
 	}
 	
@@ -463,7 +453,7 @@ public class BotPanel {
 				    	logInAt(languageCode);
 				    }
 	        	} catch (Error e) {
-	        		logError(e.getMessage());
+	        		bot.logError(e.getMessage());
 	        		e.printStackTrace();
 	        	}
 	        	
@@ -485,15 +475,15 @@ public class BotPanel {
 	 * @param languageCode The wiki's language code.
 	 */
 	private void logInAt(String languageCode) {
-		boolean success = logIn(new User(languageCode, botUsername), botPassword);
+		boolean success = bot.logIn(new User(languageCode, botUsername), botPassword);
 		
 		if (success) {
-			logInfo("Logged in at: " + languageCode);
+			bot.logInfo("Logged in at: " + languageCode);
 			
 			//Update the GUI
 			view.setWikiLoginStatus(languageCode, true);
 		} else {
-			logWarning("Log in failed at: " + languageCode);
+			bot.logWarning("Log in failed at: " + languageCode);
 		}
 	}
 }
