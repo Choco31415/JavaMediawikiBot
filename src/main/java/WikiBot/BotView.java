@@ -57,7 +57,6 @@ public class BotView extends JFrame implements ActionListener{
 	protected JPanel mainPanel;
 	
 	protected JMenuBar menuBar;
-	protected JButton printLogButton;
 	protected JButton runButton;
 	protected JButton pushButton;
 	protected JButton exitButton;
@@ -104,7 +103,6 @@ public class BotView extends JFrame implements ActionListener{
 	    AbstractDocument doc = (AbstractDocument) console.getDocument();
 	    doc.setDocumentFilter(new DocumentSizeFilter(maxConsoleLineSize, console));
 	    
-	    printLogButton = createJButton("Export Log", new Dimension(100, 20));
 	    exportEditsButton = createJButton("Export Edits", new Dimension(100, 20));
 	    removeButton = createJButton("Remove", new Dimension(100, 20));
 	    acceptButton = createJButton("Accept", new Dimension(100, 20));
@@ -204,7 +202,6 @@ public class BotView extends JFrame implements ActionListener{
 	    commandProcessingBar.add(acceptButton);
 	    commandProcessingBar.add(acceptAllButton);
 	    commandProcessingBar.add(Box.createHorizontalStrut(WIDTH-500));
-	    commandProcessingBar.add(printLogButton);
 	    commandProcessingBar.add(exportEditsButton);
 	    
 	    logInMenu = new JPopupMenu("Log In");
@@ -220,7 +217,6 @@ public class BotView extends JFrame implements ActionListener{
 	    //Set up action handlers, so buttons actually work. No one wants a non-functioning button.
 	    runButton.addActionListener(this);
 	    pushButton.addActionListener(this);
-	    printLogButton.addActionListener(this);
 	    exitButton.addActionListener(this);
 	    exportEditsButton.addActionListener(this);
 	    removeButton.addActionListener(this);
@@ -353,10 +349,9 @@ public class BotView extends JFrame implements ActionListener{
 			panel.logInEverywhere();
 		} else if (e.getSource() == exitButton){
 			System.exit(0);
-		} else if (e.getSource() == printLogButton) {
-			panel.printLog();
 		} else if (e.getSource() == exportEditsButton) {
-			panel.exportEdits();
+			//TODO: Add file location picker.
+			//panel.exportEdits();
 		} else if (e.getSource() == removeButton) {
 			panel.removeSelectedCommands();
 		}else if (e.getSource() == acceptButton) {
