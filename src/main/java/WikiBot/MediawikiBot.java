@@ -99,8 +99,8 @@ public class MediawikiBot extends NetworkingBase {
 	/**
 	 * Create and display a GUI to interact with the bot instance.
 	 */
-	public void displayGUI(String botName_) {
-		panel = new BotPanel(botName_, this);
+	public void displayGUI(String botName_, Runnable func) {
+		panel = new BotPanel(botName_, this, func);
 	}
 	
 	/**
