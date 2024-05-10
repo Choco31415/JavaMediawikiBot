@@ -139,7 +139,7 @@ public class BotPanel {
 			        public Void doInBackground() {
 			        	try {
 			        		bot.logInfo("Running code.");
-			        		// code(); TODO: Figure out new setup
+			        		code.run();
 			        	} catch (Throwable e) {
 			        		bot.logError(e.getMessage());
 			        		e.printStackTrace();
@@ -155,7 +155,6 @@ public class BotPanel {
 						//view.validate(); # Why is this here?
 			        }
 			    };
-			    code.run();
 			    
 			    runWorker.execute();
 			}
