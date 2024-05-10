@@ -69,7 +69,6 @@ public class BotPanel {
 	
 	/**
 	 * @param edit The edit being proposed.
-	 * @param displayedAction A very brief description of the edit. For example "Editing Scratch".
 	 */
 	public void proposeCommand(APIcommand edit) {
 		proposeEdit(edit);
@@ -77,16 +76,15 @@ public class BotPanel {
 	
 	/**
 	 * @param edit The APIcommand that you are proposing.
-	 * @param displayedAction A very short command summary. It should preferably be one or two words at most. It is used in the graphical edit lists. 
 	 */
 	public void proposeEdit(APIcommand edit) {
 		if (!proposedCommands.contains(edit) && !acceptedCommands.contains(edit) && (proposedCommands.size() < maxProposedEdits || maxProposedEdits <= 0)) {
 			proposedCommands.add(0, edit);
-			String summary = edit.getCommandName() + " at: " + edit.getPageLocation().getLanguage() + ": " + edit.getPageLocation().getTitle();
+			String summary = edit.getCommandName() + " at: (" + edit.getPageLocation() + ")";
 			view.insertToProposed(0, summary);
 			
-			validate();
-			repaint();
+			view.validate();
+			view.repaint();
 		}
 	}
 	
@@ -150,10 +148,10 @@ public class BotPanel {
 			        protected void done() {
 						bot.logInfo("Done running.");
 						
-						validate();
+						//view.validate(); # Why is this here?
 			        }
 			    };
-			    //code();
+			    //code(); TODO: Reimplement
 			    
 			    runWorker.execute();
 			}
@@ -239,8 +237,8 @@ public class BotPanel {
 			//Try pushing a command.
 			try {
 				bot.logDebug("Pushing edit.");
-				bot.APIcommand(acceptedCommands.get(i));
-				acceptedCommands.remove(i);
+				APIcommand command = acceptedCommands.remove(i);
+				bot.APIcommand(command);
 				view.removeAccepted(i);
 
 				//Log info.
