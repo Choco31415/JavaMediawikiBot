@@ -3,53 +3,47 @@
 
 ## Description
 
-JavaMediawikiBot is a library used for writing Mediawiki bots in Java.
-
-The library comes with experimental support for page parsing of templates, links, and more.
+JavaMediawikiBot is a Java library used for writing Mediawiki bots. It supports most API requests and MW versions 1.18+. // TODO: Verify
 
 ## Setup
 
 To create a bot, first create a GenericBot instance:
 
 ```
-import JavaMediawikiBot.GenericBot;
-
-public static void main(String[] args) {
-	GenericBot bot = new GenericBot(new File("resources/mediawikiFamily.txt"), "en");
-}
+GenericBot bot = new GenericBot(new File("resources/mediawikiFamily.txt"), "en");
 ```
 
-GenericBot takes two parameters on instantiation. The first parameter points to a Mediawiki Family file, and the second parameter specifies the home family for the bot.
+A GenericBot takes two parameters. The first parameter points to a Mediawiki Family file, and the second parameter specifies the home family for the bot.
 
 ### Mediawiki Family File
 
-A Mediawiki Family file is a file containing all the information about the wikis a bot might be working with. This includes the url, abbreviation, and more.
+Called a Mediawiki Family file, this file contains information about the wikis a bot might be working with. This includes the address, abbreviation, and more.
 
-To generate a Mediawiki Family file, or borrow a pre generated family, please see the [JMB Family Generator repository](https://github.com/Choco31415/JMBFamilyGenerator).
+To generate a Mediawiki Family file, or borrow a pre generated family, please visit the [JMB Family Generator repository](https://github.com/Choco31415/JMBFamilyGenerator).
 
 ## Coding a Bot
 
-A GenericBot supports two different sets of commands: queries and actions.
+There are two main ways to perform actions with a GenericBot.
 
-Querying a Mediawiki site can be done through methods provided in the GenericBot class. A variety of methods are available.
+Querying a Mediawiki site is done through methods provided in the GenericBot class.
 
-Below is an example command to get the "Scratch Cat" page:
+Below is an example snippet to download the "Scratch Cat" page:
 
 ```
 PageLocation catPage = new PageLocation("en", "Scratch Cat");
 WikiPage page = bot.getWikiPage(cat, false);
 ```
 
-Editing or changing a Mediawiki site can be done through the APIcommand objects. The proper way to do so is to make an APIcommand object and to commit with the `APICommand()` command.
+Editing a Mediawiki site is done through APIcommand objects. First make an APIcommand object representing the desired action, then commit it with the `APICommand()` command.
 
-Below is an example command to append text to the "Scratch Cat" page:
+Below is an example snippet to append text to the "Scratch Cat" page:
 
 ```
-APIcommand command = new AppendText(catPage, "\n[[de:Scratch Katze]]", "This page needs an interwiki! ");
-APIcommand(command); // Run the command now!
+APIcommand command = new AppendText(catPage, "\n[[de:Scratch Katze]]", "This page needs an interwiki!");
+APIcommand(command); // Run the command!
 ```
 
-The two exceptions to the above project structure are site logins and file uploads. Methods for both are located directly in GenericBot:
+The two exceptions to the overarching organization are logging in and uploading files. Both can be done with methods located in GenericBot:
 
 ```
 bot.logIn(new User("en", "InterwikiBot"), "secretPassword");
@@ -82,13 +76,11 @@ GenericBot supports an optional GUI. To display it, run the following command:
 bot.displayGUI();
 ```
 
-It will look like this:
-
 [] #TODO Add image.
 
 ## Building from Source
 
-To build the project from source, run the following bash command:
+The following command builds the project from source:
 
 ```
 ./gradlew build
@@ -96,4 +88,4 @@ To build the project from source, run the following bash command:
 
 ## Contributing
 
-Want to contribute? Feel free to submit a pull request or open an issue.
+Want to contribute? Every bit of help is appreciated! Just submit a pull request or open an issue.
