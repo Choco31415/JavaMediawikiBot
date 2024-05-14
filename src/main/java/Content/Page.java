@@ -2,9 +2,6 @@ package Content;
 
 import java.util.ArrayList;
 
-import Mediawiki.MediawikiDataManager;
-import WikiBot.MediawikiBot;
-
 /**
  * Page is a custom class designed to store Wiki pages.
  * It includes several functions to edit, replace, and view specific article contents.
@@ -16,9 +13,6 @@ import WikiBot.MediawikiBot;
  * All methods in this class, unless recursive, only access first level objects.
  */
 public class Page extends SimplePage {
-	
-	//MW Data Manager
-	private MediawikiDataManager mdm;
 	
 	//Page data
 	private ArrayList<Integer> linePositions;
@@ -39,8 +33,6 @@ public class Page extends SimplePage {
 		categories = categories_;
 		interwikis = interwikis_;
 		revisions = new ArrayList<Revision>();
-		
-		mdm = MediawikiDataManager.getInstance();
 	}
 	
 	//Modify variables.	

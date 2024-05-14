@@ -1,7 +1,5 @@
 package Content;
 
-import WikiBot.MediawikiBot;
-
 public class PageLocation extends PageTitleContainer {
 
 	private String lan;

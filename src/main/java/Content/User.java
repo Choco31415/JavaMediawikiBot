@@ -1,7 +1,5 @@
 package Content;
 
-import WikiBot.MediawikiBot;
-
 public class User {
 
 	private String language;
