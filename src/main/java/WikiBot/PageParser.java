@@ -1,7 +1,6 @@
 package WikiBot;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -14,7 +13,6 @@ import Content.Page;
 import Content.PageLocation;
 import Content.PageObject;
 import Content.PageObjectAdvanced;
-import Content.Revision;
 import Content.Section;
 import Content.SimplePage;
 import Content.Template;

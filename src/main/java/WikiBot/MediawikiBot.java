@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ import WikiBot.BotPanel;
  * 
  * @author: ErnieParke/Choco31415
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "unused" })
 public class MediawikiBot extends NetworkingBase {
 	
 	protected final long serialVersionUID = 1L;

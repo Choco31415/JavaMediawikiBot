@@ -5,10 +5,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.SwingWorker;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import javax.swing.Box;
 
@@ -34,8 +32,6 @@ import Utils.FileUtils;
  */
 public class BotPanel {
 	
-	private static final long serialVersionUID = 1L;
-	
 	// The bot
 	private MediawikiBot bot;
 	
@@ -48,8 +44,6 @@ public class BotPanel {
 	// Adjustable preferences
     private int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
 	private int waitTimeBetweenProposedCommands = 12;//Minimum time between proposed commands.
-	private File logFile = new File("Log.txt");
-	private File editsFile = new File("Proposed and Accepted Edits.txt");
 	
 	//Account info
 	private String botUsername = "";
