@@ -40,7 +40,7 @@ public class MediawikiDataManager {
 			String comment = "//";
 			List<String> lines = FileUtils.readLines(new File(MWEscapeTextsFile), "UTF-8");
 			for (int i = 0; i < lines.size(); i += 2) {
-				while (lines.get(i).startsWith(comment)) { // Ignore comments
+				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
 				}
 				MWEscapeOpenText.add(lines.get(i));
@@ -49,7 +49,7 @@ public class MediawikiDataManager {
 			
 			lines = FileUtils.readLines(new File(MWTemplateTextsFile), "UTF-8");
 			for (int i = 0; i < lines.size(); i += 1) {
-				while (lines.get(i).startsWith(comment)) { // Ignore comments
+				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
 				}
 				TemplateIgnore.add(lines.get(i));
@@ -57,7 +57,7 @@ public class MediawikiDataManager {
 			
 			lines = FileUtils.readLines(new File(HTMLCommentsFile), "UTF-8");
 			for (int i = 0; i < lines.size(); i += 2) {
-				while (lines.get(i).startsWith(comment)) { // Ignore comments
+				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
 				}
 				HTMLCommentOpenText.add(lines.get(i));
