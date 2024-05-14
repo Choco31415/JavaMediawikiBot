@@ -78,12 +78,20 @@ bot.displayGUI("Mediawiki Bot", botCode);
 
 [] #TODO Add image.
 
-## Building from Source
+## Project Management
 
 The following command builds the project from source:
 
 ```
-./gradlew build
+gradle build
+```
+
+The following commands set the project up for Eclipse:
+
+```
+gradle cleanEclipse
+gradle cleanEclipseClasspath
+gradle eclipse
 ```
 
 ## Contributing
