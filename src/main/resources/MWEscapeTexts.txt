@@ -1,9 +1,9 @@
-# This file contains opening and closing codes for parsing tags that block Mediawiki parsing.
-# For example: [[Scratch Cat]]<!--[[Scratch Cat]]-->
-# The first link will be parsed.
-# The second will not.
+// This file contains opening and closing codes for parsing tags that block Mediawiki parsing.
+// For example: [[Scratch Cat]]<!--[[Scratch Cat]]-->
+// The first link will be parsed.
+// The second will not.
 
-# Tags
+// Tags
 <pre>
 </pre>
 <nowiki>

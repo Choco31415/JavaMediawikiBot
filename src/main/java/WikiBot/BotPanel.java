@@ -43,7 +43,7 @@ public class BotPanel {
 	private BotView view;
 	
 	// Main function.
-	private Runnable code;
+	private Runnable mainFunc;
 	
 	// Adjustable preferences
     private int maxProposedEdits = -1;//The largest number of commands proposed per "run". -1 for no max.
@@ -64,9 +64,9 @@ public class BotPanel {
     
 	private SwingWorker<Void, Void> pushWorker;//This allows multiple tasks to happen concurrently.
 	
-	public BotPanel(String panelName_, MediawikiBot bot_, Runnable func_) {
+	public BotPanel(String panelName_, MediawikiBot bot_, Runnable mainFunc_) {
 		bot = bot_;
-		code = func_;
+		mainFunc = mainFunc_;
 		
 		view = new BotView(panelName_, bot, this);
 	}
@@ -139,7 +139,7 @@ public class BotPanel {
 			        public Void doInBackground() {
 			        	try {
 			        		bot.logInfo("Running code.");
-			        		code.run();
+			        		mainFunc.run();
 			        	} catch (Throwable e) {
 			        		bot.logError(e.getMessage());
 			        		e.printStackTrace();

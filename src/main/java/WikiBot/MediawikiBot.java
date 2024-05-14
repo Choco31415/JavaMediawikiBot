@@ -83,14 +83,13 @@ public class MediawikiBot extends NetworkingBase {
 	public int maxFileChunkSize = 20000; // The max size in bytes of a file chunk. Used for file uploads.
 	public int interruptedConnectionWait = 5; // How long to wait to retry on a failed connection. 0 = fail completely
 	
-	public MediawikiBot(Path family_, String homeWikiLanguage_) {
-		//TODO: Remove home family completely.
+	public MediawikiBot(String familyFile_, String homeWikiLanguage_) throws IOException {
 		// Instantiate the MDM.
 		mdm = new MediawikiDataManager();
 		pageParser = new PageParser(this);
 		
 		// Load in the bot family info.
-		mdm.readFamily(family_, 0);
+		mdm.readFamily(familyFile_);
 		
 		// Set variable
 		homeWikiLanguage = homeWikiLanguage_;

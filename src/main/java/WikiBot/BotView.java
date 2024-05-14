@@ -75,7 +75,7 @@ public class BotView extends JFrame implements ActionListener{
 	protected JMenuItem logInSelectedButton;
 	protected JMenuItem logInAllButton;
 	
-	protected boolean firstConsoleMessage = true;//Used by the console.
+	protected boolean firstConsoleMessage = true; // Used by the console.
 	
 	MediawikiBot bot;
 	BotPanel panel;
@@ -354,7 +354,7 @@ public class BotView extends JFrame implements ActionListener{
 			//panel.exportEdits();
 		} else if (e.getSource() == removeButton) {
 			panel.removeSelectedCommands();
-		}else if (e.getSource() == acceptButton) {
+		} else if (e.getSource() == acceptButton) {
 			panel.acceptSelectedCommands();
 		} else if (e.getSource() == acceptAllButton) {
 			panel.acceptAllCommands();

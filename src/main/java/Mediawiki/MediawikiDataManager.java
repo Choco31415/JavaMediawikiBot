@@ -5,17 +5,23 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Utils.FileUtils;
+//import Utils.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 /**
  * This class stores various Mediawiki data.
  * To allow access from any class, its contents are static and public.
  */
 public class MediawikiDataManager {
+	
+	private static String MWEscapeTextsFile = "MWEscapeTexts.txt";
+	private static String MWTemplateTextsFile = "TemplateIgnore.txt";
+	private static String HTMLCommentsFile = "HTMLComments.txt";
 	
 	public static MediawikiDataManager instance;
 
@@ -28,28 +34,43 @@ public class MediawikiDataManager {
 	public ArrayList<String> HTMLCommentOpenText = new ArrayList<String>();
 	public ArrayList<String> HTMLCommentCloseText = new ArrayList<String>();
 	
+	@SuppressWarnings("all")
 	public MediawikiDataManager() {
-		ArrayList<String> temp = FileUtils.readFileAsList("/MWEscapeTexts.txt", 0, true, "#", true);
-		for (int i = 0; i < temp.size(); i += 2) {
-			MWEscapeOpenText.add(temp.get(i));
-			MWEscapeCloseText.add(temp.get(i + 1));
-		}
-		
-		temp = FileUtils.readFileAsList("/TemplateIgnore.txt", 0, true, "//", true);
-		for (int i = 0; i < temp.size(); i += 1) {
-			TemplateIgnore.add(temp.get(i));
-		}
-		
-		temp = FileUtils.readFileAsList("/HTMLComments.txt", 0, true, "#", true);
-		for (int i = 0; i < temp.size(); i += 2) {
-			HTMLCommentOpenText.add(temp.get(i));
-			MWEscapeOpenText.add(temp.get(i));
-			HTMLCommentCloseText.add(temp.get(i + 1));
-			MWEscapeCloseText.add(temp.get(i + 1));
-		}
-		
-		if (instance == null) {
-			instance = this;
+		try {
+			String comment = "//";
+			List<String> lines = FileUtils.readLines(new File(MWEscapeTextsFile), "UTF-8");
+			for (int i = 0; i < lines.size(); i += 2) {
+				while (lines.get(i).startsWith(comment)) { // Ignore comments
+					i++;
+				}
+				MWEscapeOpenText.add(lines.get(i));
+				MWEscapeCloseText.add(lines.get(i + 1));
+			}
+			
+			lines = FileUtils.readLines(new File(MWTemplateTextsFile), "UTF-8");
+			for (int i = 0; i < lines.size(); i += 1) {
+				while (lines.get(i).startsWith(comment)) { // Ignore comments
+					i++;
+				}
+				TemplateIgnore.add(lines.get(i));
+			}
+			
+			lines = FileUtils.readLines(new File(HTMLCommentsFile), "UTF-8");
+			for (int i = 0; i < lines.size(); i += 2) {
+				while (lines.get(i).startsWith(comment)) { // Ignore comments
+					i++;
+				}
+				HTMLCommentOpenText.add(lines.get(i));
+				MWEscapeOpenText.add(lines.get(i)); // TODO: Is this duplicated??
+				HTMLCommentCloseText.add(lines.get(i + 1));
+				MWEscapeCloseText.add(lines.get(i + 1));
+			}
+			
+			if (instance == null) {
+				instance = this;
+			}
+		} catch (Exception e) {
+			throw new Error("IOException: MW data files not located.");
 		}
 	}
 	
@@ -61,8 +82,8 @@ public class MediawikiDataManager {
 		return instance;
 	}
 	
-	public void readFamily(Path family_, int commentBufferLineCount) {
-		String familyFile = FileUtils.readFile(family_.toString());
+	public void readFamily(String familyFile) throws IOException {
+		String familyFileJSON = FileUtils.readFileToString(new File(familyFile), "UTF-8");
 		
 		// Initialize variables.
 		WikiPrefix = new ArrayList<String>();
@@ -72,7 +93,7 @@ public class MediawikiDataManager {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
-			rootNode = mapper.readValue(familyFile, JsonNode.class);
+			rootNode = mapper.readValue(familyFileJSON, JsonNode.class);
 		} catch (IOException e1) {
 			// Dangerous to just return.
 			throw new Error("Was expecting Json, but did not receive Json from server.");

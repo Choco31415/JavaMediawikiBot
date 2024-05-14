@@ -15,68 +15,7 @@ import javax.imageio.ImageIO;
 
 public class FileUtils {
 	
-	private static Logger logger = Logger.getInstance();//For logging purposes.
-
-	/**
-	 * Read in a text file.
-	 * @param path The path to the file.
-	 * @param commentBufferLineCount How many lines to ignore at the beginning of the file.
-	 * @param hasComments If true, a line that starts with # is considered a comment, and hence is ignored.
-	 * @param ignoreBlankLines If true, blank lines are ignored.
-	 * @return The text file.
-	 */	
-	public static ArrayList<String> readFileAsList(String path, int commentBufferLineCount, boolean hasComments, boolean ignoreBlankLines) {
-		return readFileAsList(path, commentBufferLineCount, hasComments, "#", ignoreBlankLines);
-	}
-	/**
-	 * Read in a text file.
-	 * @param path The path to the file.
-	 * @param commentBufferLineCount How many lines to ignore at the beginning of the file.
-	 * @param hasComments If true, a line that starts with @commentHeader is ignored.
-	 * @param commentHeader The header of a comment.
-	 * @param ignoreBlankLines If true, blank lines are ignored.
-	 * @return The text file.
-	 */	
-	public static ArrayList<String> readFileAsList(String path, int commentBufferLineCount, boolean hasComments, String commentHeader, boolean ignoreBlankLines) {
-		try {
-			// Read in the file!
-			InputStream in = FileUtils.class.getResourceAsStream(path);
-			BufferedReader br = new BufferedReader(
-						new InputStreamReader(in)
-					);
-			
-			// Ignore the comment
-			for (int i = 0; i < commentBufferLineCount; i++) {
-				br.readLine();
-			}
-			
-			// Gather array size
-			ArrayList<String> lines = new ArrayList<String>();
-			
-			// Parse file array into java int array
-			String line;
-			line = br.readLine();
-			do {
-				if (hasComments && (line.length() > commentHeader.length() && line.substring(0,commentHeader.length()).equals(commentHeader))) {
-					//We have a comment. Ignore it.
-				} else if (ignoreBlankLines && line.length() == 0) {
-					//We have an empty line.
-				} else {
-					lines.add(line);
-				}
-				line = br.readLine();
-			} while (line != null);
-			
-			in.close();
-			br.close();
-			
-			return lines;
-			
-		} catch (IOException e) {
-			logger.logError("Error reading in list.");
-		}
-		return null;
-	}
+	private static Logger logger = Logger.getInstance(); // For logging purposes.
 	
 	/**
 	 * Write a txt file.

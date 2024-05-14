@@ -73,7 +73,7 @@ The values listed above are the default values.
 GenericBot supports an optional GUI. To display it, run the following command:
 
 ```
-bot.displayGUI();
+bot.displayGUI("Mediawiki Bot", botCode);
 ```
 
 [] #TODO Add image.
