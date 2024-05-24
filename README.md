@@ -1,6 +1,6 @@
 ## Description
 
-[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+Notice: A project rewrite is currently underway in the development.
 
 JavaMediawikiBot (JMB) is a bot designed to interface with MediaWiki (MW).
 It communicates with MediaWiki through the web API. JMB also optionally parses
