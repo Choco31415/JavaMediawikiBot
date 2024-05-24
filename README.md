@@ -1,6 +1,6 @@
 ## Description
 
-Notice: A project rewrite is currently underway in the development.
+Notice: A project rewrite is currently underway in the [development branch](https://github.com/Choco31415/JavaMediawikiBot/tree/development).
 
 JavaMediawikiBot (JMB) is a bot designed to interface with MediaWiki (MW).
 It communicates with MediaWiki through the web API. JMB also optionally parses
