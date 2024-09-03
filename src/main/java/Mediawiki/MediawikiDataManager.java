@@ -1,7 +1,12 @@
 package Mediawiki;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +41,7 @@ public class MediawikiDataManager {
 	public MediawikiDataManager() {
 		try {
 			String comment = "//";
-			List<String> lines = FileUtils.readLines(new File(MWEscapeTextsFile), "UTF-8");
+			ArrayList<String> lines = readClassFile(MWEscapeTextsFile);
 			for (int i = 0; i < lines.size(); i += 2) {
 				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
@@ -45,7 +50,7 @@ public class MediawikiDataManager {
 				MWEscapeCloseText.add(lines.get(i + 1));
 			}
 			
-			lines = FileUtils.readLines(new File(MWTemplateTextsFile), "UTF-8");
+			lines = readClassFile(MWTemplateTextsFile);
 			for (int i = 0; i < lines.size(); i += 1) {
 				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
@@ -53,7 +58,7 @@ public class MediawikiDataManager {
 				TemplateIgnore.add(lines.get(i));
 			}
 			
-			lines = FileUtils.readLines(new File(HTMLCommentsFile), "UTF-8");
+			lines = readClassFile(HTMLCommentsFile);
 			for (int i = 0; i < lines.size(); i += 2) {
 				while (lines.get(i).startsWith(comment) || lines.get(i).isEmpty()) { // Ignore comments
 					i++;
@@ -68,7 +73,9 @@ public class MediawikiDataManager {
 				instance = this;
 			}
 		} catch (Exception e) {
-			throw new Error("IOException: MW data files not located.");
+			System.out.println("Error");
+			e.printStackTrace();
+			throw new Error(e.getClass() + ": MW data files not located.");
 		}
 	}
 	
@@ -80,8 +87,24 @@ public class MediawikiDataManager {
 		return instance;
 	}
 	
-	public void readFamily(String familyFile) throws IOException {
-		String familyFileJSON = FileUtils.readFileToString(new File(familyFile), "UTF-8");
+	public ArrayList<String> readClassFile(String filename) throws IOException {
+		ClassLoader loader = MediawikiDataManager.class.getClassLoader();
+		InputStream inputStream = loader.getResourceAsStream(filename);
+		InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+		BufferedReader reader = new BufferedReader(streamReader);
+		
+		ArrayList<String> lines = new ArrayList<String>();
+		String line = reader.readLine();
+		while (line != null) {
+			lines.add(line);
+			line = reader.readLine();
+		}
+		
+		return lines;
+	}
+	
+	public void loadFamilyFile(Path familyFile) throws IOException {
+		String familyFileJSON = FileUtils.readFileToString(familyFile.toFile(), "UTF-8");
 		
 		// Initialize variables.
 		WikiPrefix = new ArrayList<String>();
